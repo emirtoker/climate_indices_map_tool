@@ -30,6 +30,7 @@ if os.path.exists(test_file):
         # Renk paletini uygula
         cmap = plt.get_cmap('viridis')
         rgba_data = cmap(norm_data)
+        rgba_data = np.flipud(rgba_data)
 
         # Koordinat sınırlarını belirle
         bounds = [[float(data[lat_name].min()), float(data[lon_name].min())], 
