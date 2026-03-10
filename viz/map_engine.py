@@ -87,6 +87,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     # --- 1. SINGLE INDEX ---
     if one_bundle:
         sel_one, one_conf = one_bundle
+        st.write(f"DEBUG: {name} çiziliyor. Max değer: {float(data.max())}")
         for name in sel_one:
             c = one_conf[name]
             if not c.get('visible', True): continue
