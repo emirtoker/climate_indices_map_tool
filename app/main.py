@@ -1,14 +1,16 @@
 import streamlit as st
+import leafmap.foliumap as leafmap
 import xarray as xr
 import geopandas as gpd
-import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 import os
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import folium
+from folium.raster_layers import ImageOverlay
 
 st.set_page_config(layout="wide")
-st.title("Cartopy-Native Projection Alignment")
+st.title("Final Solution: Proj-Aware Interactive Map")
 
 # 1. DOSYA YOLLARI
 nc_path = "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.nc"
@@ -21,57 +23,56 @@ if os.path.exists(nc_path) and os.path.exists(shp_path):
     data = ds[var_name].squeeze()
     if 'time' in data.dims: data = data.mean('time')
     
-    # SHP Yükle
-    shp = gpd.read_file(shp_path)
+    # SHP Yükle ve Raster ile aynı projeksiyona getir
+    shp = gpd.read_file(shp_path).to_crs("EPSG:4326")
 
-    # 3. PLOT AYARLARI (Sidebar)
-    cmap_choice = st.sidebar.selectbox("Renk Paleti", ["viridis", "Spectral_r", "RdYlBu_r", "magma"])
+    # 3. HARİTA (Arka planı kapattım, sadece senin verin)
+    m = leafmap.Map(center=[39, 35], zoom=6, tiles=None)
+
+    # 4. KRİTİK: RIOXARRAY İLE GERÇEK SINIRLARI AL
+    # Notebook'ta Cartopy'nin yaptığı 'extent' hesabını rioxarray ile alıyoruz
+    # Bu metod manuel 'res/2' hesabından çok daha güvenlidir.
+    try:
+        left, bottom, right, top = data.rio.bounds()
+        bnds = [[bottom, left], [top, right]]
+    except:
+        # Rioxarray yoksa veya hata verirse ham koordinatlardan al
+        bnds = [[float(data.lat.min()), float(data.lon.min())], 
+                [float(data.lat.max()), float(data.lon.max())]]
+
+    # 5. RENDER (Renklendirme)
+    vmin, vmax = float(data.min()), float(data.max())
+    vals = data.values
     
-    # 4. CARTOPY MÜHENDİSLİĞİ
-    # Projeksiyonu tanımlıyoruz (Senin veriler WGS84 olduğu için PlateCarree)
-    projection = ccrs.PlateCarree()
+    # NetCDF yön kontrolü (Ekseni düzelt)
+    if data.lat[0] < data.lat[-1]:
+        vals = np.flipud(vals)
+
+    norm = plt.Normalize(vmin=vmin, vmax=vmax)
+    rgba = plt.get_cmap('viridis')(norm(vals))
     
-    fig, ax = plt.subplots(figsize=(12, 8), subplot_kw={'projection': projection}, dpi=150)
+    # 6. KATMANLARI BİNDİR
+    # Önce Raster (Altta)
+    ImageOverlay(
+        image=rgba,
+        bounds=bnds,
+        opacity=0.8,
+        name="Climate Index"
+    ).add_to(m)
     
-    # Arka plan ve denizleri ekle (Opsiyonel)
-    ax.add_feature(cfeature.OCEAN, facecolor='aliceblue')
-    ax.add_feature(cfeature.LAND, facecolor='white')
+    # Sonra SHP (Üstte - Kırmızı)
+    m.add_gdf(shp, layer_name="Administrative Boundaries", style={'color': 'red', 'fillOpacity': 0, 'weight': 1.5})
 
-    # --- KRİTİK KATMAN 1: RASTER ---
-    # pcolormesh kullanarak her pikseli kendi koordinatına çiviliyoruz
-    # Kayma (offset) ihtimalini kökten bitiren budur.
-    im = data.plot(
-        ax=ax, 
-        transform=projection, 
-        cmap=cmap_choice, 
-        add_colorbar=True,
-        cbar_kwargs={'label': var_name, 'pad': 0.02, 'shrink': 0.6},
-        zorder=1
-    )
+    # Keskin pikseller için CSS mühürü
+    m.get_root().header.add_child(folium.Element("""
+    <style> .leaflet-image-layer { image-rendering: pixelated !important; } </style>
+    """))
 
-    # --- KRİTİK KATMAN 2: SHP ---
-    # SHP'yi aynı projeksiyonla üzerine çiziyoruz
-    shp.plot(
-        ax=ax, 
-        transform=projection, 
-        edgecolor='red', 
-        facecolor='none', 
-        linewidth=0.5, 
-        zorder=2
-    )
+    m.to_streamlit(height=800)
 
-    # Türkiye Odaklı Sınırlar (Extent)
-    ax.set_extent([25, 45, 35, 43], crs=projection)
-    
-    # Gridlines (Opsiyonel)
-    ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False, alpha=0.3)
-
-    st.pyplot(fig)
-
-    # TEŞHİS
-    st.write("### Diagnostic Info")
-    st.write(f"Raster Data Range: {float(data.min()):.2f} to {float(data.max()):.2f}")
-    st.write(f"SHP CRS: {shp.crs}")
+    st.write("### Diagnostic")
+    st.write(f"Bounds Used: {bnds}")
+    st.write(f"Data CRS: {data.rio.crs if hasattr(data, 'rio') else 'Not Set'}")
 
 else:
-    st.error("Dosyalar bulunamadı! Lütfen data klasörünü kontrol et.")
+    st.error("Dosyalar bulunamadı!")
