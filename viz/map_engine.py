@@ -9,9 +9,13 @@ import folium
 from folium.raster_layers import ImageOverlay
 
 def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
+    """
+    Main engine to render interactive climate indices. 
+    Uses ImageOverlay for stable rendering on Streamlit Cloud.
+    """
     m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
     
-    # SENİN MÜHÜRLÜ CSS TASARIMIN (DOKUNULMADI)
+    # Custom CSS for high-contrast raster rendering and legend formatting
     m.get_root().header.add_child(folium.Element("""
     <style>
     .leaflet-image-layer, .leaflet-raster-layer {
@@ -55,44 +59,44 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     </style>
     """))
     
-    # Türkiye İl Sınırları (Arka Plan)
+    # Base Layer: Administrative Boundaries
     if shp is not None:
-        m.add_gdf(shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 0.8})
+        m.add_gdf(shp, layer_name="Administrative Boundaries", style={'color': 'black', 'fillOpacity': 0, 'weight': 0.8})
     
     custom_legend_html = ""
     has_custom = False
 
     def add_stable_raster(map_obj, data_arr, cmap_name, layer_name, vmin, vmax, alpha):
-        """Saf Numpy ve ImageOverlay tabanlı çizim motoru"""
+        """Stable rendering engine using Raw Numpy and ImageOverlay to bypass server-side GDAL issues."""
+        # Dynamic coordinate detection
         y_n = 'lat' if 'lat' in data_arr.coords else ('y' if 'y' in data_arr.coords else None)
         x_n = 'lon' if 'lon' in data_arr.coords else ('x' if 'x' in data_arr.coords else None)
         
         if y_n and x_n:
-            # NORMALİZASYON (En güvenli yol: .values üzerinden)
+            # NORMALIZATION: Process via .values to avoid xarray/dask overhead on server
             vals = data_arr.values
             norm = (vals - vmin) / (vmax - vmin)
             norm = np.clip(norm, 0, 1)
             
-            # RENKLENDİRME VE YÖN DÜZELTME
+            # COLORIZATION
             cmap = plt.get_cmap(cmap_name) if isinstance(cmap_name, str) else cmap_name
             rgba = cmap(norm)
-            rgba = np.flipud(rgba) # Kuzeyi yukarı al
+            rgba = np.flipud(rgba) # Mandatory flip for north-up orientation in ImageOverlay
             
-            # SINIRLAR
+            # BOUNDS: Extracted directly from data coordinates
             bnds = [[float(data_arr[y_n].min()), float(data_arr[x_n].min())], 
                     [float(data_arr[y_n].max()), float(data_arr[x_n].max())]]
             
             ImageOverlay(image=rgba, bounds=bnds, opacity=alpha, name=layer_name).add_to(map_obj)
 
-    # --- 1. SINGLE INDEX ---
+    # --- 1. SINGLE INDEX VISUALIZATION ---
     if one_bundle:
         sel_one, one_conf = one_bundle
-        st.write(f"DEBUG: {name} çiziliyor. Max değer: {float(data.max())}")
         for name in sel_one:
+            if name not in layers: continue
             c = one_conf[name]
             if not c.get('visible', True): continue
             
-            # VERİ OKUMA (HİÇBİR CLIPPING/PROCESSING YOK)
             data = layers[name]
             if 'time' in data.dims: data = data.mean('time')
             
@@ -112,11 +116,10 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                     custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["a_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name} > {t:.0f} {u_str}</span></div>'
                     has_custom = True
             else:
-                # MULTI-COLOR VEYA SINGLE COLOR
                 if c.get('sub_mode') == "Multi-Color":
                     add_stable_raster(m, data, c['cmap'], name, vmin_val, vmax_val, c['alpha'])
                     
-                    # COLORBAR (BRANCA - DOKUNULMADI)
+                    # COLORBAR (Branca)
                     colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, 256)]
                     cmap_obj = cm.LinearColormap(colors=colors, vmin=vmin_val, vmax=vmax_val, caption=f"{name} {u_str}")
                     m.add_child(cmap_obj.to_step(index=np.linspace(vmin_val, vmax_val, 6)))
@@ -126,33 +129,36 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                     custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["one_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name}: {vmin_val:.0f}-{vmax_val:.0f} {u_str}</span></div>'
                     has_custom = True
 
-    # --- 2. SYNTHESIS ---
+    # --- 2. SYNTHESIS (INTERSECTION) ---
     if st.session_state.get('synthesis_active') and multi_bundle[0]:
         sel_multi, multi_conf = multi_bundle
-        ref_data = layers[sel_multi[0]]
-        if 'time' in ref_data.dims: ref_data = ref_data.mean('time')
-        
-        combined_mask = None
-        synth_rows = ""
-        for i, name in enumerate(sel_multi):
-            curr = layers[name]
-            if 'time' in curr.dims: curr = curr.mean('time')
-            curr = curr.reindex_like(ref_data, method="nearest")
+        if sel_multi and sel_multi[0] in layers:
+            ref_data = layers[sel_multi[0]]
+            if 'time' in ref_data.dims: ref_data = ref_data.mean('time')
             
-            v_min, v_max = multi_conf['indices'][name]['vmin'], multi_conf['indices'][name]['vmax']
-            mask = (curr >= v_min) & (curr <= v_max)
-            combined_mask = mask if combined_mask is None else combined_mask & mask
+            combined_mask = None
+            synth_rows = ""
+            for i, name in enumerate(sel_multi):
+                if name not in layers: continue
+                curr = layers[name]
+                if 'time' in curr.dims: curr = curr.mean('time')
+                curr = curr.reindex_like(ref_data, method="nearest")
+                
+                v_min, v_max = multi_conf['indices'][name]['vmin'], multi_conf['indices'][name]['vmax']
+                mask = (curr >= v_min) & (curr <= v_max)
+                combined_mask = mask if combined_mask is None else combined_mask & mask
+                
+                u_str_m = f"({units_dict.get(name, '')})" if units_dict.get(name) else ""
+                color_box = f'<div style="width:18px;height:18px;background:{multi_conf["color"]};margin-right:10px;"></div>' if i==0 else '<div style="width:18px;height:18px;margin-right:10px;"></div>'
+                synth_rows += f'<div style="display:flex;align-items:center;margin-bottom:4px;">{color_box}<span style="font-size:14px;color:black;">{name}: {v_min:.0f}-{v_max:.0f} {u_str_m}</span></div>'
             
-            u_str_m = f"({units_dict.get(name, '')})" if units_dict.get(name) else ""
-            color_box = f'<div style="width:18px;height:18px;background:{multi_conf["color"]};margin-right:10px;"></div>' if i==0 else '<div style="width:18px;height:18px;margin-right:10px;"></div>'
-            synth_rows += f'<div style="display:flex;align-items:center;margin-bottom:4px;">{color_box}<span style="font-size:14px;color:black;">{name}: {v_min:.0f}-{v_max:.0f} {u_str_m}</span></div>'
-        
-        if combined_mask is not None:
-            synth = ref_data.where(combined_mask, np.nan)
-            add_stable_raster(m, synth, mpl.colors.ListedColormap([multi_conf['color']]), "Synthesis", 0, 1, multi_conf['alpha'])
-            custom_legend_html += f'<div style="margin-top:10px;">{synth_rows}</div>'
-            has_custom = True
+            if combined_mask is not None:
+                synth = ref_data.where(combined_mask, np.nan)
+                add_stable_raster(m, synth, mpl.colors.ListedColormap([multi_conf['color']]), "Synthesis Result", 0, 1, multi_conf['alpha'])
+                custom_legend_html += f'<div style="margin-top:10px;">{synth_rows}</div>'
+                has_custom = True
 
+    # Floating Custom Legend
     if has_custom:
         legend_div = f'<div style="position:fixed; bottom:35px; right:40px; z-index:9999; background:none; border:none; padding:0; min-width:280px;">{custom_legend_html}</div>'
         m.get_root().html.add_child(folium.Element(legend_div))
