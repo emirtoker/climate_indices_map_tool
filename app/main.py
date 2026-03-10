@@ -1,57 +1,76 @@
-import sys, os
 import streamlit as st
-
-st.set_page_config(page_title="Indices Map Tool", layout="wide")
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from core.data_loader import load_index_data, load_turkiye_shp, list_available_indices
-from app.sidebar import render_sidebar
-from viz.map_engine import create_interactive_map
 import leafmap.foliumap as leafmap
+import xarray as xr
+import os
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import numpy as np
+from folium.raster_layers import ImageOverlay
+import branca.colormap as cm
 
-st.markdown("""
-    <style>
-    .leaflet-control-container .leaflet-top.leaflet-right {
-        display: flex !important;
-        flex-wrap: wrap-reverse !important;
-        flex-direction: row-reverse !important;
-        justify-content: flex-start !important;
-        align-content: flex-start !important;
-        top: 100px !important;
-        right: 10px !important;
-        max-width: 650px !important; 
-        background: transparent !important;
-    }
-    .leaflet-control-layers { font-size: 14px !important; border: none !important; }
-    .main .block-container { padding-top: 5rem !important; }
-    footer {visibility: hidden;}
-    </style>
-    """, unsafe_allow_html=True)
+st.set_page_config(layout="wide")
+st.title("Final Multi-Color Logic Test")
 
-shp = load_turkiye_shp()
-av_dict = list_available_indices()
+# Test Dosyası
+test_file = "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.nc"
 
-all_requested = set()
-for k in av_dict.keys():
-    if st.session_state.get(f"one_check_{k}") or st.session_state.get(f"multi_check_{k}"):
-        all_requested.add(k)
+if os.path.exists(test_file):
+    # 1. Veri Okuma (Hiçbir manipülasyon yok)
+    ds = xr.open_dataset(test_file)
+    var_name = [v for v in ds.data_vars if v not in ['spatial_ref', 'time_bnds']][0]
+    data = ds[var_name].squeeze()
+    if 'time' in data.dims: data = data.mean('time')
 
-layers_data, units_data = {}, {}
-for k in all_requested:
-    d, _, u = load_index_data(av_dict[k])
-    layers_data[k], units_data[k] = d, u
+    # 2. Görsel Konfigürasyon (Senin map_engine'deki Multi-Color ayarların)
+    vmin_val = 0.0
+    vmax_val = 200.0
+    cmap_name = "viridis"
+    alpha = 0.8
 
-one_bundle, multi_bundle = render_sidebar(av_dict, layers_data, units_data)
+    # 3. Manuel Render Hazırlığı (ImageOverlay için)
+    # Koordinat isimlerini yakala
+    lat_n = 'lat' if 'lat' in data.coords else ('y' if 'y' in data.coords else None)
+    lon_n = 'lon' if 'lon' in data.coords else ('x' if 'x' in data.coords else None)
 
-show_map = False
-if one_bundle and one_bundle[0]: show_map = True
-if st.session_state.get('synthesis_active') and multi_bundle[0]: show_map = True
+    if lat_n and lon_n:
+        # Değerleri vmin/vmax arasına sıkıştır ve normalize et
+        vals = data.values
+        norm = (vals - vmin_val) / (vmax_val - vmin_val)
+        norm = np.clip(norm, 0, 1)
 
-if show_map:
-    m = create_interactive_map(layers_data, shp, one_bundle, multi_bundle, units_data)
-    m.to_streamlit(height=850)
+        # Colormap uygula
+        cmap = plt.get_cmap(cmap_name)
+        rgba = cmap(norm)
+        
+        # Kuzey-Güney düzeltmesi (Flip)
+        rgba = np.flipud(rgba)
+
+        # Harita Sınırları
+        bnds = [[float(data[lat_n].min()), float(data[lon_n].min())], 
+                [float(data[lat_n].max()), float(data[lon_n].max())]]
+
+        # 4. Harita Kurulumu
+        m = leafmap.Map(center=[39, 35], zoom=6, tiles=None)
+        
+        # ImageOverlay Ekle
+        ImageOverlay(
+            image=rgba,
+            bounds=bnds,
+            opacity=alpha,
+            name=f"Test: {var_name}"
+        ).add_to(m)
+
+        # 5. Colorbar Ekle (Branca - Senin orijinal projedeki gibi)
+        colors = [mpl.colors.rgb2hex(cmap(i)) for i in np.linspace(0, 1, 256)]
+        caption = f"{var_name} (Test Unit)"
+        cmap_obj = cm.LinearColormap(colors=colors, vmin=vmin_val, vmax=vmax_val, caption=caption)
+        m.add_child(cmap_obj.to_step(index=np.linspace(vmin_val, vmax_val, 6)))
+
+        m.to_streamlit(height=700)
+        
+        st.success(f"Multi-color logic applied for {var_name}")
+        st.write(f"Range: {vmin_val} - {vmax_val} | Palette: {cmap_name}")
+    else:
+        st.error("Coords not found!")
 else:
-    m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
-    if shp is not None:
-        m.add_gdf(shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0})
-    m.to_streamlit(height=850)
+    st.error("File not found!")
