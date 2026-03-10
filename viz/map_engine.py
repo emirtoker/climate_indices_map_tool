@@ -11,7 +11,7 @@ from folium.raster_layers import ImageOverlay
 def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
     
-    # Custom CSS: Scannable and standard formatting preserved
+    # Custom CSS: Mühürlü tasarım, scannability ve formatting korundu
     m.get_root().header.add_child(folium.Element("""
     <style>
     .leaflet-image-layer, .leaflet-raster-layer {
@@ -63,26 +63,23 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     has_custom = False
 
     def add_stable_raster(map_obj, data_arr, cmap_name, layer_name, vmin, vmax, alpha):
-        """Internal helper for stable ImageOverlay rendering without extra clipping"""
+        """Internal helper for stable ImageOverlay rendering - NO CLIPPING"""
         # Coordinate detection
         lat_n = 'lat' if 'lat' in data_arr.coords else ('y' if 'y' in data_arr.coords else None)
         lon_n = 'lon' if 'lon' in data_arr.coords else ('x' if 'x' in data_arr.coords else None)
         
         if lat_n and lon_n:
-            # Normalize for visualization
-            norm = (data_arr - vmin) / (vmax - vmin)
+            # Saf numpy array üzerinden normalizasyon
+            vals = data_arr.values
+            norm = (vals - vmin) / (vmax - vmin)
             norm = np.clip(norm, 0, 1)
             
             # Applying colormap
-            if isinstance(cmap_name, str):
-                cmap = plt.get_cmap(cmap_name)
-            else:
-                cmap = cmap_name # For ListedColormap objects
-                
+            cmap = plt.get_cmap(cmap_name) if isinstance(cmap_name, str) else cmap_name
             rgba = cmap(norm)
-            rgba = np.flipud(rgba) # Correcting vertical orientation
+            rgba = np.flipud(rgba) # Correcting North-South orientation for ImageOverlay
             
-            # Spatial boundaries
+            # Spatial boundaries - direkt verinin kendi limitlerinden
             bnds = [[float(data_arr[lat_n].min()), float(data_arr[lon_n].min())], 
                     [float(data_arr[lat_n].max()), float(data_arr[lon_n].max())]]
             
@@ -94,7 +91,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
         for name in sel_one:
             c = one_conf[name]
             if not c.get('visible', True): continue
-            data = layers[name].copy()
+            data = layers[name] # Manipülasyon yok
             if 'time' in data.dims: data = data.mean('time')
             
             u_str = f"({c['unit']})" if c['unit'] else ""
@@ -117,17 +114,19 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
             else:
                 vmin_val, vmax_val = float(c['vmin']), float(c['vmax'])
                 if c.get('sub_mode') == "Multi-Color":
-                    if not c.get('ext_min', False): data = data.where(data >= vmin_val, np.nan)
-                    if not c.get('ext_max', False): data = data.where(data <= vmax_val, np.nan)
+                    # Filtreleme (Sadece değer aralığı dışındakileri NaN yapar, maskeleme/clip değil)
+                    d_plot = data.copy()
+                    if not c.get('ext_min', False): d_plot = d_plot.where(d_plot >= vmin_val, np.nan)
+                    if not c.get('ext_max', False): d_plot = d_plot.where(d_plot <= vmax_val, np.nan)
                     
                     if c.get('disc'):
                         n = int(c['lv'])
                         bins = np.linspace(vmin_val, vmax_val, n + 1)
                         colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, n)]
-                        add_stable_raster(m, data, c['cmap'], name, vmin_val, vmax_val, c['alpha'])
+                        add_stable_raster(m, d_plot, c['cmap'], name, vmin_val, vmax_val, c['alpha'])
                         m.add_child(cm.StepColormap(colors, vmin=vmin_val, vmax=vmax_val, index=bins, caption=f"{name} {u_str}"))
                     else:
-                        add_stable_raster(m, data, c['cmap'], name, vmin_val, vmax_val, c['alpha'])
+                        add_stable_raster(m, d_plot, c['cmap'], name, vmin_val, vmax_val, c['alpha'])
                         ticks = np.linspace(vmin_val, vmax_val, 6)
                         colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, 256)]
                         cmap_obj = cm.LinearColormap(colors=colors, vmin=vmin_val, vmax=vmax_val, caption=f"{name} {u_str}")
@@ -142,12 +141,12 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     if st.session_state.get('synthesis_active') and multi_bundle[0]:
         sel_multi, multi_conf = multi_bundle
         combined_mask = None
-        ref_data = layers[sel_multi[0]].copy()
+        ref_data = layers[sel_multi[0]]
         if 'time' in ref_data.dims: ref_data = ref_data.mean('time')
         
         synth_rows = ""
         for i, name in enumerate(sel_multi):
-            curr = layers[name].copy()
+            curr = layers[name]
             if 'time' in curr.dims: curr = curr.mean('time')
             curr = curr.reindex_like(ref_data, method="nearest")
             
