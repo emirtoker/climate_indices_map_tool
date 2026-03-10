@@ -1,57 +1,82 @@
-import sys, os
 import streamlit as st
-
-st.set_page_config(page_title="Indices Map Tool", layout="wide")
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from core.data_loader import load_index_data, load_turkiye_shp, list_available_indices
-from app.sidebar import render_sidebar
-from viz.map_engine import create_interactive_map
 import leafmap.foliumap as leafmap
+import xarray as xr
+import geopandas as gpd
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import branca.colormap as cm
+from folium.raster_layers import ImageOverlay
 
-st.markdown("""
-    <style>
-    .leaflet-control-container .leaflet-top.leaflet-right {
-        display: flex !important;
-        flex-wrap: wrap-reverse !important;
-        flex-direction: row-reverse !important;
-        justify-content: flex-start !important;
-        align-content: flex-start !important;
-        top: 100px !important;
-        right: 10px !important;
-        max-width: 650px !important; 
-        background: transparent !important;
-    }
-    .leaflet-control-layers { font-size: 14px !important; border: none !important; }
-    .main .block-container { padding-top: 5rem !important; }
-    footer {visibility: hidden;}
-    </style>
-    """, unsafe_allow_html=True)
+st.set_page_config(layout="wide")
+st.title("Diagnostic Interactive Test (Milimetric Alignment)")
 
-shp = load_turkiye_shp()
-av_dict = list_available_indices()
+# 1. DOSYA YOLLARI
+base_path = os.path.expanduser("~/Desktop/Proje_Tubitak_Bap/Iklim_Mimarlik_Projesi/Script/Python/climate_indices_map_tool")
+nc_path = os.path.join(base_path, "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.nc")
+shp_path = os.path.join(base_path, "data/shapefiles/tur_adm_2025_ab_shp/tur_admbnda_adm1_2025.shp")
 
-all_requested = set()
-for k in av_dict.keys():
-    if st.session_state.get(f"one_check_{k}") or st.session_state.get(f"multi_check_{k}"):
-        all_requested.add(k)
+if os.path.exists(nc_path) and os.path.exists(shp_path):
+    # 2. VERİ YÜKLEME
+    ds = xr.open_dataset(nc_path)
+    var_name = [v for v in ds.data_vars if v not in ['spatial_ref', 'time_bnds']][0]
+    data = ds[var_name].squeeze()
+    if 'time' in data.dims: data = data.mean('time')
+    
+    shp = gpd.read_file(shp_path)
+    
+    # 3. SIDEBAR (Sadece Colorbar Seçimi)
+    st.sidebar.header("Settings")
+    cmap_choice = st.sidebar.selectbox("Color Palette", ["viridis", "Spectral_r", "RdYlBu_r", "magma", "plasma"])
+    alpha_val = st.sidebar.slider("Opacity", 0.0, 1.0, 0.7)
+    
+    # 4. HARİTA MOTORU
+    m = leafmap.Map(center=[39, 35], zoom=6, tiles=None)
+    
+    # CSS: Pixelated rendering (Keskin pikseller)
+    m.get_root().header.add_child(mpl.backend_bases.folium.Element("""
+    <style> .leaflet-image-layer { image-rendering: pixelated !important; } </style>
+    """))
 
-layers_data, units_data = {}, {}
-for k in all_requested:
-    d, _, u = load_index_data(av_dict[k])
-    layers_data[k], units_data[k] = d, u
+    # SHP Katmanı (Siyah İnce Sınırlar)
+    m.add_gdf(shp, layer_name="Boundaries", style={'color': 'black', 'fillOpacity': 0, 'weight': 0.8})
 
-one_bundle, multi_bundle = render_sidebar(av_dict, layers_data, units_data)
+    # 5. RASTER TO IMAGEOVERLAY (Notebook'taki hizalamayı buraya taşıyoruz)
+    lon_n = 'lon' if 'lon' in data.coords else ('x' if 'x' in data.coords else 'longitude')
+    lat_n = 'lat' if 'lat' in data.coords else ('y' if 'y' in data_arr.coords else 'latitude')
+    
+    # Notebook'taki o milimetrik extent mantığı
+    x_min, x_max = float(data[lon_n].min()), float(data[lon_n].max())
+    y_min, y_max = float(data[lat_n].min()), float(data[lat_n].max())
+    
+    # Piksel çözünürlüğüne göre sınırları köşeye (edge) çekiyoruz
+    res_x = (x_max - x_min) / (data.shape[1] - 1)
+    res_y = (y_max - y_min) / (data.shape[0] - 1)
+    
+    # Folium Bounds: [[South, West], [North, East]]
+    bnds = [[y_min - res_y/2, x_min - res_x/2], [y_max + res_y/2, x_max + res_x/2]]
+    
+    # Normalizasyon ve Renklendirme
+    vmin, vmax = float(data.min()), float(data.max())
+    norm = (data.values - vmin) / (vmax - vmin)
+    norm = np.clip(norm, 0, 1)
+    
+    cmap = plt.get_cmap(cmap_choice)
+    rgba = cmap(norm)
+    rgba = np.flipud(rgba) # Kuzeyi yukarı al
+    
+    # Haritaya bas
+    ImageOverlay(image=rgba, bounds=bnds, opacity=alpha_val, name="Climate Index").add_to(m)
 
-show_map = False
-if one_bundle and one_bundle[0]: show_map = True
-if st.session_state.get('synthesis_active') and multi_bundle[0]: show_map = True
+    # 6. COLORBAR (Branca)
+    colors = [mpl.colors.rgb2hex(cmap(i)) for i in np.linspace(0, 1, 256)]
+    cmap_obj = cm.LinearColormap(colors=colors, vmin=vmin, vmax=vmax, caption=f"{var_name} Index")
+    m.add_child(cmap_obj)
 
-if show_map:
-    m = create_interactive_map(layers_data, shp, one_bundle, multi_bundle, units_data)
-    m.to_streamlit(height=850)
+    # Haritayı ekrana bas
+    m.to_streamlit(height=800)
+    
+    st.write(f"Diagnostic Info: NC Range [{vmin:.2f}, {vmax:.2f}] | Bounds: {bnds}")
 else:
-    m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
-    if shp is not None:
-        m.add_gdf(shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0})
-    m.to_streamlit(height=850)
+    st.error("Dosyalar bulunamadı! Lütfen base_path ayarını kontrol et.")
