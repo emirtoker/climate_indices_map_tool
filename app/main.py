@@ -10,65 +10,72 @@ import folium
 from folium.raster_layers import ImageOverlay
 
 st.set_page_config(layout="wide")
-st.title("Projection & Alignment Shield")
+st.title("Milimetrik Raster-SHP Alignment")
 
+# 1. DOSYA YOLLARI
 nc_path = "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.nc"
 shp_path = "data/shapefiles/tur_adm_2025_ab_shp/tur_admbnda_adm1_2025.shp"
 
 if os.path.exists(nc_path) and os.path.exists(shp_path):
-    # 1. VERİ YÜKLEME VE PROJEKSİYON MÜHÜRLEME
+    # 2. VERİ OKUMA
     ds = xr.open_dataset(nc_path)
     var_name = [v for v in ds.data_vars if v not in ['spatial_ref', 'time_bnds']][0]
     data = ds[var_name].squeeze()
     if 'time' in data.dims: data = data.mean('time')
-
-    # KRİTİK: Verinin EPSG:4326 olduğundan emin ol ve metadata'yı temizle
-    data.rio.write_crs("EPSG:4326", inplace=True)
     
-    # SHP Yükle ve Raster ile aynı projeksiyona zorla
-    shp = gpd.read_file(shp_path).to_crs("EPSG:4326")
+    shp = gpd.read_file(shp_path)
+    
+    # 3. HARİTA (Arka planı sildim, tertemiz siyah/beyaz boşluk)
+    # tiles=None yaparak sadece senin verilerini göreceğiz
+    m = leafmap.Map(center=[39, 35], zoom=6, tiles=None)
 
-    # 2. HARİTA (Altlık harita ile birlikte)
-    m = leafmap.Map(center=[39, 35], zoom=6, tiles="OpenStreetMap")
-
-    # 3. MILIMETRIC EXTENT CALCULATION
-    # Notebook'ta yaptığın pcolormesh mantığını ImageOverlay'e öğretiyoruz
-    # 
+    # 4. KRİTİK HİZALAMA (Notebook'taki pcolormesh mantığı)
     lons = data.lon.values
     lats = data.lat.values
     
-    # Çözünürlük hesabı
-    d_lon = (lons[1] - lons[0]) if len(lons) > 1 else 0.008333
-    d_lat = (lats[1] - lats[0]) if len(lats) > 1 else -0.008333
-
-    # Sınırları merkezden (center) köşeye (edge) çekiyoruz
-    # Bu yapılmazsa SHP ile Raster arasında 500 metrelik (yarım piksel) o meşhur kayma olur.
-    west, east = lons.min() - abs(d_lon)/2, lons.max() + abs(d_lon)/2
-    south, north = lats.min() - abs(d_lat)/2, lats.max() + abs(d_lat)/2
+    # Çözünürlük hesabı (merkezler arası mesafe)
+    d_lon = (lons[-1] - lons[0]) / (len(lons) - 1)
+    d_lat = (lats[-1] - lats[0]) / (len(lats) - 1)
+    
+    # Birebir örtüşme için: Piksel merkezinden dış sınıra yarım piksel kaydırıyoruz
+    # Folium Bounds formatı: [[min_lat, min_lon], [max_lat, max_lon]]
+    south = lats.min() - abs(d_lat)/2
+    north = lats.max() + abs(d_lat)/2
+    west = lons.min() - abs(d_lon)/2
+    east = lons.max() + abs(d_lon)/2
     
     bnds = [[south, west], [north, east]]
 
-    # 4. RASTER RENDER
+    # 5. RASTER RENDER
     vmin, vmax = float(data.min()), float(data.max())
-    plot_vals = data.values
+    plot_data = data.values
     
-    # Y ekseni yön kontrolü
+    # Enlemler (lat) NetCDF'de genellikle yukarıdan aşağıya (descending) olur.
+    # Eğer harita ters çıkarsa burası düzeltecek:
     if lats[0] < lats[-1]:
-        plot_vals = np.flipud(plot_vals)
+        plot_data = np.flipud(plot_data)
 
-    norm = (plot_vals - vmin) / (vmax - vmin)
+    norm = (plot_data - vmin) / (vmax - vmin)
     rgba = plt.get_cmap('viridis')(np.clip(norm, 0, 1))
     
-    # Katmanları ekle
-    ImageOverlay(image=rgba, bounds=bnds, opacity=0.7, name="Index").add_to(m)
-    m.add_gdf(shp, layer_name="Boundaries", style={'color': 'red', 'fillOpacity': 0, 'weight': 1.5})
+    # Raster'ı bas
+    ImageOverlay(image=rgba, bounds=bnds, opacity=0.8, name="Raster").add_to(m)
+    
+    # SHP'yi Raster'ın ÜSTÜNE bas (Kırmızı yaparak çakışmayı görelim)
+    m.add_gdf(shp, layer_name="SHP", style={'color': 'red', 'fillOpacity': 0, 'weight': 1.5})
+
+    # Keskin piksel CSS mühürü
+    m.get_root().header.add_child(folium.Element("""
+    <style> .leaflet-image-layer { image-rendering: pixelated !important; } </style>
+    """))
 
     m.to_streamlit(height=800)
 
-    # 5. DIAGNOSTIC PRINT (Masaüstü vs Online karşılaştırması için)
-    st.write("### Diagnostic Info")
-    st.write(f"Data CRS: {data.rio.crs} | SHP CRS: {shp.crs}")
-    st.write(f"Calculated Bounds: {bnds}")
+    # Teşhis Bilgileri
+    st.write("### Teşhis Ekranı")
+    st.write(f"Veri Boyutu: {data.shape}")
+    st.write(f"Hesaplanan Sınırlar: {bnds}")
+    st.write(f"Çözünürlük (d_lat, d_lon): {d_lat:.6f}, {d_lon:.6f}")
 
 else:
-    st.error("Data folders missing!")
+    st.error("Dosyalar bulunamadı!")
