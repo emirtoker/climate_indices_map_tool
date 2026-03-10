@@ -1,60 +1,57 @@
+import sys, os
 import streamlit as st
+
+st.set_page_config(page_title="Indices Map Tool", layout="wide")
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core.data_loader import load_index_data, load_turkiye_shp, list_available_indices
+from app.sidebar import render_sidebar
+from viz.map_engine import create_interactive_map
 import leafmap.foliumap as leafmap
-import xarray as xr
-import os
-import matplotlib.pyplot as plt
-import numpy as np
-from folium.raster_layers import ImageOverlay
-import geopandas as gpd
 
-st.set_page_config(layout="wide")
-st.title("Streamlit Cloud - Raster & Province Integration")
+st.markdown("""
+    <style>
+    .leaflet-control-container .leaflet-top.leaflet-right {
+        display: flex !important;
+        flex-wrap: wrap-reverse !important;
+        flex-direction: row-reverse !important;
+        justify-content: flex-start !important;
+        align-content: flex-start !important;
+        top: 100px !important;
+        right: 10px !important;
+        max-width: 650px !important; 
+        background: transparent !important;
+    }
+    .leaflet-control-layers { font-size: 14px !important; border: none !important; }
+    .main .block-container { padding-top: 5rem !important; }
+    footer {visibility: hidden;}
+    </style>
+    """, unsafe_allow_html=True)
 
-# Dosya Yolları
-test_file = "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.nc"
-adm1_shp = "data/shapefiles/tur_adm_2025_ab_shp/tur_admbnda_adm1_2025.shp" # Şehir (Province) sınırları
+shp = load_turkiye_shp()
+av_dict = list_available_indices()
 
-if os.path.exists(test_file):
-    # 1. Veri Hazırlama (NC)
-    ds = xr.open_dataset(test_file)
-    var_name = [v for v in ds.data_vars if v not in ['spatial_ref', 'time_bnds']][0]
-    data = ds[var_name].squeeze()
+all_requested = set()
+for k in av_dict.keys():
+    if st.session_state.get(f"one_check_{k}") or st.session_state.get(f"multi_check_{k}"):
+        all_requested.add(k)
 
-    lat_name = 'lat' if 'lat' in data.coords else ('y' if 'y' in data.coords else None)
-    lon_name = 'lon' if 'lon' in data.coords else ('x' if 'x' in data.coords else None)
+layers_data, units_data = {}, {}
+for k in all_requested:
+    d, _, u = load_index_data(av_dict[k])
+    layers_data[k], units_data[k] = d, u
 
-    if lat_name and lon_name:
-        # RGBA Dönüşümü ve Flip (Tepetaklak düzeltmesi)
-        d_min, d_max = float(data.min()), float(data.max())
-        norm_data = (data - d_min) / (d_max - d_min)
-        cmap = plt.get_cmap('viridis')
-        rgba_data = cmap(norm_data)
-        rgba_data = np.flipud(rgba_data) 
+one_bundle, multi_bundle = render_sidebar(av_dict, layers_data, units_data)
 
-        # Sınırlar
-        bounds = [[float(data[lat_name].min()), float(data[lon_name].min())], 
-                  [float(data[lat_name].max()), float(data[lon_name].max())]]
+show_map = False
+if one_bundle and one_bundle[0]: show_map = True
+if st.session_state.get('synthesis_active') and multi_bundle[0]: show_map = True
 
-        # 2. Harita Kurulumu
-        m = leafmap.Map(center=[39, 35], zoom=6, tiles=None)
-        
-        # A) RASTER KATMANI (Altta kalmalı)
-        ImageOverlay(
-            image=rgba_data,
-            bounds=bounds,
-            opacity=0.8,
-            name="Raster Layer"
-        ).add_to(m)
-
-        # B) ŞEHİR (PROVINCE) SINIRLARI (Üstte kalmalı)
-        if os.path.exists(adm1_shp):
-            city_gdf = gpd.read_file(adm1_shp)
-            # Şehir sınırlarını ince siyah çizgilerle çiziyoruz
-            m.add_gdf(city_gdf, layer_name="Türkiye Provinces", 
-                      style={'color': 'black', 'weight': 0.8, 'fillOpacity': 0})
-        else:
-            st.warning(f"Province SHP bulunamadı: {adm1_shp}")
-
-        m.to_streamlit(height=700)
-    else:
-        st.error("Koordinatlar saptanamadı.")
+if show_map:
+    m = create_interactive_map(layers_data, shp, one_bundle, multi_bundle, units_data)
+    m.to_streamlit(height=850)
+else:
+    m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
+    if shp is not None:
+        m.add_gdf(shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0})
+    m.to_streamlit(height=850)
