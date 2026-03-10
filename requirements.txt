@@ -1,0 +1,13 @@
+streamlit
+leafmap
+xarray
+rioxarray
+netCDF4
+geopandas
+branca
+matplotlib
+dask
+rasterio
+shapely
+psutil
+localtileserver
