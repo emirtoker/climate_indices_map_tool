@@ -2,67 +2,144 @@ import streamlit as st
 import leafmap.foliumap as leafmap
 import xarray as xr
 import geopandas as gpd
-import os
 import numpy as np
 import matplotlib.pyplot as plt
 import folium
 from folium.raster_layers import ImageOverlay
+import os
 
 st.set_page_config(layout="wide")
-st.title("Final Solution: Fixed CRS Online Map")
+st.title("Climate Index Map (Debug Version)")
 
-# 1. YOLLAR
+# --------------------------------------------------
+# 1. DOSYA YOLLARI
+# --------------------------------------------------
+
 nc_file = "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.nc"
 shp_file = "data/shapefiles/tur_adm_2025_ab_shp/tur_admbnda_adm1_2025.shp"
 
-if os.path.exists(nc_file) and os.path.exists(shp_file):
-    # 2. VERİYİ OKU VE CRS MÜHÜRLE
-    ds = xr.open_dataset(nc_file)
-    var_name = [v for v in ds.data_vars if v not in ['spatial_ref', 'time_bnds']][0]
-    data = ds[var_name].squeeze()
-    
-    # CRS Mühürleme (Notebook'ta yaptığımızın aynısı)
-    data.rio.write_crs("EPSG:4326", inplace=True)
-    
-    # SHP Oku
-    shp = gpd.read_file(shp_file).to_crs("EPSG:4326")
 
-    # 3. HARİTA
+if os.path.exists(nc_file) and os.path.exists(shp_file):
+
+    st.subheader("1️⃣ NetCDF yükleniyor")
+
+    ds = xr.open_dataset(nc_file)
+
+    var_name = [v for v in ds.data_vars if v not in ['spatial_ref', 'time_bnds']][0]
+
+    data = ds[var_name].squeeze()
+
+    # CRS mühürle
+    data = data.rio.write_crs("EPSG:4326")
+
+    st.write("Dataset:", ds)
+    st.write("Variable:", var_name)
+
+    # --------------------------------------------------
+    # 2. LAT YÖNÜ NORMALİZE
+    # --------------------------------------------------
+
+    if data.lat[0] < data.lat[-1]:
+        data = data.sortby("lat", ascending=False)
+
+    vals = data.values
+
+    # --------------------------------------------------
+    # 3. GRID BOUNDS
+    # --------------------------------------------------
+
+    left, bottom, right, top = data.rio.bounds()
+
+    # grid resolution
+    res_lat = abs(float(data.lat[1] - data.lat[0]))
+    res_lon = abs(float(data.lon[1] - data.lon[0]))
+
+    # pixel center → pixel edge düzeltmesi
+    left -= res_lon / 2
+    right += res_lon / 2
+    bottom -= res_lat / 2
+    top += res_lat / 2
+
+    bounds = [[bottom, left], [top, right]]
+
+    # --------------------------------------------------
+    # 4. SHAPEFILE
+    # --------------------------------------------------
+
+    shp = gpd.read_file(shp_file)
+    shp = shp.to_crs("EPSG:4326")
+
+    # --------------------------------------------------
+    # 5. HARİTA
+    # --------------------------------------------------
+
+    st.subheader("2️⃣ Harita")
+
     m = leafmap.Map(center=[39, 35], zoom=6, tiles="OpenStreetMap")
 
-    # 4. MİLİMETRİK BOUNDS HESABI (Manuel hesap yok, Rioxarray'e soruyoruz)
-    left, bottom, right, top = data.rio.bounds()
-    bnds = [[bottom, left], [top, right]]
-
-    # 5. RENDER (ImageOverlay - Online Dostu)
-    vmin, vmax = float(data.min()), float(data.max())
-    vals = data.values
-    
-    # NetCDF yön kontrolü
-    if data.lat[0] < data.lat[-1]:
-        vals = np.flipud(vals)
+    # colormap
+    vmin = float(np.nanmin(vals))
+    vmax = float(np.nanmax(vals))
 
     norm = plt.Normalize(vmin=vmin, vmax=vmax)
-    rgba = plt.get_cmap('viridis')(norm(vals))
-    
-    # Raster Ekle
+    rgba = plt.get_cmap("viridis")(norm(vals))
+
     ImageOverlay(
         image=rgba,
-        bounds=bnds,
+        bounds=bounds,
         opacity=0.7,
         name="Climate Index"
     ).add_to(m)
-    
-    # SHP Ekle (Kırmızı)
-    m.add_gdf(shp, layer_name="Boundaries", style={'color': 'red', 'fillOpacity': 0, 'weight': 1.5})
 
-    # Keskin pikseller için CSS
+    # sınırlar
+    m.add_gdf(
+        shp,
+        layer_name="Boundaries",
+        style={
+            "color": "red",
+            "fillOpacity": 0,
+            "weight": 1.5
+        }
+    )
+
+    # pixel keskinliği
     m.get_root().header.add_child(folium.Element("""
-    <style> .leaflet-image-layer { image-rendering: pixelated !important; } </style>
+    <style>
+    .leaflet-image-layer {
+        image-rendering: pixelated !important;
+    }
+    </style>
     """))
 
-    # 6. STREAMLIT'E BAS
     m.to_streamlit(height=700)
+
+    # --------------------------------------------------
+    # 6. DEBUG BİLGİLERİ
+    # --------------------------------------------------
+
+    st.subheader("3️⃣ Debug bilgiler")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.write("Min value:", vmin)
+        st.write("Max value:", vmax)
+
+        st.write("Lat first 5:", data.lat.values[:5])
+        st.write("Lat last 5:", data.lat.values[-5:])
+
+        st.write("Lon first 5:", data.lon.values[:5])
+        st.write("Lon last 5:", data.lon.values[-5:])
+
+    with col2:
+        st.write("Raster bounds:")
+        st.write(bounds)
+
+        st.write("Resolution:")
+        st.write("lat:", res_lat)
+        st.write("lon:", res_lon)
+
+        st.write("Array shape:", vals.shape)
 
 else:
     st.error("Dosyalar bulunamadı!")
