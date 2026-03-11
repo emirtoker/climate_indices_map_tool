@@ -106,24 +106,39 @@ def render_sidebar(available_dict, data_objects=None, units_dict=None):
                 one_conf[name] = conf
 
     with tab2:
+        # İndis seçimi formun dışında kalmalı ki slider'lar dinamik olarak gelsin
         selected_multi = [k for k in sorted(available_dict.keys()) if st.checkbox(k, key=f"multi_check_{k}")]
+        
         multi_conf = {'indices': {}}
+        
         if selected_multi:
             st.divider()
-            for name in selected_multi:
-                with st.expander(f"Criteria: {name}", expanded=True):
-                    d_min_m = float(np.floor(data_objects[name].min())) if name in data_objects else 0.0
-                    d_max_m = float(np.ceil(data_objects[name].max())) if name in data_objects else 100.0
-                    m_range = st.slider("Range", d_min_m, d_max_m, (d_min_m, d_max_m), step=1.0, key=f"rs_multi_{name}")
-                    multi_conf['indices'][name] = {'vmin': m_range[0], 'vmax': m_range[1]}
-            
-            multi_conf['color'] = st.color_picker("Color", "#2FA42F", key="m_g_c")
-            multi_conf['alpha'] = st.slider("Opacity", 0.0, 1.0, 0.8, key="m_g_al")
-            
-            if st.button("Generate Intersection", use_container_width=True):
-                st.session_state.synthesis_active = True
+            # FORM BAŞLANGICI: Generate butonuna basana kadar hiçbir slider rerun tetiklemez
+            with st.form(key='multi_indices_form'):
+                for name in selected_multi:
+                    with st.expander(f"Criteria: {name}", expanded=True):
+                        d_min_m = float(np.floor(data_objects[name].min())) if name in data_objects else 0.0
+                        d_max_m = float(np.ceil(data_objects[name].max())) if name in data_objects else 100.0
+                        
+                        # Form içindeki slider'lar etkileşimi bloklar
+                        m_range = st.slider("Range", d_min_m, d_max_m, (d_min_m, d_max_m), step=1.0, key=f"rs_multi_{name}")
+                        multi_conf['indices'][name] = {'vmin': m_range[0], 'vmax': m_range[1]}
+                
+                multi_conf['color'] = st.color_picker("Color", "#2FA42F", key="m_g_c")
+                multi_conf['alpha'] = st.slider("Opacity", 0.0, 1.0, 0.8, key="m_g_al")
+                
+                # Formu gönderen buton
+                submit_synthesis = st.form_submit_button("Generate Intersection", use_container_width=True)
+                
+                if submit_synthesis:
+                    st.session_state.synthesis_active = True
+                    # Form gönderildiğinde verilerin işlenmesi için rerun tetiklenebilir 
+                    # (Streamlit formları otomatik yapar ama state'i garantiliyoruz)
+
+            # Reset butonu formun dışında olmalı ki anında tepki versin
             if st.session_state.get('synthesis_active'):
                 if st.button("Reset Results", use_container_width=True):
-                    st.session_state.synthesis_active = False; st.rerun()
+                    st.session_state.synthesis_active = False
+                    st.rerun()
 
     return (selected_indices, one_conf), (selected_multi, multi_conf)

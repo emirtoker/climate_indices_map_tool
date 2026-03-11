@@ -56,8 +56,11 @@ one_bundle, multi_bundle = render_sidebar(av_dict, layers_data, units_data)
 
 # 3. HARİTA RENDER KARARI
 show_map = False
-if one_bundle and one_bundle[0]: show_map = True
-if st.session_state.get('synthesis_active') and multi_bundle[0]: show_map = True
+if one_bundle and one_bundle[0]: 
+    show_map = True
+
+if st.session_state.get('synthesis_active') and multi_bundle[0]: 
+    show_map = True
 
 if show_map:
     # Milimetrik GeoTIFF Engine devrede
