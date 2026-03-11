@@ -68,14 +68,14 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
 
     def add_accurate_raster(map_obj, data_arr, cmap_name, layer_name, vmin, vmax, alpha):
         """
-        Renders raster data using ImageOverlay for cloud-compatibility 
-        with fixed normalization for single-color modes.
+        Renders raster data using ImageOverlay. 
+        Fixed: Ensures 'One-Color' selection updates correctly without turning white.
         """
         try:
+            # 1. Spatial alignment
             if data_arr.rio.crs is None:
                 data_arr.rio.write_crs("EPSG:4326", inplace=True)
             
-            # Syncing projections for sub-pixel accuracy
             data_4326 = data_arr.rio.reproject("EPSG:4326")
             left, bottom, right, top = data_4326.rio.bounds()
             bnds = [[bottom, left], [top, right]]
@@ -87,26 +87,27 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
             nodata_val = data_arr.rio.nodata
             vals_clean = np.where(vals == nodata_val, np.nan, vals)
             
-            # Check if using a ListedColormap (One-Color/Threshold modes)
+            # 2. FIXED COLOR ASSIGNMENT
+            # Check if we are in 'One-Color' or 'Threshold' mode (ListedColormap)
             if isinstance(cmap_name, mpl.colors.ListedColormap):
-                # For single-color, we bypass normalization and use the color directly
-                base_color = cmap_name.colors[0]
-                if isinstance(base_color, str):
-                    rgb = mpl.colors.to_rgba(base_color)
-                else:
-                    rgb = base_color
+                # Forcefully extract the hex color and convert to RGBA
+                target_color = cmap_name.colors[0]
+                rgb = mpl.colors.to_rgba(target_color)
                 
-                # Create an RGBA array: color where valid, transparent where NaN
+                # Create a manual RGBA array (Width, Height, 4)
                 rgba = np.zeros((*vals_clean.shape, 4))
+                
+                # Fill only where there is valid data
                 mask = ~np.isnan(vals_clean)
-                rgba[mask] = rgb
-                rgba[mask, 3] = 1.0 # Set full alpha for the color pixels
+                rgba[mask] = rgb  # Assign R, G, B, A
+                # rgba[mask, 3] = 1.0 # Ensure opacity is handled by ImageOverlay's alpha
             else:
-                # Multi-color normalization (Standard mode)
+                # Standard Multi-Color Colormap
                 cmap = plt.get_cmap(cmap_name) if isinstance(cmap_name, str) else cmap_name
                 norm = plt.Normalize(vmin=vmin, vmax=vmax)
                 rgba = cmap(norm(vals_clean))
             
+            # 3. Render
             ImageOverlay(
                 image=rgba,
                 bounds=bnds,
