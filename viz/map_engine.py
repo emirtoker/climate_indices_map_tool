@@ -12,12 +12,12 @@ import time
 
 def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict, available_dict):
     """
-    Creates a clean, professional map. 
-    Format: 'ABBR - LONG NAME (UNIT)' for Colorbars and Legends.
+    Professional climate visualization engine.
+    Tooltips are forced to show only values via CSS override.
     """
     m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
     
-    # --- CSS CONFIGURATION (Spacings and Legend Styling) ---
+    # --- CSS CONFIGURATION (Fixed Tooltip & Legends) ---
     m.get_root().header.add_child(folium.Element("""
     <style>
     .leaflet-image-layer, .leaflet-raster-layer {
@@ -25,6 +25,11 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict, av
         image-rendering: crisp-edges !important;
         image-rendering: pixelated !important;
     }
+    
+    /* NUCLEAR OPTION: Force hide any table headers in tooltips globally */
+    .leaflet-tooltip table th { display: none !important; }
+    .leaflet-tooltip table td { font-weight: bold !important; font-size: 14px !important; }
+
     .legend {
         font-size: 16px !important;
         font-weight: normal !important;
@@ -62,8 +67,18 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict, av
     """))
     
     if shp is not None:
-        m.add_gdf(shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0})
-    
+        temp_shp = shp[['ADM1_TR', 'geometry']].copy()
+        temp_shp.columns = ['TR', 'geometry']
+        m.add_gdf(
+            temp_shp, 
+            layer_name="Türkiye Provinces",
+            style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0},
+            fields=['TR'], 
+            aliases=[''], 
+            labels=False,
+            sticky=False
+        )
+
     custom_legend_html = ""
     has_custom = False
 
@@ -94,15 +109,17 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict, av
                 norm = plt.Normalize(vmin=vmin, vmax=vmax)
                 rgba_float = cmap(norm(vals_clean))
             
+            rgba_uint8 = (rgba_float * 255).astype(np.uint8)
+            
             ImageOverlay(
-                image=(rgba_float * 255).astype(np.uint8),
+                image=rgba_uint8,
                 bounds=bnds,
                 opacity=alpha,
                 name=layer_name,
                 zindex=5
             ).add_to(map_obj)
         except Exception as e:
-            st.error(f"Mapping engine error on {layer_name}: {e}")
+            st.error(f"Mapping error: {e}")
 
     # --- Section 1: Individual Indices ---
     if one_bundle:
@@ -110,12 +127,8 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict, av
         for name in sel_one:
             if name not in layers: continue
             
-            # --- COLORBAR VE LEJANT BAŞLIĞI DÜZENLEME ---
-            # 'name' değişkeni zaten "ABBR - LONG NAME" formatındadır (get_friendly_name'den gelir)
             unit = units_dict.get(name, "")
             u_str = f" ({unit})" if unit else ""
-            
-            # Tam profesyonel başlık: PRCPTOT - Annual Total Precipitation (mm)
             colorbar_title = f"{name}{u_str}"
             
             c = one_conf[name]
@@ -164,7 +177,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict, av
                     custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["one_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name}: {v_min:.0f}-{v_max:.0f}</span></div>'
                     has_custom = True
 
-    # Section 2: Synthesis
+    # --- Section 2: Synthesis ---
     if st.session_state.get('synthesis_active') and multi_bundle[0]:
         sel_multi, multi_conf = multi_bundle
         if sel_multi and sel_multi[0] in layers:
@@ -186,7 +199,8 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict, av
             
             if combined_mask is not None:
                 synth = ref_data.where(combined_mask, np.nan)
-                add_accurate_raster(m, synth, multi_conf['color'], "Synthesis Result", 0, 1, multi_conf['alpha'])
+                # Mapped to 'MULTI INDICES' as requested
+                add_accurate_raster(m, synth, multi_conf['color'], "MULTI INDICES", 0, 1, multi_conf['alpha'])
                 custom_legend_html += f'<div style="margin-top:10px;">{synth_rows}</div>'
                 has_custom = True
 

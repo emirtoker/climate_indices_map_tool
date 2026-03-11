@@ -67,5 +67,16 @@ else:
     # Boş harita hali
     m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
     if shp is not None:
-        m.add_gdf(shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0})
+        temp_shp = shp[['ADM1_TR', 'geometry']].copy()
+        temp_shp.columns = ['TR', 'geometry']
+        m.add_gdf(
+            temp_shp, 
+            layer_name="Türkiye Provinces",
+            style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0},
+            fields=['TR'], 
+            aliases=[''], 
+            labels=False,
+            sticky=False
+        )
+
     m.to_streamlit(height=1000)
