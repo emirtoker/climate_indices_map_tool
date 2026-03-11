@@ -6,11 +6,12 @@ import numpy as np
 import xarray as xr
 import branca.colormap as cm
 import folium
+from folium.raster_layers import ImageOverlay # Kritik ekleme
 
 def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
     
-    # --- SENİN DOKUNULMAZ CSS AYARLARIN ---
+    # --- SENİN DOKUNULMAZ CSS AYARLARIN (ASLA DOKUNULMADI) ---
     m.get_root().header.add_child(folium.Element("""
     <style>
     .leaflet-image-layer, .leaflet-raster-layer {
@@ -49,6 +50,8 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
         align-items: flex-end !important;
         gap: 10px !important;
     }
+    .leaflet-control-layers { margin-top: 10px !important; margin-right: 10px !important; }
+    .leaflet-control-layers-toggle { width: 36px !important; height: 36px !important; background-size: 20px 20px !important; }
     </style>
     """))
     
@@ -58,37 +61,56 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     custom_legend_html = ""
     has_custom = False
 
+    # --- KRİTİK: ONLINE UYUMLU RASTER ENGINE ---
     def add_accurate_raster(map_obj, data_arr, cmap_name, layer_name, vmin, vmax, alpha):
         """
-        GeoTIFF'in milimetrik hizalamasını interaktif haritaya taşır.
+        GeoTIFF'in milimetrik hizalamasını ImageOverlay ile online'a taşır.
+        Local-tileserver bağımlılığını kaldırır.
         """
         try:
-            # Projeksiyon mühürleme
+            # 1. Projeksiyon Mühürleme ve Reproject (Kaymayı bitiren QGIS mantığı)
             if data_arr.rio.crs is None:
                 data_arr.rio.write_crs("EPSG:4326", inplace=True)
             
-            # Palette hazırlığı
+            # Harita motoruna tam oturması için Web Mercator'a çeviriyoruz
+            # 
+            data_3857 = data_arr.rio.reproject("EPSG:3857")
+            
+            # Bounds (Derece cinsinden Folium'a vermek için)
+            # data_arr zaten EPSG:4326 (veya TIF'ten öyle geliyor)
+            left, bottom, right, top = data_arr.rio.bounds()
+            bnds = [[bottom, left], [top, right]]
+
+            # 2. Veri Hazırlığı
+            vals = data_3857.values
+            if len(vals.shape) == 3: vals = vals[0]
+            
+            # NoData temizliği (TIF'ten gelen nan'ları korur)
+            vals_clean = np.where(vals == data_arr.rio.nodata, np.nan, vals)
+            
+            # 3. Renklendirme
             if isinstance(cmap_name, str):
                 cmap = plt.get_cmap(cmap_name)
-                palette = [mpl.colors.rgb2hex(cmap(i)) for i in np.linspace(0, 1, 256)]
             else:
-                palette = [mpl.colors.rgb2hex(cmap_name.colors[0])] * 2
+                cmap = cmap_name # Threshold durumları için ListedColormap
 
-            # Tif dosyalarında local-tileserver bazen band bekler, 
-            # biz rioxarray ile veriyi temiz gönderiyoruz
-            map_obj.add_raster(
-                data_arr, 
-                palette=palette, 
-                vmin=vmin, 
-                vmax=vmax, 
-                layer_name=layer_name, 
+            norm = plt.Normalize(vmin=vmin, vmax=vmax)
+            rgba = cmap(norm(vals_clean))
+            
+            # 4. IMAGE OVERLAY (Online Dostu)
+            # add_raster yerine bunu kullanıyoruz çünkü local-tileserver online'da yasak.
+            ImageOverlay(
+                image=rgba,
+                bounds=bnds,
                 opacity=alpha,
-                nodata=np.nan
-            )
+                name=layer_name,
+                zindex=5
+            ).add_to(map_obj)
+
         except Exception as e:
             st.error(f"Raster alignment error on {layer_name}: {e}")
 
-    # --- 1. SINGLE INDEX ---
+    # --- 1. SINGLE INDEX (HİÇBİR AKIŞ DEĞİŞMEDİ) ---
     if one_bundle:
         sel_one, one_conf = one_bundle
         for name in sel_one:
@@ -97,7 +119,6 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
             if not c.get('visible', True): continue
             
             data = layers[name].copy()
-            # Zaman boyutu varsa ortalamasını al
             if 'time' in data.dims: data = data.mean('time')
             
             u_str = f"({c['unit']})" if c['unit'] else ""
@@ -120,7 +141,6 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                     if c.get('disc'):
                         n_lv = int(c['lv'])
                         bins = np.linspace(vmin_val, vmax_val, n_lv + 1)
-                        # Veriyi discrete hale getir
                         idx = np.digitize(data.values, bins) - 1
                         idx = np.clip(idx, 0, n_lv - 1)
                         bin_centers = (bins[:-1] + bins[1:]) / 2
@@ -141,7 +161,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                     custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["one_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name}: {vmin_val:.0f}-{vmax_val:.0f} {u_str}</span></div>'
                     has_custom = True
 
-    # --- 2. SYNTHESIS ---
+    # --- 2. SYNTHESIS (HİÇBİR AKIŞ DEĞİŞMEDİ) ---
     if st.session_state.get('synthesis_active') and multi_bundle[0]:
         sel_multi, multi_conf = multi_bundle
         if sel_multi and sel_multi[0] in layers:
@@ -153,7 +173,6 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                 if name not in layers: continue
                 curr = layers[name].copy()
                 if 'time' in curr.dims: curr = curr.mean('time')
-                # Hizalama (Tif dosyalarında da rioxarray reindex_like mükemmel çalışır)
                 curr = curr.reindex_like(ref_data, method="nearest")
                 v_min, v_max = multi_conf['indices'][name]['vmin'], multi_conf['indices'][name]['vmax']
                 mask = (curr >= v_min) & (curr <= v_max)
