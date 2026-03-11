@@ -60,7 +60,6 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     </style>
     """))
     
-    # Base vector layer
     if shp is not None:
         m.add_gdf(shp, layer_name="Administrative Boundaries", style={'color': 'black', 'fillOpacity': 0, 'weight': 0.8})
     
@@ -69,38 +68,45 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
 
     def add_accurate_raster(map_obj, data_arr, cmap_name, layer_name, vmin, vmax, alpha):
         """
-        Renders raster data using ImageOverlay to ensure browser compatibility 
-        and high-precision spatial alignment without local-tileserver dependencies.
+        Renders raster data using ImageOverlay for cloud-compatibility 
+        with fixed normalization for single-color modes.
         """
         try:
-            # Geographic metadata enforcement
             if data_arr.rio.crs is None:
                 data_arr.rio.write_crs("EPSG:4326", inplace=True)
             
-            # Reproject to WGS84 to extract exact geographic bounds for Folium
+            # Syncing projections for sub-pixel accuracy
             data_4326 = data_arr.rio.reproject("EPSG:4326")
             left, bottom, right, top = data_4326.rio.bounds()
             bnds = [[bottom, left], [top, right]]
             
-            # Reproject to Web Mercator for visual array to prevent longitudinal distortion
             data_3857 = data_arr.rio.reproject("EPSG:3857")
             vals = data_3857.values
             if len(vals.shape) == 3: vals = vals[0]
             
-            # Transparency and NoData handling
             nodata_val = data_arr.rio.nodata
             vals_clean = np.where(vals == nodata_val, np.nan, vals)
             
-            # Color normalization
-            if isinstance(cmap_name, str):
-                cmap = plt.get_cmap(cmap_name)
+            # Check if using a ListedColormap (One-Color/Threshold modes)
+            if isinstance(cmap_name, mpl.colors.ListedColormap):
+                # For single-color, we bypass normalization and use the color directly
+                base_color = cmap_name.colors[0]
+                if isinstance(base_color, str):
+                    rgb = mpl.colors.to_rgba(base_color)
+                else:
+                    rgb = base_color
+                
+                # Create an RGBA array: color where valid, transparent where NaN
+                rgba = np.zeros((*vals_clean.shape, 4))
+                mask = ~np.isnan(vals_clean)
+                rgba[mask] = rgb
+                rgba[mask, 3] = 1.0 # Set full alpha for the color pixels
             else:
-                cmap = cmap_name
-
-            norm = plt.Normalize(vmin=vmin, vmax=vmax)
-            rgba = cmap(norm(vals_clean))
+                # Multi-color normalization (Standard mode)
+                cmap = plt.get_cmap(cmap_name) if isinstance(cmap_name, str) else cmap_name
+                norm = plt.Normalize(vmin=vmin, vmax=vmax)
+                rgba = cmap(norm(vals_clean))
             
-            # Direct image injection to the map object
             ImageOverlay(
                 image=rgba,
                 bounds=bnds,
@@ -189,7 +195,6 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                 custom_legend_html += f'<div style="margin-top:10px;">{synth_rows}</div>'
                 has_custom = True
 
-    # Custom HTML legends for specific threshold/one-color modes
     if has_custom:
         legend_div = f'<div style="position:fixed; bottom:35px; right:40px; z-index:9999; background:none; border:none; padding:0; min-width:280px;">{custom_legend_html}</div>'
         m.get_root().html.add_child(folium.Element(legend_div))
