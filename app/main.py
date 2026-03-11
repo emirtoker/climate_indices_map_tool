@@ -68,4 +68,4 @@ else:
     m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
     if shp is not None:
         m.add_gdf(shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0})
-    m.to_streamlit(height=850)
+    m.to_streamlit(height=1000)
