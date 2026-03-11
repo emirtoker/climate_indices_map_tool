@@ -1,5 +1,11 @@
 import sys, os
+import time # Eklediğin kritik parça
+import matplotlib
+matplotlib.use('Agg') # Mac donanım çakışmasını engellemek için
+
 import streamlit as st
+
+
 
 st.set_page_config(page_title="Indices Map Tool", layout="wide")
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
