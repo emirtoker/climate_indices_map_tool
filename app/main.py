@@ -9,64 +9,64 @@ from folium.raster_layers import ImageOverlay
 import folium
 
 st.set_page_config(layout="wide")
-st.title("Final Fix: Metric to Degree Alignment")
+st.title("The Final Showdown: GeoTIFF vs NetCDF Alignment")
 
-# 1. DOSYA YOLLARI
+# 1. YOLLAR
 tif_path = "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.tif"
+nc_path = "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.nc"
 shp_path = "data/shapefiles/tur_adm_2025_ab_shp/tur_admbnda_adm1_2025.shp"
 
-if os.path.exists(tif_path) and os.path.exists(shp_path):
-    # 2. VERİ OKUMA
-    raster = rioxarray.open_rasterio(tif_path)
+# Ortak Render Fonksiyonu (Hata payını sıfırlamak için)
+def get_layer_data(file_path):
+    raster = rioxarray.open_rasterio(file_path)
+    # CRS mühürü yoksa bas (özellikle NC için)
+    if raster.rio.crs is None:
+        raster.rio.write_crs("EPSG:4326", inplace=True)
     
-    # SHP'yi her zaman WGS84 (Derece) olarak okuyoruz, harita motoru bunu sever
-    shp = gpd.read_file(shp_path).to_crs("EPSG:4326")
-
-    # 3. BOUNDS HESABI (Kritik Nokta!)
-    # Tif dosyan metre (3857) olduğu için, Folium'a vereceğimiz sınırları 
-    # tekrar dereceye (4326) çevirmemiz lazım ki harita nerede olduğunu anlasın.
+    # Sınırları derece cinsinden al
     raster_4326 = raster.rio.reproject("EPSG:4326")
     left, bottom, right, top = raster_4326.rio.bounds()
-    bnds = [[bottom, left], [top, right]]
-
-    # 4. HARİTA
-    m = leafmap.Map(center=[39, 35], zoom=6, tiles="OpenStreetMap")
-
-    # 5. RENDER (Görsel Hazırlama)
-    # Veriyi al (Band 1)
-    vals = raster.values[0]
+    bounds = [[bottom, left], [top, right]]
     
-    # NoData (nan) temizliği
+    # Veriyi temizle
+    vals = raster.values[0]
     nodata = raster.rio.nodata
     vals_clean = np.where(vals == nodata, np.nan, vals)
     
-    # Renk aralığı
-    vmin, vmax = np.nanmin(vals_clean), np.nanmax(vals_clean)    
+    # Tif/NC farkına göre flip gerekebilir, şimdilik ikisini de düz bırakıyoruz
+    return vals_clean, bounds, np.nanmin(vals_clean), np.nanmax(vals_clean)
 
-    # YÖN KONTROLÜ: Tif'ten gelen veri genelde terstir, harita için düzeltiyoruz
-    # Eğer harita ters çıkarsa bunu kaldırırız
-    vals_plot = vals_clean # Veriyi olduğu gibi alıyoruz
+if all(os.path.exists(p) for p in [tif_path, nc_path, shp_path]):
+    shp = gpd.read_file(shp_path).to_crs("EPSG:4326")
     
-    norm = plt.Normalize(vmin=vmin, vmax=vmax)
-    rgba = plt.get_cmap('viridis')(norm(vals_plot))
+    # --- HARİTA 1: GeoTIFF (Şampiyon) ---
+    st.subheader("1. GeoTIFF Katmanı (Referans)")
+    m1 = leafmap.Map(center=[39, 35], zoom=6, tiles="OpenStreetMap")
+    vals_tif, bnds_tif, vmin_tif, vmax_tif = get_layer_data(tif_path)
     
-    # RASTER EKLE (Derece cinsinden bounds ile)
-    ImageOverlay(
-        image=rgba,
-        bounds=bnds,
-        opacity=0.7,
-        name="Summer Days (TIF)"
-    ).add_to(m)
+    rgba_tif = plt.get_cmap('viridis')(plt.Normalize(vmin_tif, vmax_tif)(vals_tif))
+    ImageOverlay(image=rgba_tif, bounds=bnds_tif, opacity=0.7, name="TIFF").add_to(m1)
+    m1.add_gdf(shp, style={'color': 'red', 'weight': 1.5})
+    m1.to_streamlit(height=500, key="map_tif")
 
-    # SHP EKLE
-    m.add_gdf(shp, layer_name="İl Sınırları", style={'color': 'red', 'fillOpacity': 0, 'weight': 1.5})
+    st.divider()
 
-    m.to_streamlit(height=750)
+    # --- HARİTA 2: NetCDF (Aday) ---
+    st.subheader("2. NetCDF Katmanı (Test)")
+    m2 = leafmap.Map(center=[39, 35], zoom=6, tiles="OpenStreetMap")
+    vals_nc, bnds_nc, vmin_nc, vmax_nc = get_layer_data(nc_path)
+    
+    # NOT: NC verisi genelde TIF'e göre terstir, eğer ters gelirse flipud ekleriz
+    rgba_nc = plt.get_cmap('plasma')(plt.Normalize(vmin_nc, vmax_nc)(vals_nc))
+    ImageOverlay(image=rgba_nc, bounds=bnds_nc, opacity=0.7, name="NetCDF").add_to(m2)
+    m2.add_gdf(shp, style={'color': 'cyan', 'weight': 1.5})
+    m2.to_streamlit(height=500, key="map_nc")
 
-    # TEŞHİS (Artık burada mantıklı derece rakamları görmelisin: 35-45 arası)
-    st.write("### Diagnostic")
-    st.write(f"Corrected Degree Bounds: {bnds}")
-    st.write(f"Min/Max Value: {vmin:.2f} / {vmax:.2f}")
+    # Kıyaslama Bilgisi
+    st.write("### Karşılaştırma Notları")
+    col1, col2 = st.columns(2)
+    col1.write(f"TIFF Bounds: {bnds_tif}")
+    col2.write(f"NetCDF Bounds: {bnds_nc}")
 
 else:
     st.error("Dosyalar eksik!")
