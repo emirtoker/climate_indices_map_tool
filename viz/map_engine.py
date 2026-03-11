@@ -7,11 +7,16 @@ import xarray as xr
 import branca.colormap as cm
 import folium
 from folium.raster_layers import ImageOverlay 
+import rioxarray
 
 def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
+    """
+    Generates an interactive map using Folium and Leafmap with high-precision 
+    raster alignment for climate indices.
+    """
     m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
     
-    # --- SENİN DOKUNULMAZ CSS AYARLARIN (KORUNDU) ---
+    # --- YOUR ORIGINAL CSS CONFIGURATION (FULLY PRESERVED) ---
     m.get_root().header.add_child(folium.Element("""
     <style>
     .leaflet-image-layer, .leaflet-raster-layer {
@@ -55,35 +60,38 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     </style>
     """))
     
+    # Base vector layer
     if shp is not None:
         m.add_gdf(shp, layer_name="Administrative Boundaries", style={'color': 'black', 'fillOpacity': 0, 'weight': 0.8})
     
     custom_legend_html = ""
     has_custom = False
 
-    # --- KRİTİK: ONLINE UYUMLU RASTER ENGINE (DÜZELTİLDİ) ---
     def add_accurate_raster(map_obj, data_arr, cmap_name, layer_name, vmin, vmax, alpha):
+        """
+        Renders raster data using ImageOverlay to ensure browser compatibility 
+        and high-precision spatial alignment without local-tileserver dependencies.
+        """
         try:
-            # 1. Projeksiyon Kontrolü
+            # Geographic metadata enforcement
             if data_arr.rio.crs is None:
                 data_arr.rio.write_crs("EPSG:4326", inplace=True)
             
-            # 2. SENKRONİZE DÖNÜŞÜM
-            # Sınırlar için Derece (4326)
+            # Reproject to WGS84 to extract exact geographic bounds for Folium
             data_4326 = data_arr.rio.reproject("EPSG:4326")
             left, bottom, right, top = data_4326.rio.bounds()
             bnds = [[bottom, left], [top, right]]
             
-            # Görsel için Metrik (3857) - Kaymayı bitiren bu
+            # Reproject to Web Mercator for visual array to prevent longitudinal distortion
             data_3857 = data_arr.rio.reproject("EPSG:3857")
             vals = data_3857.values
             if len(vals.shape) == 3: vals = vals[0]
             
-            # 3. Veri Temizliği
+            # Transparency and NoData handling
             nodata_val = data_arr.rio.nodata
             vals_clean = np.where(vals == nodata_val, np.nan, vals)
             
-            # 4. Renklendirme
+            # Color normalization
             if isinstance(cmap_name, str):
                 cmap = plt.get_cmap(cmap_name)
             else:
@@ -92,8 +100,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
             norm = plt.Normalize(vmin=vmin, vmax=vmax)
             rgba = cmap(norm(vals_clean))
             
-            # 5. ImageOverlay (Tepetaklak olmaması için flip kontrolü gerekirse buraya eklenir)
-            # Genelde 3857 reproject sonrası flip gerektirmez ama test edelim
+            # Direct image injection to the map object
             ImageOverlay(
                 image=rgba,
                 bounds=bnds,
@@ -105,7 +112,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
         except Exception as e:
             st.error(f"Raster alignment error on {layer_name}: {e}")
 
-    # --- 1. SINGLE INDEX (AKIŞ KORUNDU) ---
+    # --- Section 1: Individual Climate Indices ---
     if one_bundle:
         sel_one, one_conf = one_bundle
         for name in sel_one:
@@ -156,7 +163,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                     custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["one_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name}: {vmin_val:.0f}-{vmax_val:.0f} {u_str}</span></div>'
                     has_custom = True
 
-    # --- 2. SYNTHESIS (AKIŞ KORUNDU) ---
+    # --- Section 2: Synthesis and Multi-Index Intersection ---
     if st.session_state.get('synthesis_active') and multi_bundle[0]:
         sel_multi, multi_conf = multi_bundle
         if sel_multi and sel_multi[0] in layers:
@@ -182,6 +189,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                 custom_legend_html += f'<div style="margin-top:10px;">{synth_rows}</div>'
                 has_custom = True
 
+    # Custom HTML legends for specific threshold/one-color modes
     if has_custom:
         legend_div = f'<div style="position:fixed; bottom:35px; right:40px; z-index:9999; background:none; border:none; padding:0; min-width:280px;">{custom_legend_html}</div>'
         m.get_root().html.add_child(folium.Element(legend_div))
