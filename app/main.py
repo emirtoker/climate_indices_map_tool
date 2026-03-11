@@ -79,4 +79,4 @@ else:
             sticky=False
         )
 
-    m.to_streamlit(height=1000)
+    m.to_streamlit(height=1200)
