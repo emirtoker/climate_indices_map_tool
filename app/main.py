@@ -8,85 +8,65 @@ import matplotlib.pyplot as plt
 from folium.raster_layers import ImageOverlay
 import folium
 
-import os
-import streamlit as st
-
-st.write("### Sunucu Dosya Sistemi Kontrolü")
-base_path = "data/indices/historical/climatology/1km/CHELSA/"
-if os.path.exists(base_path):
-    st.write(f"Klasör bulundu: {base_path}")
-    st.write("İçindeki dosyalar:", os.listdir(base_path))
-else:
-    st.error(f"KLASÖR BULUNAMADI: {base_path}")
-    # Root'ta ne var bakalım
-    st.write("Root dizini:", os.listdir("."))
-    
 st.set_page_config(layout="wide")
-st.title("GeoTIFF & SHP Alignment Test (QGIS Style)")
+st.title("Final Fix: Metric to Degree Alignment")
 
-# 1. YOLLAR (Uzantıyı .tif yaptık)
-tif_file = "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.tif"
-shp_file = "data/shapefiles/tur_adm_2025_ab_shp/tur_admbnda_adm1_2025.shp"
+# 1. DOSYA YOLLARI
+tif_path = "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.tif"
+shp_path = "data/shapefiles/tur_adm_2025_ab_shp/tur_admbnda_adm1_2025.shp"
 
-if os.path.exists(tif_file) and os.path.exists(shp_file):
-    # 2. VERİ OKUMA VE REPROJECT (QGIS'in yaptığı işi manuel yapıyoruz)
-    # Tif dosyasını açıyoruz
-    raster = rioxarray.open_rasterio(tif_file)
+if os.path.exists(tif_path) and os.path.exists(shp_path):
+    # 2. VERİ OKUMA
+    raster = rioxarray.open_rasterio(tif_path)
     
-    # KRİTİK: Veriyi Web Mercator'a (EPSG:3857) çeviriyoruz. 
-    # Kaymayı bitiren "on-the-fly" hamlesi budur.
-    raster_3857 = raster.rio.reproject("EPSG:3857")
-    
-    # SHP'yi de aynı sisteme çekiyoruz
-    shp = gpd.read_file(shp_file).to_crs("EPSG:3857")
+    # SHP'yi her zaman WGS84 (Derece) olarak okuyoruz, harita motoru bunu sever
+    shp = gpd.read_file(shp_path).to_crs("EPSG:4326")
 
-    # 3. HARİTA
+    # 3. BOUNDS HESABI (Kritik Nokta!)
+    # Tif dosyan metre (3857) olduğu için, Folium'a vereceğimiz sınırları 
+    # tekrar dereceye (4326) çevirmemiz lazım ki harita nerede olduğunu anlasın.
+    raster_4326 = raster.rio.reproject("EPSG:4326")
+    left, bottom, right, top = raster_4326.rio.bounds()
+    bnds = [[bottom, left], [top, right]]
+
+    # 4. HARİTA
     m = leafmap.Map(center=[39, 35], zoom=6, tiles="OpenStreetMap")
 
-    # 4. BOUNDS HESABI (Metre cinsinden ama Folium bunu anlar)
-    left, bottom, right, top = raster_3857.rio.bounds()
-    # Folium için WGS84 (derece) bounds lazım, o yüzden dereceye geri dönüyoruz sadece sınırlar için
-    left_deg, bottom_deg, right_deg, top_deg = raster.rio.bounds()
-    bnds = [[bottom_deg, left_deg], [top_deg, right_deg]]
-
-    # 5. RENDER
-    # Veriyi resme çeviriyoruz
-    vals = raster_3857.values[0] # Band 1
+    # 5. RENDER (Görsel Hazırlama)
+    # Veriyi al (Band 1)
+    vals = raster.values[0]
     
-    # Maskeleme ve Normalizasyon
-    vals = np.where(vals == raster.rio.nodata, np.nan, vals)
-    vmin, vmax = np.nanmin(vals), np.nanmax(vals)
+    # NoData (nan) temizliği
+    nodata = raster.rio.nodata
+    vals_clean = np.where(vals == nodata, np.nan, vals)
     
-    # Görüntü yönü kontrolü (Top-down)
-    # Web Mercator'da genelde flip gerekir
-    vals_plot = np.flipud(vals)
+    # Renk aralığı
+    vmin, vmax = np.nanmin(vals_clean), np.nanmax(vals_clean)
+    
+    # YÖN KONTROLÜ: Tif'ten gelen veri genelde terstir, harita için düzeltiyoruz
+    # Eğer harita ters çıkarsa bunu kaldırırız
+    vals_plot = np.flipud(vals_clean)
 
     norm = plt.Normalize(vmin=vmin, vmax=vmax)
     rgba = plt.get_cmap('viridis')(norm(vals_plot))
     
-    # Raster Ekle
+    # RASTER EKLE (Derece cinsinden bounds ile)
     ImageOverlay(
         image=rgba,
         bounds=bnds,
         opacity=0.7,
-        name="Reprojected Index"
+        name="Summer Days (TIF)"
     ).add_to(m)
 
-    # SHP Ekle (Kırmızı)
-    # m.add_gdf projeksiyonu otomatik halleder ama biz garantiye alalım
-    m.add_gdf(shp, layer_name="SHP Boundaries", style={'color': 'red', 'fillOpacity': 0, 'weight': 1.5})
-
-    # Keskin pikseller
-    m.get_root().header.add_child(folium.Element("""
-    <style> .leaflet-image-layer { image-rendering: pixelated !important; } </style>
-    """))
+    # SHP EKLE
+    m.add_gdf(shp, layer_name="İl Sınırları", style={'color': 'red', 'fillOpacity': 0, 'weight': 1.5})
 
     m.to_streamlit(height=750)
 
-    # TEŞHİS
+    # TEŞHİS (Artık burada mantıklı derece rakamları görmelisin: 35-45 arası)
     st.write("### Diagnostic")
-    st.write(f"Original CRS: {raster.rio.crs}")
-    st.write(f"Bounds (Deg): {bnds}")
+    st.write(f"Corrected Degree Bounds: {bnds}")
+    st.write(f"Min/Max Value: {vmin:.2f} / {vmax:.2f}")
 
 else:
-    st.error("Dosyalar bulunamadı! Lütfen .tif dosyasını push ettiğinden emin ol.")
+    st.error("Dosyalar eksik!")
