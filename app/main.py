@@ -81,5 +81,5 @@ else:
             labels=False,
             sticky=False
         )
-
+    
     m.to_streamlit(height=1200)
