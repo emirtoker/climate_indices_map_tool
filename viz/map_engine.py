@@ -6,12 +6,12 @@ import numpy as np
 import xarray as xr
 import branca.colormap as cm
 import folium
-from folium.raster_layers import ImageOverlay # Kritik ekleme
+from folium.raster_layers import ImageOverlay 
 
 def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
     
-    # --- SENİN DOKUNULMAZ CSS AYARLARIN (ASLA DOKUNULMADI) ---
+    # --- SENİN DOKUNULMAZ CSS AYARLARIN (KORUNDU) ---
     m.get_root().header.add_child(folium.Element("""
     <style>
     .leaflet-image-layer, .leaflet-raster-layer {
@@ -61,44 +61,39 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     custom_legend_html = ""
     has_custom = False
 
-    # --- KRİTİK: ONLINE UYUMLU RASTER ENGINE ---
+    # --- KRİTİK: ONLINE UYUMLU RASTER ENGINE (DÜZELTİLDİ) ---
     def add_accurate_raster(map_obj, data_arr, cmap_name, layer_name, vmin, vmax, alpha):
-        """
-        GeoTIFF'in milimetrik hizalamasını ImageOverlay ile online'a taşır.
-        Local-tileserver bağımlılığını kaldırır.
-        """
         try:
-            # 1. Projeksiyon Mühürleme ve Reproject (Kaymayı bitiren QGIS mantığı)
+            # 1. Projeksiyon Kontrolü
             if data_arr.rio.crs is None:
                 data_arr.rio.write_crs("EPSG:4326", inplace=True)
             
-            # Harita motoruna tam oturması için Web Mercator'a çeviriyoruz
-            # 
-            data_3857 = data_arr.rio.reproject("EPSG:3857")
-            
-            # Bounds (Derece cinsinden Folium'a vermek için)
-            # data_arr zaten EPSG:4326 (veya TIF'ten öyle geliyor)
-            left, bottom, right, top = data_arr.rio.bounds()
+            # 2. SENKRONİZE DÖNÜŞÜM
+            # Sınırlar için Derece (4326)
+            data_4326 = data_arr.rio.reproject("EPSG:4326")
+            left, bottom, right, top = data_4326.rio.bounds()
             bnds = [[bottom, left], [top, right]]
-
-            # 2. Veri Hazırlığı
+            
+            # Görsel için Metrik (3857) - Kaymayı bitiren bu
+            data_3857 = data_arr.rio.reproject("EPSG:3857")
             vals = data_3857.values
             if len(vals.shape) == 3: vals = vals[0]
             
-            # NoData temizliği (TIF'ten gelen nan'ları korur)
-            vals_clean = np.where(vals == data_arr.rio.nodata, np.nan, vals)
+            # 3. Veri Temizliği
+            nodata_val = data_arr.rio.nodata
+            vals_clean = np.where(vals == nodata_val, np.nan, vals)
             
-            # 3. Renklendirme
+            # 4. Renklendirme
             if isinstance(cmap_name, str):
                 cmap = plt.get_cmap(cmap_name)
             else:
-                cmap = cmap_name # Threshold durumları için ListedColormap
+                cmap = cmap_name
 
             norm = plt.Normalize(vmin=vmin, vmax=vmax)
             rgba = cmap(norm(vals_clean))
             
-            # 4. IMAGE OVERLAY (Online Dostu)
-            # add_raster yerine bunu kullanıyoruz çünkü local-tileserver online'da yasak.
+            # 5. ImageOverlay (Tepetaklak olmaması için flip kontrolü gerekirse buraya eklenir)
+            # Genelde 3857 reproject sonrası flip gerektirmez ama test edelim
             ImageOverlay(
                 image=rgba,
                 bounds=bnds,
@@ -110,7 +105,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
         except Exception as e:
             st.error(f"Raster alignment error on {layer_name}: {e}")
 
-    # --- 1. SINGLE INDEX (HİÇBİR AKIŞ DEĞİŞMEDİ) ---
+    # --- 1. SINGLE INDEX (AKIŞ KORUNDU) ---
     if one_bundle:
         sel_one, one_conf = one_bundle
         for name in sel_one:
@@ -161,7 +156,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                     custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["one_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name}: {vmin_val:.0f}-{vmax_val:.0f} {u_str}</span></div>'
                     has_custom = True
 
-    # --- 2. SYNTHESIS (HİÇBİR AKIŞ DEĞİŞMEDİ) ---
+    # --- 2. SYNTHESIS (AKIŞ KORUNDU) ---
     if st.session_state.get('synthesis_active') and multi_bundle[0]:
         sel_multi, multi_conf = multi_bundle
         if sel_multi and sel_multi[0] in layers:
