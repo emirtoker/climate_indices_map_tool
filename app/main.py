@@ -41,12 +41,12 @@ if os.path.exists(tif_path) and os.path.exists(shp_path):
     vals_clean = np.where(vals == nodata, np.nan, vals)
     
     # Renk aralığı
-    vmin, vmax = np.nanmin(vals_clean), np.nanmax(vals_clean)
-    
+    vmin, vmax = np.nanmin(vals_clean), np.nanmax(vals_clean)    
+
     # YÖN KONTROLÜ: Tif'ten gelen veri genelde terstir, harita için düzeltiyoruz
     # Eğer harita ters çıkarsa bunu kaldırırız
-    vals_plot = np.flipud(vals_clean)
-
+    vals_plot = vals_clean # Veriyi olduğu gibi alıyoruz
+    
     norm = plt.Normalize(vmin=vmin, vmax=vmax)
     rgba = plt.get_cmap('viridis')(norm(vals_plot))
     
