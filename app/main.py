@@ -8,6 +8,19 @@ import matplotlib.pyplot as plt
 from folium.raster_layers import ImageOverlay
 import folium
 
+import os
+import streamlit as st
+
+st.write("### Sunucu Dosya Sistemi Kontrolü")
+base_path = "data/indices/historical/climatology/1km/CHELSA/"
+if os.path.exists(base_path):
+    st.write(f"Klasör bulundu: {base_path}")
+    st.write("İçindeki dosyalar:", os.listdir(base_path))
+else:
+    st.error(f"KLASÖR BULUNAMADI: {base_path}")
+    # Root'ta ne var bakalım
+    st.write("Root dizini:", os.listdir("."))
+    
 st.set_page_config(layout="wide")
 st.title("GeoTIFF & SHP Alignment Test (QGIS Style)")
 
