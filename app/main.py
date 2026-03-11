@@ -61,7 +61,7 @@ if st.session_state.get('synthesis_active') and multi_bundle[0]: show_map = True
 
 if show_map:
     # Milimetrik GeoTIFF Engine devrede
-    m = create_interactive_map(layers_data, shp, one_bundle, multi_bundle, units_data)
+    m = create_interactive_map(layers_data, shp, one_bundle, multi_bundle, units_data, av_dict)
     m.to_streamlit(height=850, key=f"map_render_{time.time()}")
 else:
     # Boş harita hali
