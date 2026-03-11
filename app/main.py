@@ -1,72 +1,79 @@
 import streamlit as st
 import leafmap.foliumap as leafmap
-import xarray as xr
+import rioxarray
 import geopandas as gpd
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import folium
 from folium.raster_layers import ImageOverlay
+import folium
 
 st.set_page_config(layout="wide")
-st.title("Final Alignment Test: Sealed Metadata")
+st.title("GeoTIFF & SHP Alignment Test (QGIS Style)")
 
-# 1. DOSYA YOLLARI
-nc_file = "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.nc"
+# 1. YOLLAR (Uzantıyı .tif yaptık)
+tif_file = "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.tif"
 shp_file = "data/shapefiles/tur_adm_2025_ab_shp/tur_admbnda_adm1_2025.shp"
 
-if os.path.exists(nc_file) and os.path.exists(shp_file):
-    # 2. VERİYİ OKU (Artık içinde CRS mühürü var!)
-    ds = xr.open_dataset(nc_file, decode_coords="all")
-    var_name = [v for v in ds.data_vars if v not in ['spatial_ref', 'time_bnds']][0]
-    data = ds[var_name].squeeze()
+if os.path.exists(tif_file) and os.path.exists(shp_file):
+    # 2. VERİ OKUMA VE REPROJECT (QGIS'in yaptığı işi manuel yapıyoruz)
+    # Tif dosyasını açıyoruz
+    raster = rioxarray.open_rasterio(tif_file)
     
-    # SHP Oku
-    shp = gpd.read_file(shp_file).to_crs("EPSG:4326")
+    # KRİTİK: Veriyi Web Mercator'a (EPSG:3857) çeviriyoruz. 
+    # Kaymayı bitiren "on-the-fly" hamlesi budur.
+    raster_3857 = raster.rio.reproject("EPSG:3857")
+    
+    # SHP'yi de aynı sisteme çekiyoruz
+    shp = gpd.read_file(shp_file).to_crs("EPSG:3857")
 
-    # 3. HARİTA (Altlık harita açık kalsın ki kaymayı OSM üzerinden de görelim)
+    # 3. HARİTA
     m = leafmap.Map(center=[39, 35], zoom=6, tiles="OpenStreetMap")
 
-    # 4. OTOMATİK BOUNDS HESABI
-    # Artık dosyanın içinde CRS olduğu için rio.bounds() tık diye çalışacak
-    left, bottom, right, top = data.rio.bounds()
-    bnds = [[bottom, left], [top, right]]
+    # 4. BOUNDS HESABI (Metre cinsinden ama Folium bunu anlar)
+    left, bottom, right, top = raster_3857.rio.bounds()
+    # Folium için WGS84 (derece) bounds lazım, o yüzden dereceye geri dönüyoruz sadece sınırlar için
+    left_deg, bottom_deg, right_deg, top_deg = raster.rio.bounds()
+    bnds = [[bottom_deg, left_deg], [top_deg, right_deg]]
 
-    # 5. RENDER (ImageOverlay)
-    vmin, vmax = float(data.min()), float(data.max())
-    vals = data.values
+    # 5. RENDER
+    # Veriyi resme çeviriyoruz
+    vals = raster_3857.values[0] # Band 1
     
-    # NetCDF yön kontrolü
-    if data.lat[0] < data.lat[-1]:
-        vals = np.flipud(vals)
+    # Maskeleme ve Normalizasyon
+    vals = np.where(vals == raster.rio.nodata, np.nan, vals)
+    vmin, vmax = np.nanmin(vals), np.nanmax(vals)
+    
+    # Görüntü yönü kontrolü (Top-down)
+    # Web Mercator'da genelde flip gerekir
+    vals_plot = np.flipud(vals)
 
-    # Renklendirme
     norm = plt.Normalize(vmin=vmin, vmax=vmax)
-    rgba = plt.get_cmap('viridis')(norm(vals))
+    rgba = plt.get_cmap('viridis')(norm(vals_plot))
     
-    # Raster Katmanını Ekle
+    # Raster Ekle
     ImageOverlay(
         image=rgba,
         bounds=bnds,
         opacity=0.7,
-        name="Sealed Climate Data"
+        name="Reprojected Index"
     ).add_to(m)
-    
-    # SHP Katmanını Ekle (Kırmızı Çizgiler)
-    m.add_gdf(shp, layer_name="Admin Boundaries", style={'color': 'red', 'fillOpacity': 0, 'weight': 1.5})
 
-    # Keskin pikseller için CSS mühürü
+    # SHP Ekle (Kırmızı)
+    # m.add_gdf projeksiyonu otomatik halleder ama biz garantiye alalım
+    m.add_gdf(shp, layer_name="SHP Boundaries", style={'color': 'red', 'fillOpacity': 0, 'weight': 1.5})
+
+    # Keskin pikseller
     m.get_root().header.add_child(folium.Element("""
     <style> .leaflet-image-layer { image-rendering: pixelated !important; } </style>
     """))
 
-    # Haritayı Streamlit'e bas
-    m.to_streamlit(height=700)
+    m.to_streamlit(height=750)
 
-    # TEŞHİS BİLGİSİ
-    st.write("### Teşhis")
-    st.write(f"Kullanılan Bounds: {bnds}")
-    st.write(f"Data CRS (Metadata): {data.rio.crs}")
+    # TEŞHİS
+    st.write("### Diagnostic")
+    st.write(f"Original CRS: {raster.rio.crs}")
+    st.write(f"Bounds (Deg): {bnds}")
 
 else:
-    st.error("Dosyalar bulunamadı! Lütfen mühürlü .nc dosyalarını push ettiğinden emin ol abi.")
+    st.error("Dosyalar bulunamadı! Lütfen .tif dosyasını push ettiğinden emin ol.")
