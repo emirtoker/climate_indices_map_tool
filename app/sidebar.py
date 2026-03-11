@@ -33,6 +33,13 @@ def render_sidebar(available_dict, data_objects=None, units_dict=None):
                     if sub == "Multi-Color":
                         conf['cmap'] = st.selectbox("Color Palette", ["Spectral_r", "RdYlBu_r", "viridis", "magma", "YlOrRd", "Reds", "Blues"], key=f"cp_one_{name}")
                         
+                        # --- PALET ÖNİZLEME SATIRI (GERİ GELDİ) ---
+                        gradient = np.linspace(0, 1, 256).reshape(1, -1)
+                        fig, ax = plt.subplots(figsize=(6, 0.2))
+                        ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(conf['cmap']))
+                        ax.set_axis_off()
+                        st.pyplot(fig)
+                        
                         c1, c2 = st.columns(2)
                         with c1:
                             conf['vmin'] = st.number_input("Min", value=float(d_min), key=f"nmin_one_{name}")
@@ -67,7 +74,7 @@ def render_sidebar(available_dict, data_objects=None, units_dict=None):
                 conf['alpha'] = st.slider("Opacity", 0.0, 1.0, 0.7, key=f"al_one_{name}")
                 one_conf[name] = conf
 
-    # Multi-Indices kısmı aynı (korundu)
+    # Multi-Indices kısmı aynı
     with tab2:
         sel_multi = [k for k in sorted(available_dict.keys()) if st.checkbox(k, key=f"multi_check_{k}")]
         multi_conf = {'indices': {}}

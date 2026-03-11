@@ -13,7 +13,7 @@ import time
 def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
     
-    # --- YOUR ORIGINAL CSS (STILL PROTECTED) ---
+    # --- YOUR ORIGINAL CSS CONFIGURATION ---
     m.get_root().header.add_child(folium.Element("""
     <style>
     .leaflet-image-layer, .leaflet-raster-layer {
@@ -74,10 +74,11 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
             
             data_3857 = data_arr.rio.reproject("EPSG:3857")
             vals = data_3857.values[0] if len(data_3857.values.shape) == 3 else data_3857.values
+            
             nodata_val = data_arr.rio.nodata
             vals_clean = np.where(vals == nodata_val, np.nan, vals)
             
-            # --- UINT8 ENGINE ---
+            # --- UINT8 FORCED ENGINE ---
             mask = ~np.isnan(vals_clean)
             rgba_float = np.zeros((*vals_clean.shape, 4))
 
@@ -118,7 +119,6 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
 
             if c['mode'] == "Threshold":
                 t = c['thresh']
-                # Correcting Threshold handling (no vmin/vmax required here)
                 if c.get('b_m') == "Color":
                     b_data = data.where(data < t, np.nan)
                     add_accurate_raster(m, b_data, c['b_c'], f"{name} Below", t-1, t, c['alpha'])
@@ -133,8 +133,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                 # Interval Mode Logic
                 v_min, v_max = float(c['vmin']), float(c['vmax'])
                 
-                # --- EXTEND MANTIGI (DATA MASKING) ---
-                # Extend seçili değilse, o sınırın dışını NaN yapıyoruz
+                # --- EXTEND LOGIC ---
                 d_plot = data.copy()
                 if not c.get('ext_min', True):
                     d_plot = d_plot.where(d_plot >= v_min, np.nan)
@@ -160,13 +159,12 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                         cmap_obj = cm.LinearColormap(colors=colors, vmin=v_min, vmax=v_max, caption=f"{name} {u_str}")
                         m.add_child(cmap_obj.to_step(index=np.linspace(v_min, v_max, 6)))
                 else:
-                    # One-Color Interval (Already masked by v_min/v_max range in sidebar slider)
                     d_one = d_plot.where((d_plot >= v_min) & (d_plot <= v_max), np.nan)
                     add_accurate_raster(m, d_one, c['one_c'], name, v_min, v_max, c['alpha'])
                     custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["one_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name}: {v_min:.0f}-{v_max:.0f} {u_str}</span></div>'
                     has_custom = True
 
-    # --- Section 2: Synthesis (Korundu) ---
+    # Section 2: Synthesis (Korundu)
     if st.session_state.get('synthesis_active') and multi_bundle[0]:
         sel_multi, multi_conf = multi_bundle
         if sel_multi and sel_multi[0] in layers:
