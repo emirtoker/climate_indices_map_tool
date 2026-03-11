@@ -1,12 +1,9 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib as mpl
 
 def render_sidebar(available_dict, data_objects=None, units_dict=None):
-    """
-    Sidebar configuration for climate indices, providing control over 
-    visualization modes, color selections, and data ranges.
-    """
     st.sidebar.title("Indices Map Tool")
     st.sidebar.subheader("CHELSA Historical")
     
@@ -36,17 +33,13 @@ def render_sidebar(available_dict, data_objects=None, units_dict=None):
                     if sub == "Multi-Color":
                         conf['cmap'] = st.selectbox("Color Palette", ["Spectral_r", "RdYlBu_r", "viridis", "magma", "YlOrRd", "Reds", "Blues"], key=f"cp_one_{name}")
                         
-                        gradient = np.linspace(0, 1, 256).reshape(1, -1)
-                        fig, ax = plt.subplots(figsize=(6, 0.15))
-                        ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(conf['cmap']))
-                        ax.set_axis_off()
-                        st.pyplot(fig)
-                        
                         c1, c2 = st.columns(2)
                         with c1:
                             conf['vmin'] = st.number_input("Min", value=float(d_min), key=f"nmin_one_{name}")
+                            conf['ext_min'] = st.checkbox("Extend Min", value=True, key=f"exmin_one_{name}")
                         with c2:
                             conf['vmax'] = st.number_input("Max", value=float(d_max), key=f"nmax_one_{name}")
+                            conf['ext_max'] = st.checkbox("Extend Max", value=True, key=f"exmax_one_{name}")
                         
                         conf['disc'] = st.toggle("Discrete Values", value=True, key=f"ds_one_{name}")
                         if conf['disc']: 
@@ -74,6 +67,7 @@ def render_sidebar(available_dict, data_objects=None, units_dict=None):
                 conf['alpha'] = st.slider("Opacity", 0.0, 1.0, 0.7, key=f"al_one_{name}")
                 one_conf[name] = conf
 
+    # Multi-Indices kısmı aynı (korundu)
     with tab2:
         sel_multi = [k for k in sorted(available_dict.keys()) if st.checkbox(k, key=f"multi_check_{k}")]
         multi_conf = {'indices': {}}

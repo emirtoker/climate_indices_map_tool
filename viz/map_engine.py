@@ -11,13 +11,9 @@ import rioxarray
 import time
 
 def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
-    """
-    Core mapping engine optimized with uint8 RGBA conversion and dynamic 
-    layer ID generation to prevent rendering stutters.
-    """
     m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
     
-    # --- YOUR ORIGINAL CSS CONFIGURATION (FULLY PRESERVED) ---
+    # --- YOUR ORIGINAL CSS (STILL PROTECTED) ---
     m.get_root().header.add_child(folium.Element("""
     <style>
     .leaflet-image-layer, .leaflet-raster-layer {
@@ -68,31 +64,23 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     has_custom = False
 
     def add_accurate_raster(map_obj, data_arr, cmap_input, layer_name, vmin, vmax, alpha):
-        """
-        Renders raster data using uint8 RGBA matrices. This ensures cross-browser 
-        compatibility and prevents the 'white-out' issue on color updates.
-        """
         try:
             if data_arr.rio.crs is None:
                 data_arr.rio.write_crs("EPSG:4326", inplace=True)
             
-            # Reproject for bounds
             data_4326 = data_arr.rio.reproject("EPSG:4326")
             left, bottom, right, top = data_4326.rio.bounds()
             bnds = [[bottom, left], [top, right]]
             
-            # Reproject for visuals
             data_3857 = data_arr.rio.reproject("EPSG:3857")
             vals = data_3857.values[0] if len(data_3857.values.shape) == 3 else data_3857.values
-            
             nodata_val = data_arr.rio.nodata
             vals_clean = np.where(vals == nodata_val, np.nan, vals)
             
-            # --- THE COLOR FIX: UINT8 RGBA GENERATION ---
+            # --- UINT8 ENGINE ---
             mask = ~np.isnan(vals_clean)
             rgba_float = np.zeros((*vals_clean.shape, 4))
 
-            # Determine color mode
             if isinstance(cmap_input, mpl.colors.ListedColormap):
                 rgba_float[mask] = mpl.colors.to_rgba(cmap_input.colors[0])
             elif isinstance(cmap_input, str) and cmap_input.startswith('#'):
@@ -102,10 +90,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                 norm = plt.Normalize(vmin=vmin, vmax=vmax)
                 rgba_float = cmap(norm(vals_clean))
             
-            # CRITICAL: Force convert to uint8 (0-255) for browser rendering stability
             rgba_uint8 = (rgba_float * 255).astype(np.uint8)
-            
-            # Dynamic layer ID to force Folium to refresh the canvas
             dynamic_id = int(time.time() * 1000)
             
             ImageOverlay(
@@ -130,10 +115,10 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
             data = layers[name].copy()
             if 'time' in data.dims: data = data.mean('time')
             u_str = f"({c['unit']})" if c['unit'] else ""
-            vmin_val, vmax_val = float(c['vmin']), float(c['vmax'])
 
             if c['mode'] == "Threshold":
                 t = c['thresh']
+                # Correcting Threshold handling (no vmin/vmax required here)
                 if c.get('b_m') == "Color":
                     b_data = data.where(data < t, np.nan)
                     add_accurate_raster(m, b_data, c['b_c'], f"{name} Below", t-1, t, c['alpha'])
@@ -145,30 +130,43 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                     custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["a_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name} > {t:.0f} {u_str}</span></div>'
                     has_custom = True
             else:
+                # Interval Mode Logic
+                v_min, v_max = float(c['vmin']), float(c['vmax'])
+                
+                # --- EXTEND MANTIGI (DATA MASKING) ---
+                # Extend seçili değilse, o sınırın dışını NaN yapıyoruz
+                d_plot = data.copy()
+                if not c.get('ext_min', True):
+                    d_plot = d_plot.where(d_plot >= v_min, np.nan)
+                if not c.get('ext_max', True):
+                    d_plot = d_plot.where(d_plot <= v_max, np.nan)
+
                 if c.get('sub_mode') == "Multi-Color":
                     if c.get('disc'):
                         n_lv = int(c['lv'])
-                        bins = np.linspace(vmin_val, vmax_val, n_lv + 1)
-                        idx = np.digitize(data.values, bins) - 1
+                        bins = np.linspace(v_min, v_max, n_lv + 1)
+                        idx = np.digitize(d_plot.values, bins) - 1
                         idx = np.clip(idx, 0, n_lv - 1)
                         bin_centers = (bins[:-1] + bins[1:]) / 2
-                        data_disc = data.copy(data=bin_centers[idx])
-                        data_disc = data_disc.where(data.notnull(), np.nan)
-                        add_accurate_raster(m, data_disc, c['cmap'], name, vmin_val, vmax_val, c['alpha'])
+                        data_disc = d_plot.copy(data=bin_centers[idx])
+                        data_disc = data_disc.where(d_plot.notnull(), np.nan)
+                        
+                        add_accurate_raster(m, data_disc, c['cmap'], name, v_min, v_max, c['alpha'])
                         colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, n_lv)]
-                        m.add_child(cm.StepColormap(colors, vmin=vmin_val, vmax=vmax_val, index=bins, caption=f"{name} {u_str}"))
+                        m.add_child(cm.StepColormap(colors, vmin=v_min, vmax=v_max, index=bins, caption=f"{name} {u_str}"))
                     else:
-                        add_accurate_raster(m, data, c['cmap'], name, vmin_val, vmax_val, c['alpha'])
+                        add_accurate_raster(m, d_plot, c['cmap'], name, v_min, v_max, c['alpha'])
                         colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, 256)]
-                        cmap_obj = cm.LinearColormap(colors=colors, vmin=vmin_val, vmax=vmax_val, caption=f"{name} {u_str}")
-                        m.add_child(cmap_obj.to_step(index=np.linspace(vmin_val, vmax_val, 6)))
+                        cmap_obj = cm.LinearColormap(colors=colors, vmin=v_min, vmax=v_max, caption=f"{name} {u_str}")
+                        m.add_child(cmap_obj.to_step(index=np.linspace(v_min, v_max, 6)))
                 else:
-                    d_one = data.where((data >= vmin_val) & (data <= vmax_val), np.nan)
-                    add_accurate_raster(m, d_one, c['one_c'], name, vmin_val, vmax_val, c['alpha'])
-                    custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["one_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name}: {vmin_val:.0f}-{vmax_val:.0f} {u_str}</span></div>'
+                    # One-Color Interval (Already masked by v_min/v_max range in sidebar slider)
+                    d_one = d_plot.where((d_plot >= v_min) & (d_plot <= v_max), np.nan)
+                    add_accurate_raster(m, d_one, c['one_c'], name, v_min, v_max, c['alpha'])
+                    custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["one_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name}: {v_min:.0f}-{v_max:.0f} {u_str}</span></div>'
                     has_custom = True
 
-    # --- Section 2: Synthesis ---
+    # --- Section 2: Synthesis (Korundu) ---
     if st.session_state.get('synthesis_active') and multi_bundle[0]:
         sel_multi, multi_conf = multi_bundle
         if sel_multi and sel_multi[0] in layers:
@@ -181,12 +179,12 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                 curr = layers[name].copy()
                 if 'time' in curr.dims: curr = curr.mean('time')
                 curr = curr.reindex_like(ref_data, method="nearest")
-                v_min, v_max = multi_conf['indices'][name]['vmin'], multi_conf['indices'][name]['vmax']
-                mask = (curr >= v_min) & (curr <= v_max)
+                v_min_m, v_max_m = multi_conf['indices'][name]['vmin'], multi_conf['indices'][name]['vmax']
+                mask = (curr >= v_min_m) & (curr <= v_max_m)
                 combined_mask = mask if combined_mask is None else combined_mask & mask
                 u_str_m = f"({units_dict.get(name, '')})" if units_dict.get(name) else ""
                 color_box = f'<div style="width:18px;height:18px;background:{multi_conf["color"]};margin-right:10px;"></div>' if i==0 else '<div style="width:18px;height:18px;margin-right:10px;"></div>'
-                synth_rows += f'<div style="display:flex;align-items:center;margin-bottom:4px;">{color_box}<span style="font-size:14px;color:black;">{name}: {v_min:.0f}-{v_max:.0f} {u_str_m}</span></div>'
+                synth_rows += f'<div style="display:flex;align-items:center;margin-bottom:4px;">{color_box}<span style="font-size:14px;color:black;">{name}: {v_min_m:.0f}-{v_max_m:.0f} {u_str_m}</span></div>'
             
             if combined_mask is not None:
                 synth = ref_data.where(combined_mask, np.nan)
