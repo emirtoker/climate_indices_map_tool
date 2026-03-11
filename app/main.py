@@ -2,86 +2,71 @@ import streamlit as st
 import leafmap.foliumap as leafmap
 import xarray as xr
 import geopandas as gpd
+import os
 import numpy as np
 import matplotlib.pyplot as plt
-import os
+import folium
 from folium.raster_layers import ImageOverlay
 
 st.set_page_config(layout="wide")
-st.title("NetCDF Climate Map")
+st.title("Final Alignment Test: Sealed Metadata")
 
+# 1. DOSYA YOLLARI
 nc_file = "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.nc"
 shp_file = "data/shapefiles/tur_adm_2025_ab_shp/tur_admbnda_adm1_2025.shp"
 
 if os.path.exists(nc_file) and os.path.exists(shp_file):
-
-    ds = xr.open_dataset(nc_file)
-
-    var = [v for v in ds.data_vars if v not in ["spatial_ref","time_bnds"]][0]
-
-    data = ds[var].squeeze()
-
-    lat = data.lat.values
-    lon = data.lon.values
-    vals = data.values
-
-    # resolution
-    lat_res = abs(lat[1] - lat[0])
-    lon_res = abs(lon[1] - lon[0])
-
-    # pixel center -> pixel edge correction
-    lat_min = lat.min() - lat_res/2
-    lat_max = lat.max() + lat_res/2
-    lon_min = lon.min() - lon_res/2
-    lon_max = lon.max() + lon_res/2
-
-    bounds = [[lat_min, lon_min], [lat_max, lon_max]]
-
-    # orientation kontrolü
-    if lat[0] < lat[-1]:
-        vals = np.flipud(vals)
-
-    # renk
-    vmin = float(np.nanmin(vals))
-    vmax = float(np.nanmax(vals))
-
-    norm = plt.Normalize(vmin=vmin, vmax=vmax)
-    rgba = plt.get_cmap("viridis")(norm(vals))
-
-    # harita
-    m = leafmap.Map(center=[39,35], zoom=6)
-
-    ImageOverlay(
-        image=rgba,
-        bounds=bounds,
-        opacity=0.7,
-        name="Climate"
-    ).add_to(m)
-
-    # shp
+    # 2. VERİYİ OKU (Artık içinde CRS mühürü var!)
+    ds = xr.open_dataset(nc_file, decode_coords="all")
+    var_name = [v for v in ds.data_vars if v not in ['spatial_ref', 'time_bnds']][0]
+    data = ds[var_name].squeeze()
+    
+    # SHP Oku
     shp = gpd.read_file(shp_file).to_crs("EPSG:4326")
 
-    m.add_gdf(
-        shp,
-        layer_name="Boundaries",
-        style={"color":"red","fillOpacity":0,"weight":1.5}
-    )
+    # 3. HARİTA (Altlık harita açık kalsın ki kaymayı OSM üzerinden de görelim)
+    m = leafmap.Map(center=[39, 35], zoom=6, tiles="OpenStreetMap")
 
+    # 4. OTOMATİK BOUNDS HESABI
+    # Artık dosyanın içinde CRS olduğu için rio.bounds() tık diye çalışacak
+    left, bottom, right, top = data.rio.bounds()
+    bnds = [[bottom, left], [top, right]]
+
+    # 5. RENDER (ImageOverlay)
+    vmin, vmax = float(data.min()), float(data.max())
+    vals = data.values
+    
+    # NetCDF yön kontrolü
+    if data.lat[0] < data.lat[-1]:
+        vals = np.flipud(vals)
+
+    # Renklendirme
+    norm = plt.Normalize(vmin=vmin, vmax=vmax)
+    rgba = plt.get_cmap('viridis')(norm(vals))
+    
+    # Raster Katmanını Ekle
+    ImageOverlay(
+        image=rgba,
+        bounds=bnds,
+        opacity=0.7,
+        name="Sealed Climate Data"
+    ).add_to(m)
+    
+    # SHP Katmanını Ekle (Kırmızı Çizgiler)
+    m.add_gdf(shp, layer_name="Admin Boundaries", style={'color': 'red', 'fillOpacity': 0, 'weight': 1.5})
+
+    # Keskin pikseller için CSS mühürü
+    m.get_root().header.add_child(folium.Element("""
+    <style> .leaflet-image-layer { image-rendering: pixelated !important; } </style>
+    """))
+
+    # Haritayı Streamlit'e bas
     m.to_streamlit(height=700)
 
-    st.subheader("Debug")
-
-    st.write("Lat min:", lat.min())
-    st.write("Lat max:", lat.max())
-    st.write("Lon min:", lon.min())
-    st.write("Lon max:", lon.max())
-
-    st.write("Resolution lat:", lat_res)
-    st.write("Resolution lon:", lon_res)
-
-    st.write("Bounds used:", bounds)
-
-    st.write("Array shape:", vals.shape)
+    # TEŞHİS BİLGİSİ
+    st.write("### Teşhis")
+    st.write(f"Kullanılan Bounds: {bnds}")
+    st.write(f"Data CRS (Metadata): {data.rio.crs}")
 
 else:
-    st.error("Files not found")
+    st.error("Dosyalar bulunamadı! Lütfen mühürlü .nc dosyalarını push ettiğinden emin ol abi.")
