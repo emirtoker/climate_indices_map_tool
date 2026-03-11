@@ -4,8 +4,6 @@ import matplotlib
 matplotlib.use('Agg') # Mac donanım çakışmasını engellemek için
 
 import streamlit as st
-from streamlit_folium import st_folium
-
 
 st.set_page_config(page_title="Indices Map Tool", layout="wide")
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
