@@ -8,11 +8,12 @@ import branca.colormap as cm
 import folium
 from folium.raster_layers import ImageOverlay 
 import rioxarray
+import time
 
 def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     """
-    Generates an interactive map using Folium and Leafmap with high-precision 
-    raster alignment for climate indices.
+    Core mapping engine optimized with uint8 RGBA conversion and dynamic 
+    layer ID generation to prevent rendering stutters.
     """
     m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
     
@@ -66,60 +67,59 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
     custom_legend_html = ""
     has_custom = False
 
-    def add_accurate_raster(map_obj, data_arr, cmap_name, layer_name, vmin, vmax, alpha):
+    def add_accurate_raster(map_obj, data_arr, cmap_input, layer_name, vmin, vmax, alpha):
         """
-        Renders raster data using ImageOverlay. 
-        Fixed: Ensures 'One-Color' selection updates correctly without turning white.
+        Renders raster data using uint8 RGBA matrices. This ensures cross-browser 
+        compatibility and prevents the 'white-out' issue on color updates.
         """
         try:
-            # 1. Spatial alignment
             if data_arr.rio.crs is None:
                 data_arr.rio.write_crs("EPSG:4326", inplace=True)
             
+            # Reproject for bounds
             data_4326 = data_arr.rio.reproject("EPSG:4326")
             left, bottom, right, top = data_4326.rio.bounds()
             bnds = [[bottom, left], [top, right]]
             
+            # Reproject for visuals
             data_3857 = data_arr.rio.reproject("EPSG:3857")
-            vals = data_3857.values
-            if len(vals.shape) == 3: vals = vals[0]
+            vals = data_3857.values[0] if len(data_3857.values.shape) == 3 else data_3857.values
             
             nodata_val = data_arr.rio.nodata
             vals_clean = np.where(vals == nodata_val, np.nan, vals)
             
-            # 2. FIXED COLOR ASSIGNMENT
-            # Check if we are in 'One-Color' or 'Threshold' mode (ListedColormap)
-            if isinstance(cmap_name, mpl.colors.ListedColormap):
-                # Forcefully extract the hex color and convert to RGBA
-                target_color = cmap_name.colors[0]
-                rgb = mpl.colors.to_rgba(target_color)
-                
-                # Create a manual RGBA array (Width, Height, 4)
-                rgba = np.zeros((*vals_clean.shape, 4))
-                
-                # Fill only where there is valid data
-                mask = ~np.isnan(vals_clean)
-                rgba[mask] = rgb  # Assign R, G, B, A
-                # rgba[mask, 3] = 1.0 # Ensure opacity is handled by ImageOverlay's alpha
+            # --- THE COLOR FIX: UINT8 RGBA GENERATION ---
+            mask = ~np.isnan(vals_clean)
+            rgba_float = np.zeros((*vals_clean.shape, 4))
+
+            # Determine color mode
+            if isinstance(cmap_input, mpl.colors.ListedColormap):
+                rgba_float[mask] = mpl.colors.to_rgba(cmap_input.colors[0])
+            elif isinstance(cmap_input, str) and cmap_input.startswith('#'):
+                rgba_float[mask] = mpl.colors.to_rgba(cmap_input)
             else:
-                # Standard Multi-Color Colormap
-                cmap = plt.get_cmap(cmap_name) if isinstance(cmap_name, str) else cmap_name
+                cmap = plt.get_cmap(cmap_input) if isinstance(cmap_input, str) else cmap_input
                 norm = plt.Normalize(vmin=vmin, vmax=vmax)
-                rgba = cmap(norm(vals_clean))
+                rgba_float = cmap(norm(vals_clean))
             
-            # 3. Render
+            # CRITICAL: Force convert to uint8 (0-255) for browser rendering stability
+            rgba_uint8 = (rgba_float * 255).astype(np.uint8)
+            
+            # Dynamic layer ID to force Folium to refresh the canvas
+            dynamic_id = int(time.time() * 1000)
+            
             ImageOverlay(
-                image=rgba,
+                image=rgba_uint8,
                 bounds=bnds,
                 opacity=alpha,
-                name=layer_name,
+                name=f"{layer_name}_{dynamic_id}",
                 zindex=5
             ).add_to(map_obj)
 
         except Exception as e:
-            st.error(f"Raster alignment error on {layer_name}: {e}")
+            st.error(f"Mapping engine error on {layer_name}: {e}")
 
-    # --- Section 1: Individual Climate Indices ---
+    # --- Section 1: Individual Indices ---
     if one_bundle:
         sel_one, one_conf = one_bundle
         for name in sel_one:
@@ -129,7 +129,6 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
             
             data = layers[name].copy()
             if 'time' in data.dims: data = data.mean('time')
-            
             u_str = f"({c['unit']})" if c['unit'] else ""
             vmin_val, vmax_val = float(c['vmin']), float(c['vmax'])
 
@@ -137,12 +136,12 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                 t = c['thresh']
                 if c.get('b_m') == "Color":
                     b_data = data.where(data < t, np.nan)
-                    add_accurate_raster(m, b_data, mpl.colors.ListedColormap([c['b_c']]), f"{name} Below", t-1, t, c['alpha'])
+                    add_accurate_raster(m, b_data, c['b_c'], f"{name} Below", t-1, t, c['alpha'])
                     custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["b_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name} < {t:.0f} {u_str}</span></div>'
                     has_custom = True
                 if c.get('a_m') == "Color":
                     a_data = data.where(data > t, np.nan)
-                    add_accurate_raster(m, a_data, mpl.colors.ListedColormap([c['a_c']]), f"{name} Above", t, t+1, c['alpha'])
+                    add_accurate_raster(m, a_data, c['a_c'], f"{name} Above", t, t+1, c['alpha'])
                     custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["a_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name} > {t:.0f} {u_str}</span></div>'
                     has_custom = True
             else:
@@ -155,7 +154,6 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                         bin_centers = (bins[:-1] + bins[1:]) / 2
                         data_disc = data.copy(data=bin_centers[idx])
                         data_disc = data_disc.where(data.notnull(), np.nan)
-                        
                         add_accurate_raster(m, data_disc, c['cmap'], name, vmin_val, vmax_val, c['alpha'])
                         colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, n_lv)]
                         m.add_child(cm.StepColormap(colors, vmin=vmin_val, vmax=vmax_val, index=bins, caption=f"{name} {u_str}"))
@@ -166,11 +164,11 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                         m.add_child(cmap_obj.to_step(index=np.linspace(vmin_val, vmax_val, 6)))
                 else:
                     d_one = data.where((data >= vmin_val) & (data <= vmax_val), np.nan)
-                    add_accurate_raster(m, d_one, mpl.colors.ListedColormap([c['one_c']]), name, vmin_val, vmax_val, c['alpha'])
+                    add_accurate_raster(m, d_one, c['one_c'], name, vmin_val, vmax_val, c['alpha'])
                     custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["one_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name}: {vmin_val:.0f}-{vmax_val:.0f} {u_str}</span></div>'
                     has_custom = True
 
-    # --- Section 2: Synthesis and Multi-Index Intersection ---
+    # --- Section 2: Synthesis ---
     if st.session_state.get('synthesis_active') and multi_bundle[0]:
         sel_multi, multi_conf = multi_bundle
         if sel_multi and sel_multi[0] in layers:
@@ -192,7 +190,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
             
             if combined_mask is not None:
                 synth = ref_data.where(combined_mask, np.nan)
-                add_accurate_raster(m, synth, mpl.colors.ListedColormap([multi_conf['color']]), "Synthesis Result", 0, 1, multi_conf['alpha'])
+                add_accurate_raster(m, synth, multi_conf['color'], "Synthesis Result", 0, 1, multi_conf['alpha'])
                 custom_legend_html += f'<div style="margin-top:10px;">{synth_rows}</div>'
                 has_custom = True
 
