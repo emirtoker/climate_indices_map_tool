@@ -117,8 +117,8 @@ def render_sidebar(available_dict, data_objects=None, units_dict=None):
                     m_range = st.slider("Range", d_min_m, d_max_m, (d_min_m, d_max_m), step=1.0, key=f"rs_multi_{name}")
                     multi_conf['indices'][name] = {'vmin': m_range[0], 'vmax': m_range[1]}
             
-            multi_conf['color'] = st.color_picker("Synthesis Color", "#2FA42F", key="m_g_c")
-            multi_conf['alpha'] = st.slider("Synthesis Opacity", 0.0, 1.0, 0.8, key="m_g_al")
+            multi_conf['color'] = st.color_picker("Color", "#2FA42F", key="m_g_c")
+            multi_conf['alpha'] = st.slider("Opacity", 0.0, 1.0, 0.8, key="m_g_al")
             
             if st.button("Generate Intersection", use_container_width=True):
                 st.session_state.synthesis_active = True
