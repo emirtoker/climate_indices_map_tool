@@ -8,10 +8,9 @@ import branca.colormap as cm
 import folium
 
 def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
-    # Haritayı notebook'taki gibi milimetrik çakışma için hazırlıyoruz
     m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
     
-    # --- SENİN MÜHÜRLÜ CSS AYARLARIN (DOKUNULMAZ) ---
+    # --- SENİN DOKUNULMAZ CSS AYARLARIN ---
     m.get_root().header.add_child(folium.Element("""
     <style>
     .leaflet-image-layer, .leaflet-raster-layer {
@@ -50,26 +49,21 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
         align-items: flex-end !important;
         gap: 10px !important;
     }
-    .leaflet-control-layers { margin-top: 10px !important; margin-right: 10px !important; }
-    .leaflet-control-layers-toggle { width: 36px !important; height: 36px !important; background-size: 20px 20px !important; }
     </style>
     """))
     
-    # SHP Katmanı (En üstte kalması için zindex ayarlı)
     if shp is not None:
         m.add_gdf(shp, layer_name="Administrative Boundaries", style={'color': 'black', 'fillOpacity': 0, 'weight': 0.8})
     
     custom_legend_html = ""
     has_custom = False
 
-    # --- KRİTİK: MILIMETRIC RASTER ENGINE ---
     def add_accurate_raster(map_obj, data_arr, cmap_name, layer_name, vmin, vmax, alpha):
         """
-        Notebook'taki pcolormesh gibi milimetrik hizalama yapar.
-        Koordinat sistemini (CRS) zorlar ve pikselleri kaydırmaz.
+        GeoTIFF'in milimetrik hizalamasını interaktif haritaya taşır.
         """
         try:
-            # Projeksiyonu mühürle (Kaymayı engellemek için)
+            # Projeksiyon mühürleme
             if data_arr.rio.crs is None:
                 data_arr.rio.write_crs("EPSG:4326", inplace=True)
             
@@ -78,10 +72,10 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                 cmap = plt.get_cmap(cmap_name)
                 palette = [mpl.colors.rgb2hex(cmap(i)) for i in np.linspace(0, 1, 256)]
             else:
-                # ListedColormap (Threshold/One-Color için)
                 palette = [mpl.colors.rgb2hex(cmap_name.colors[0])] * 2
 
-            # add_raster: ImageOverlay yerine bunu kullanarak pikselleri gerçek koordinatına çiviliyoruz
+            # Tif dosyalarında local-tileserver bazen band bekler, 
+            # biz rioxarray ile veriyi temiz gönderiyoruz
             map_obj.add_raster(
                 data_arr, 
                 palette=palette, 
@@ -103,6 +97,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
             if not c.get('visible', True): continue
             
             data = layers[name].copy()
+            # Zaman boyutu varsa ortalamasını al
             if 'time' in data.dims: data = data.mean('time')
             
             u_str = f"({c['unit']})" if c['unit'] else ""
@@ -125,10 +120,11 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                     if c.get('disc'):
                         n_lv = int(c['lv'])
                         bins = np.linspace(vmin_val, vmax_val, n_lv + 1)
+                        # Veriyi discrete hale getir
                         idx = np.digitize(data.values, bins) - 1
                         idx = np.clip(idx, 0, n_lv - 1)
                         bin_centers = (bins[:-1] + bins[1:]) / 2
-                        data_disc = xr.DataArray(bin_centers[idx], coords=data.coords, dims=data.dims)
+                        data_disc = data.copy(data=bin_centers[idx])
                         data_disc = data_disc.where(data.notnull(), np.nan)
                         
                         add_accurate_raster(m, data_disc, c['cmap'], name, vmin_val, vmax_val, c['alpha'])
@@ -157,6 +153,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                 if name not in layers: continue
                 curr = layers[name].copy()
                 if 'time' in curr.dims: curr = curr.mean('time')
+                # Hizalama (Tif dosyalarında da rioxarray reindex_like mükemmel çalışır)
                 curr = curr.reindex_like(ref_data, method="nearest")
                 v_min, v_max = multi_conf['indices'][name]['vmin'], multi_conf['indices'][name]['vmax']
                 mask = (curr >= v_min) & (curr <= v_max)
@@ -164,6 +161,7 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict):
                 u_str_m = f"({units_dict.get(name, '')})" if units_dict.get(name) else ""
                 color_box = f'<div style="width:18px;height:18px;background:{multi_conf["color"]};margin-right:10px;"></div>' if i==0 else '<div style="width:18px;height:18px;margin-right:10px;"></div>'
                 synth_rows += f'<div style="display:flex;align-items:center;margin-bottom:4px;">{color_box}<span style="font-size:14px;color:black;">{name}: {v_min:.0f}-{v_max:.0f} {u_str_m}</span></div>'
+            
             if combined_mask is not None:
                 synth = ref_data.where(combined_mask, np.nan)
                 add_accurate_raster(m, synth, mpl.colors.ListedColormap([multi_conf['color']]), "Synthesis Result", 0, 1, multi_conf['alpha'])
