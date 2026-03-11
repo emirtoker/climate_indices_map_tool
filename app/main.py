@@ -9,10 +9,10 @@ from folium.raster_layers import ImageOverlay
 import os
 
 st.set_page_config(layout="wide")
-st.title("Climate Index Map (Debug Version)")
+st.title("Climate Index Map (Aligned Version)")
 
 # --------------------------------------------------
-# 1. DOSYA YOLLARI
+# DOSYA YOLLARI
 # --------------------------------------------------
 
 nc_file = "data/indices/historical/climatology/1km/CHELSA/CHELSA_TR_yearly_1995_2014_SU_summer_days.nc"
@@ -25,18 +25,15 @@ if os.path.exists(nc_file) and os.path.exists(shp_file):
 
     ds = xr.open_dataset(nc_file)
 
-    var_name = [v for v in ds.data_vars if v not in ['spatial_ref', 'time_bnds']][0]
+    var_name = [v for v in ds.data_vars if v not in ["spatial_ref", "time_bnds"]][0]
 
     data = ds[var_name].squeeze()
 
-    # CRS mühürle
+    # CRS sabitle
     data = data.rio.write_crs("EPSG:4326")
 
-    st.write("Dataset:", ds)
-    st.write("Variable:", var_name)
-
     # --------------------------------------------------
-    # 2. LAT YÖNÜ NORMALİZE
+    # LAT YÖNÜ NORMALİZE
     # --------------------------------------------------
 
     if data.lat[0] < data.lat[-1]:
@@ -45,39 +42,40 @@ if os.path.exists(nc_file) and os.path.exists(shp_file):
     vals = data.values
 
     # --------------------------------------------------
-    # 3. GRID BOUNDS
+    # BOUNDS HESABI (MANUEL)
     # --------------------------------------------------
 
-    left, bottom, right, top = data.rio.bounds()
+    lat_min = float(data.lat.min())
+    lat_max = float(data.lat.max())
+    lon_min = float(data.lon.min())
+    lon_max = float(data.lon.max())
 
-    # grid resolution
     res_lat = abs(float(data.lat[1] - data.lat[0]))
     res_lon = abs(float(data.lon[1] - data.lon[0]))
 
-    # pixel center → pixel edge düzeltmesi
-    left -= res_lon / 2
-    right += res_lon / 2
-    bottom -= res_lat / 2
-    top += res_lat / 2
+    # pixel-center → pixel-edge düzeltmesi
+    lat_min -= res_lat / 2
+    lat_max += res_lat / 2
+    lon_min -= res_lon / 2
+    lon_max += res_lon / 2
 
-    bounds = [[bottom, left], [top, right]]
+    bounds = [[lat_min, lon_min], [lat_max, lon_max]]
 
     # --------------------------------------------------
-    # 4. SHAPEFILE
+    # SHAPEFILE
     # --------------------------------------------------
 
     shp = gpd.read_file(shp_file)
     shp = shp.to_crs("EPSG:4326")
 
     # --------------------------------------------------
-    # 5. HARİTA
+    # HARİTA
     # --------------------------------------------------
 
     st.subheader("2️⃣ Harita")
 
     m = leafmap.Map(center=[39, 35], zoom=6, tiles="OpenStreetMap")
 
-    # colormap
     vmin = float(np.nanmin(vals))
     vmax = float(np.nanmax(vals))
 
@@ -91,7 +89,7 @@ if os.path.exists(nc_file) and os.path.exists(shp_file):
         name="Climate Index"
     ).add_to(m)
 
-    # sınırlar
+    # Türkiye sınırları
     m.add_gdf(
         shp,
         layer_name="Boundaries",
@@ -102,7 +100,7 @@ if os.path.exists(nc_file) and os.path.exists(shp_file):
         }
     )
 
-    # pixel keskinliği
+    # piksel keskinliği
     m.get_root().header.add_child(folium.Element("""
     <style>
     .leaflet-image-layer {
@@ -114,7 +112,7 @@ if os.path.exists(nc_file) and os.path.exists(shp_file):
     m.to_streamlit(height=700)
 
     # --------------------------------------------------
-    # 6. DEBUG BİLGİLERİ
+    # DEBUG PANELİ
     # --------------------------------------------------
 
     st.subheader("3️⃣ Debug bilgiler")
@@ -132,12 +130,13 @@ if os.path.exists(nc_file) and os.path.exists(shp_file):
         st.write("Lon last 5:", data.lon.values[-5:])
 
     with col2:
-        st.write("Raster bounds:")
-        st.write(bounds)
+        st.write("Lat min:", lat_min)
+        st.write("Lat max:", lat_max)
+        st.write("Lon min:", lon_min)
+        st.write("Lon max:", lon_max)
 
-        st.write("Resolution:")
-        st.write("lat:", res_lat)
-        st.write("lon:", res_lon)
+        st.write("Resolution lat:", res_lat)
+        st.write("Resolution lon:", res_lon)
 
         st.write("Array shape:", vals.shape)
 
