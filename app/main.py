@@ -76,15 +76,13 @@ def render_isolated_map_section(trigger):
         applied_conf = st.session_state.applied_one_conf
         applied_multi = st.session_state.applied_multi_bundle
 
-        # ONLINE APP İÇİN OPTİMİZE VERİ YÜKLEME
-        # Artık dosya okumuyoruz, stats.json içindeki 'unit' bilgisini kullanıyoruz.
-        units_data = {}
-        for k in list(set(applied_sel) | set(applied_multi[0])):
-            file_name = av_dict.get(k)
-            # stats içinde bu dosya ismi varsa birimi al
-            units_data[k] = stats.get(file_name, {}).get('unit', '')
+        # Dosya okumuyoruz, zaten elimizde olan stats içinden pıt diye alıyoruz
+        units_data = {
+            k: stats.get(av_dict[k], {}).get('unit', '') 
+            for k in list(set(applied_sel) | set(applied_multi[0]))
+        }
 
-        # Haritayı oluştur (JSON mühürüyle)
+        # Haritayı oluştur
         m = get_cached_map(
             tuple(applied_sel), 
             json.dumps(applied_conf, sort_keys=True), 
