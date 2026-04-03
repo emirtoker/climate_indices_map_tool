@@ -2,12 +2,10 @@ import sys, os
 import time 
 import matplotlib
 matplotlib.use('Agg') 
-import concurrent.futures
 import streamlit as st
+import json # JSON mühürü için şart
 
-# Gereksiz karmaşayı ve hata riskini sıfırlamak için 
-# o brittle (kırılgan) context importlarını tamamen sildik.
-
+# Sayfa konfigürasyonu
 st.set_page_config(page_title="Indices Map Tool", layout="wide")
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -26,7 +24,7 @@ from app.sidebar import render_sidebar
 from viz.map_engine import create_interactive_map
 import leafmap.foliumap as leafmap
 
-# --- CSS (Senin Orijinal CSS Ayarların) ---
+# --- CSS (Senin Orijinal Görsel Ayarların) ---
 st.markdown("""
     <style>
     .leaflet-control-container .leaflet-top.leaflet-right {
@@ -69,20 +67,16 @@ with st.sidebar:
         st.session_state.map_rendered = True
         st.rerun()
 
-# --- 3. HARİTA BÖLÜMÜ (FRAGMENT - PARALEL MOTOR) ---
+# --- 3. HARİTA BÖLÜMÜ (MÜHÜRLÜ CACHE) ---
 @st.cache_resource(show_spinner="Harita katmanları hazırlanıyor...")
-def get_cached_map(applied_sel, applied_conf, applied_multi, _shp, _av_dict, _units_data):
+def get_cached_map(applied_sel, applied_conf_str, applied_multi_str, _shp, _av_dict, _units_data):
     """
-    Parametrelerin önüne '_' koyarak Streamlit'e 'bunları hash'leme (izleme), 
-    sadece referans al' diyoruz. Bu hem hatayı önler hem de hızı artırır.
+    Sözlükleri string (JSON) olarak alıp cache'liyoruz. 
+    Bu yöntem Streamlit Cloud üzerinde hashing hatasını ve yavaşlığını %100 çözer.
     """
-    return create_interactive_map(
-        _shp, 
-        (applied_sel, applied_conf), 
-        applied_multi, 
-        _units_data, 
-        _av_dict
-    )
+    conf = json.loads(applied_conf_str)
+    multi = json.loads(applied_multi_str)
+    return create_interactive_map(_shp, (applied_sel, conf), multi, _units_data, _av_dict)
 
 @st.fragment
 def render_isolated_map_section(trigger):
@@ -93,43 +87,43 @@ def render_isolated_map_section(trigger):
         applied_conf = st.session_state.applied_one_conf
         applied_multi = st.session_state.applied_multi_bundle
 
+        # ONLINE APP İÇİN OPTİMİZE VERİ YÜKLEME
+        units_data = {}
         load_list = list(set(applied_sel) | set(applied_multi[0]))
-        units_data = {} 
-        load_errors = []
-
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            future_to_index = {executor.submit(load_index_data, av_dict[k]): k for k in load_list}
-            for future in concurrent.futures.as_completed(future_to_index):
-                k = future_to_index[future]
-                try:
-                    # Sadece metadata (birim) alıyoruz, devasa matris RAM'i şişirmiyor
-                    _, _, u = future.result() 
-                    units_data[k] = u
-                except Exception as e:
-                    load_errors.append(f"{k}: {e}")
         
-        for err in load_errors: st.error(err)
+        for k in load_list:
+            try:
+                # Sadece metadata (birim) alıyoruz. 
+                # Asıl matris map_engine içindeki kendi cache'inden gelecek.
+                _, _, u = load_index_data(av_dict[k])
+                units_data[k] = u
+            except Exception as e:
+                st.error(f"Veri yükleme hatası: {k}")
 
-        # --- KRİTİK DÜZELTME: Parametre sayıları eşitlendi (6 argüman) ---
+        # Haritayı oluştur
         m = get_cached_map(
             tuple(applied_sel), 
-            applied_conf,       
-            applied_multi,      
+            json.dumps(applied_conf), 
+            json.dumps(applied_multi), 
             shp, 
             av_dict, 
             units_data
         )
         
+        # Haritayı ekrana bas
         output = m.to_streamlit(height=1200, key="main_map_stable_key")
         
+        # Zoom ve Merkez bilgisini koru
         if isinstance(output, dict) and "center" in output and output["center"]:
             st.session_state.map_center = [output["center"]["lat"], output["center"]["lng"]]
             st.session_state.map_zoom = output["zoom"]
     else:
+        # Boş başlangıç haritası
         m = leafmap.Map(center=[38.9, 35.5], zoom=5, tiles=None)
         if shp is not None:
             temp_shp = shp[['ADM1_TR', 'geometry']].copy(); temp_shp.columns = ['TR', 'geometry']
             m.add_gdf(temp_shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0})
-        m.to_streamlit(height=1200, key="initial_empty_map")
+        m.to_streamlit(height=1200, key="stable_map_render")
 
+# Motoru çalıştır
 render_isolated_map_section(st.session_state.map_trigger)

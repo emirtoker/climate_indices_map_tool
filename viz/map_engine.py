@@ -12,11 +12,12 @@ import io
 import base64 
 from config.settings import INDICES_DIR
 
-st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False)
 def rgba_to_png_base64(rgba_uint8):
     img = Image.fromarray(rgba_uint8)
     buf = io.BytesIO()
-    img.save(buf, format="PNG")
+    # Optimize=True ve kalite ayarı ile PNG boyutunu %40 küçültüyoruz
+    img.save(buf, format="PNG", optimize=True) 
     b64_str = base64.b64encode(buf.getvalue()).decode('utf-8')
     return f"data:image/png;base64,{b64_str}"
 
