@@ -1,25 +1,17 @@
 import sys, os
-import time 
-import matplotlib
-matplotlib.use('Agg') 
 import streamlit as st
-import json # JSON mühürü için şart
+import json
 
 # Sayfa konfigürasyonu
 st.set_page_config(page_title="Indices Map Tool", layout="wide")
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # --- 1. SESSION STATE (Mühürlü Kasa) ---
-if 'map_center' not in st.session_state: st.session_state.map_center = [38.9, 35.5]
-if 'map_zoom' not in st.session_state: st.session_state.map_zoom = 5
-if 'map_rendered' not in st.session_state: st.session_state.map_rendered = False
-if 'map_trigger' not in st.session_state: st.session_state.map_trigger = 0
+for key, val in [('map_center', [38.9, 35.5]), ('map_zoom', 5), ('map_rendered', False), ('map_trigger', 0), 
+                 ('applied_sel_one', []), ('applied_one_conf', {}), ('applied_multi_bundle', ([], {}))]:
+    if key not in st.session_state: st.session_state[key] = val
 
-if 'applied_sel_one' not in st.session_state: st.session_state.applied_sel_one = []
-if 'applied_one_conf' not in st.session_state: st.session_state.applied_one_conf = {}
-if 'applied_multi_bundle' not in st.session_state: st.session_state.applied_multi_bundle = ([], {})
-
-from core.data_loader import load_index_data, load_turkiye_shp, list_available_indices, load_stats
+from core.data_loader import load_turkiye_shp, list_available_indices, load_stats, load_index_data
 from app.sidebar import render_sidebar
 from viz.map_engine import create_interactive_map
 import leafmap.foliumap as leafmap
@@ -47,6 +39,7 @@ av_dict = list_available_indices()
 stats = load_stats()
 
 # 2. SIDEBAR RENDER
+# Sidebar'a stats'ı veriyoruz ki birimleri oradan alabilsin
 one_bundle, multi_bundle = render_sidebar(av_dict, {}, {}, stats)
 current_sel_one, current_one_conf = one_bundle
 current_sel_multi, current_multi_conf = multi_bundle
@@ -68,12 +61,8 @@ with st.sidebar:
         st.rerun()
 
 # --- 3. HARİTA BÖLÜMÜ (MÜHÜRLÜ CACHE) ---
-@st.cache_resource(show_spinner="Harita katmanları hazırlanıyor...")
+@st.cache_resource(show_spinner="Processing...")
 def get_cached_map(applied_sel, applied_conf_str, applied_multi_str, _shp, _av_dict, _units_data):
-    """
-    Sözlükleri string (JSON) olarak alıp cache'liyoruz. 
-    Bu yöntem Streamlit Cloud üzerinde hashing hatasını ve yavaşlığını %100 çözer.
-    """
     conf = json.loads(applied_conf_str)
     multi = json.loads(applied_multi_str)
     return create_interactive_map(_shp, (applied_sel, conf), multi, _units_data, _av_dict)
@@ -88,23 +77,18 @@ def render_isolated_map_section(trigger):
         applied_multi = st.session_state.applied_multi_bundle
 
         # ONLINE APP İÇİN OPTİMİZE VERİ YÜKLEME
+        # Artık dosya okumuyoruz, stats.json içindeki 'unit' bilgisini kullanıyoruz.
         units_data = {}
-        load_list = list(set(applied_sel) | set(applied_multi[0]))
-        
-        for k in load_list:
-            try:
-                # Sadece metadata (birim) alıyoruz. 
-                # Asıl matris map_engine içindeki kendi cache'inden gelecek.
-                _, _, u = load_index_data(av_dict[k])
-                units_data[k] = u
-            except Exception as e:
-                st.error(f"Veri yükleme hatası: {k}")
+        for k in list(set(applied_sel) | set(applied_multi[0])):
+            file_name = av_dict.get(k)
+            # stats içinde bu dosya ismi varsa birimi al
+            units_data[k] = stats.get(file_name, {}).get('unit', '')
 
-        # Haritayı oluştur
+        # Haritayı oluştur (JSON mühürüyle)
         m = get_cached_map(
             tuple(applied_sel), 
-            json.dumps(applied_conf), 
-            json.dumps(applied_multi), 
+            json.dumps(applied_conf, sort_keys=True), 
+            json.dumps(applied_multi, sort_keys=True), 
             shp, 
             av_dict, 
             units_data
@@ -123,7 +107,6 @@ def render_isolated_map_section(trigger):
         if shp is not None:
             temp_shp = shp[['ADM1_TR', 'geometry']].copy(); temp_shp.columns = ['TR', 'geometry']
             m.add_gdf(temp_shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0})
-        m.to_streamlit(height=1200, key="stable_map_render")
+        m.to_streamlit(height=1200, key="initial_empty_map")
 
-# Motoru çalıştır
 render_isolated_map_section(st.session_state.map_trigger)
