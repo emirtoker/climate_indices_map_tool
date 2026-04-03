@@ -10,32 +10,28 @@ from PIL import Image
 import io
 import base64
 
-# --- AŞAMA 1: DISK OKUMA CACHE (En Ağır İşlem) ---
+# --- AŞAMA 1: DISK OKUMA CACHE (TIF dosyasını RAM'e sadece 1 kez alır) ---
 @st.cache_data(show_spinner=False)
 def load_raw_data(file_name):
-    """Veriyi diskten sadece 1 kere okur ve RAM'de tutar."""
     from core.data_loader import load_index_data
     data, _, _ = load_index_data(file_name)
     return data
 
-# --- AŞAMA 2: PNG ENCODE CACHE (CPU Optimizasyonu) ---
+# --- AŞAMA 2: PNG ENCODE CACHE (Resme çevirme işlemini mühürler) ---
 @st.cache_data(show_spinner=False)
 def rgba_to_png_base64(rgba_uint8):
     img = Image.fromarray(rgba_uint8)
     buf = io.BytesIO()
-    # optimize=True kaldırıldı; CPU yükünü azaltmak için hızlı kayıt tercih edildi
-    img.save(buf, format="PNG") 
+    img.save(buf, format="PNG") # Hızlı kayıt için optimize=False (Default)
     return f"data:image/png;base64,{base64.b64encode(buf.getvalue()).decode('utf-8')}"
 
-# --- AŞAMA 3: RENKLENDİRME CACHE (RAM İşlemi) ---
+# --- AŞAMA 3: RENKLENDİRME MOTORU ---
 @st.cache_data(show_spinner=False)
 def get_cached_rgba(file_name, vmin, vmax, cmap_input, mode, thresh=None, color_below=None, color_above=None, no_b=False, no_a=False):
-    # DİKKAT: Veriyi diskten değil, RAM'deki cache'den alıyoruz
+    # Veriyi diskten değil, RAM'deki cache'den alıyoruz (IŞIK HIZI)
     data = load_raw_data(file_name)
-    
     vals = data.values
-    mask = ~np.isnan(vals)
-    rgba = np.zeros((*vals.shape, 4), dtype=np.float32)
+    mask = ~np.isnan(vals); rgba = np.zeros((*vals.shape, 4), dtype=np.float32)
 
     if mode == "Threshold":
         t = thresh
@@ -55,25 +51,24 @@ def get_cached_rgba(file_name, vmin, vmax, cmap_input, mode, thresh=None, color_
     left, bottom, right, top = data.rio.transform_bounds("EPSG:4326")
     return (rgba * 255).astype(np.uint8), [[bottom, left], [top, right]]
 
-# ... (get_synthesis_rgba fonksiyonu da load_raw_data kullanacak şekilde güncellenmeli)
-
 def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_dict):
     m = leafmap.Map(center=st.session_state.get('map_center', [38.9, 35.5]), zoom=st.session_state.get('map_zoom', 5), tiles=None)
 
-    # ANA CSS - LOOP DIŞINDA
+    # --- CSS: ANA AYARLAR ---
     m.get_root().header.add_child(folium.Element("""
     <style>
     .leaflet-image-layer { image-rendering: pixelated !important; }
-    .legend { font-size: 16px !important; flex-direction: column-reverse !important; }
+    .legend { font-size: 16px !important; flex-direction: column-reverse !important; transition: opacity 0.3s; }
     </style>
     """))
     
     if shp is not None:
         temp_shp = shp[['ADM1_TR', 'geometry']].copy(); temp_shp.columns = ['TR', 'geometry']
-        m.add_gdf(temp_shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0}, fields=['TR'], labels=False)
+        m.add_gdf(temp_shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0}, labels=False)
 
-    custom_legend_html = ""; has_custom = False; current_opacity = 1.0
+    custom_legend_html = ""; has_custom = False; active_alpha = 1.0
 
+    # --- Section 1: Individual Indices ---
     if one_bundle:
         sel_one, one_conf = one_bundle
         for name in sel_one:
@@ -82,18 +77,14 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
             if not c.get('visible', True): continue
             
             # MATRİS VE PNG (Cached)
-            rgba, bnds = get_cached_rgba(available_dict[name], v_min, v_max, 
-                                         (c['one_c'] if c.get('sub_mode') == "One-Color" else c.get('cmap', 'viridis')), 
-                                         c['mode'], c.get('thresh'), c.get('b_c'), c.get('a_c'), 
-                                         c.get('b_m') == "No Color", c.get('a_m') == "No Color")
-            
+            rgba, bnds = get_cached_rgba(available_dict[name], v_min, v_max, (c['one_c'] if c.get('sub_mode') == "One-Color" else c.get('cmap', 'viridis')), c['mode'], c.get('thresh'), c.get('b_c'), c.get('a_c'), c.get('b_m') == "No Color", c.get('a_m') == "No Color")
             png_url = rgba_to_png_base64(rgba)
             ImageOverlay(image=png_url, bounds=bnds, opacity=c['alpha'], name=name, zindex=5).add_to(m)
             
-            # Opacity değerini loop dışına taşımak için saklıyoruz
-            current_opacity = c['alpha']
+            # Lejant Opacity (Burada mühürlüyoruz)
+            active_alpha = c['alpha']
 
-            # Lejant Basamakları (Daha önce yaptığımız Hayalet 0 fix duruyor)
+            # LEJANT KODLARI (Hayalet 0 Fix Dahil)
             unit = units_dict.get(name, ""); colorbar_title = f"{name} ({unit})" if unit else name
             if c['mode'] == "Interval" and c.get('sub_mode') == "Multi-Color":
                 n_lv = int(c.get('lv', 5)); bins = np.linspace(v_min, v_max, n_lv + 1)
@@ -102,8 +93,8 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
             elif c['mode'] == "Interval":
                 custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["one_c"]};margin-right:10px;"></div><span style="color:black; font-size:14px;">{name}: {v_min:.0f}-{v_max:.0f}</span></div>'; has_custom = True
 
-    # LOOP DIŞINDA TEK CSS ENJEKSİYONU
-    m.get_root().header.add_child(folium.Element(f"<style>.legend {{ opacity: {current_opacity} !important; }}</style>"))
+    # --- FİNAL CSS ENJEKSİYONU (DÖNGÜ DIŞINDA) ---
+    m.get_root().header.add_child(folium.Element(f"<style>.legend {{ opacity: {active_alpha} !important; }}</style>"))
 
     if has_custom:
         m.get_root().html.add_child(folium.Element(f'<div style="position:fixed; bottom:35px; right:40px; z-index:9999; background:rgba(255,255,255,0.9); padding:12px; border-radius:8px; box-shadow: 0 0 10px rgba(0,0,0,0.2); min-width:220px;">{custom_legend_html}</div>'))
