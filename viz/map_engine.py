@@ -135,19 +135,26 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
             
             ImageOverlay(image=rgba_uint8, bounds=bnds, opacity=c['alpha'], name=name, zindex=5).add_to(m)
             
+            m.get_root().header.add_child(folium.Element(f"""
+            <style>
+                .legend {{ opacity: {c['alpha']} !important; transition: opacity 0.3s; }}
+            </style>
+            """))
+
             # --- LEJANT KODLARI (DİNAMİK LV/LEVEL DÜZELTMESİ) ---
             unit = units_dict.get(name, ""); colorbar_title = f"{name} ({unit})" if unit else name
             if c['mode'] == "Interval" and c.get('sub_mode') == "Multi-Color":
                 if c.get('disc'):
-                    # --- SENİN İSTEDİĞİN 10 İSE 10, 5 İSE 5 GÖSTEREN KISIM ---
+
                     n_lv = int(c.get('lv', 5))
                     bins = np.linspace(v_min, v_max, n_lv + 1)
                     colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, n_lv)]
+                    
                     m.add_child(cm.StepColormap(colors, vmin=v_min, vmax=v_max, index=bins, caption=colorbar_title))
                 else:
                     colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, 256)]
-                    # Buradaki '6' değerini de istersen dinamik yapabiliriz ama default 6 kalsın
-                    m.add_child(cm.LinearColormap(colors=colors, vmin=v_min, vmax=v_max, caption=colorbar_title).to_step(index=np.linspace(v_min, v_max, 6)))
+                    ticks = np.linspace(v_min, v_max, 6)
+                    m.add_child(cm.LinearColormap(colors=colors, vmin=v_min, vmax=v_max, caption=colorbar_title).to_step(index=ticks))
             elif c['mode'] == "Interval":
                 custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["one_c"]};margin-right:10px;"></div><span style="color:black; font-size:14px;">{name}: {v_min:.0f}-{v_max:.0f}</span></div>'
                 has_custom = True
@@ -163,6 +170,11 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
         
         if synth_rgba is not None:
             ImageOverlay(image=synth_rgba, bounds=bnds, opacity=multi_conf['alpha'], name="MULTI INDICES", zindex=6).add_to(m)
+            m.get_root().header.add_child(folium.Element(f"""
+            <style>
+                .legend {{ opacity: {multi_conf['alpha']} !important; }}
+            </style>
+            """))
             synth_rows = "".join([f'<div style="display:flex;align-items:center;margin-bottom:4px;"><div style="width:18px;height:18px;background:{multi_conf["color"] if i==0 else "transparent"};margin-right:10px;"></div><span style="color:black; font-size:14px;">{name}: {multi_conf["indices"][name]["vmin"]:.0f}-{multi_conf["indices"][name]["vmax"]:.0f}</span></div>' for i, name in enumerate(sel_multi)])
             separator = 'border-top:1px solid #ccc; margin-top:10px; padding-top:10px;' if custom_legend_html else ''
             custom_legend_html += f'<div style="{separator}">{synth_rows}</div>'
