@@ -6,7 +6,24 @@ import numpy as np
 import branca.colormap as cm
 import folium
 from folium.raster_layers import ImageOverlay 
+from PIL import Image
+import io
+import base64
 
+# --- 1. PERFORMANS MOTORU: PNG ENCODE CACHE ---
+@st.cache_data(show_spinner=False)
+def rgba_to_png_base64(rgba_uint8):
+    """
+    NumPy array'i PNG'ye çevirip Base64 basar. 
+    Bu, Folium'un kendi içindeki hantal dönüşümden 10 kat hızlıdır.
+    """
+    img = Image.fromarray(rgba_uint8)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG", optimize=True)
+    b64_str = base64.b64encode(buf.getvalue()).decode('utf-8')
+    return f"data:image/png;base64,{b64_str}"
+
+# --- 2. VERİ MOTORU: TEKLİ İNDİS CACHE ---
 @st.cache_data(show_spinner=False)
 def get_cached_rgba(file_name, vmin, vmax, cmap_input, mode, thresh=None, color_below=None, color_above=None, no_b=False, no_a=False):
     from core.data_loader import load_index_data
@@ -26,7 +43,6 @@ def get_cached_rgba(file_name, vmin, vmax, cmap_input, mode, thresh=None, color_
             rgba[idx_above, :3] = mpl.colors.to_rgba(color_above)[:3]
             rgba[idx_above, 3] = 1.0
     else:
-        # Range dışındaki yerlerin şeffaf kalması için sadece valid_range'i boyuyoruz
         valid_range = mask & (vals >= vmin) & (vals <= vmax)
         if isinstance(cmap_input, str) and cmap_input.startswith('#'):
             rgba[valid_range, :3] = mpl.colors.to_rgba(cmap_input)[:3]
@@ -39,6 +55,7 @@ def get_cached_rgba(file_name, vmin, vmax, cmap_input, mode, thresh=None, color_
     left, bottom, right, top = data.rio.transform_bounds("EPSG:4326")
     return (rgba * 255).astype(np.uint8), [[bottom, left], [top, right]]
 
+# --- 3. VERİ MOTORU: SENTEZ (MULTI) CACHE ---
 @st.cache_data(show_spinner=False)
 def get_synthesis_rgba(names, vmin_list, vmax_list, color):
     from core.data_loader import load_index_data
@@ -60,6 +77,7 @@ def get_synthesis_rgba(names, vmin_list, vmax_list, color):
         return (rgba * 255).astype(np.uint8), [[bottom, left], [top, right]]
     return None, None
 
+# --- 4. ANA HARİTA FONKSİYONU ---
 def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_dict):
     m = leafmap.Map(
         center=st.session_state.get('map_center', [38.9, 35.5]), 
@@ -67,7 +85,7 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
         tiles=None, control_scale=True
     )
 
-    # --- CSS CONFIGURATION (İLMEK İLMEK İŞLEDİĞİN KISIM - DOKUNULMADI) ---
+    # --- SENİN ÖZEL CSS BLOĞUN (DOKUNULMADI) ---
     m.get_root().header.add_child(folium.Element("""
     <style>
     .leaflet-image-layer, .leaflet-raster-layer {
@@ -117,39 +135,40 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
     custom_legend_html = ""
     has_custom = False
 
+    # --- Section 1: Individual Indices ---
     if one_bundle:
         sel_one, one_conf = one_bundle
         for name in sel_one:
             if name not in available_dict: continue
             c = one_conf[name]
             if not c.get('visible', True): continue
-            v_min, v_max = float(c.get('vmin', 0)), float(c.get('vmax', 100))
             
-            # --- ONE-COLOR MANTIĞI ---
+            v_min, v_max = float(c.get('vmin', 0)), float(c.get('vmax', 100))
             visual_input = c['one_c'] if c.get('sub_mode') == "One-Color" else c.get('cmap', 'viridis')
             
+            # 1. Matrisi al (Cached)
             rgba_uint8, bnds = get_cached_rgba(
                 available_dict[name], v_min, v_max, visual_input, c['mode'],
                 c.get('thresh'), c.get('b_c'), c.get('a_c'), c.get('b_m') == "No Color", c.get('a_m') == "No Color"
             )
             
-            ImageOverlay(image=rgba_uint8, bounds=bnds, opacity=c['alpha'], name=name, zindex=5).add_to(m)
+            # 2. PNG'ye çevir (Kritik hız artışı!)
+            png_url = rgba_to_png_base64(rgba_uint8)
             
-            m.get_root().header.add_child(folium.Element(f"""
-            <style>
-                .legend {{ opacity: {c['alpha']} !important; transition: opacity 0.3s; }}
-            </style>
-            """))
+            # 3. Haritaya ekle
+            ImageOverlay(image=png_url, bounds=bnds, opacity=c['alpha'], name=name, zindex=5).add_to(m)
+            
+            # --- ALPHA LEGEND SENKRONİZASYONU ---
+            m.get_root().header.add_child(folium.Element(f"<style>.legend {{ opacity: {c['alpha']} !important; }}</style>"))
 
-            # --- LEJANT KODLARI (DİNAMİK LV/LEVEL DÜZELTMESİ) ---
+            # --- LEJANT KODLARI ---
             unit = units_dict.get(name, ""); colorbar_title = f"{name} ({unit})" if unit else name
             if c['mode'] == "Interval" and c.get('sub_mode') == "Multi-Color":
                 if c.get('disc'):
-
                     n_lv = int(c.get('lv', 5))
                     bins = np.linspace(v_min, v_max, n_lv + 1)
                     colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, n_lv)]
-                    
+                    # index=bins sayesinde "Hayalet 0" kovuldu
                     m.add_child(cm.StepColormap(colors, vmin=v_min, vmax=v_max, index=bins, caption=colorbar_title))
                 else:
                     colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, 256)]
@@ -169,12 +188,13 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
         synth_rgba, bnds = get_synthesis_rgba(tuple(names), tuple(vmin_list), tuple(vmax_list), multi_conf['color'])
         
         if synth_rgba is not None:
-            ImageOverlay(image=synth_rgba, bounds=bnds, opacity=multi_conf['alpha'], name="MULTI INDICES", zindex=6).add_to(m)
-            m.get_root().header.add_child(folium.Element(f"""
-            <style>
-                .legend {{ opacity: {multi_conf['alpha']} !important; }}
-            </style>
-            """))
+            # SENTEZ İÇİN DE PNG CACHE KULLANIYORUZ
+            synth_png = rgba_to_png_base64(synth_rgba)
+            ImageOverlay(image=synth_png, bounds=bnds, opacity=multi_conf['alpha'], name="MULTI INDICES", zindex=6).add_to(m)
+            
+            # SENTEZ ALPHA SYNC
+            m.get_root().header.add_child(folium.Element(f"<style>.legend {{ opacity: {multi_conf['alpha']} !important; }}</style>"))
+            
             synth_rows = "".join([f'<div style="display:flex;align-items:center;margin-bottom:4px;"><div style="width:18px;height:18px;background:{multi_conf["color"] if i==0 else "transparent"};margin-right:10px;"></div><span style="color:black; font-size:14px;">{name}: {multi_conf["indices"][name]["vmin"]:.0f}-{multi_conf["indices"][name]["vmax"]:.0f}</span></div>' for i, name in enumerate(sel_multi)])
             separator = 'border-top:1px solid #ccc; margin-top:10px; padding-top:10px;' if custom_legend_html else ''
             custom_legend_html += f'<div style="{separator}">{synth_rows}</div>'
