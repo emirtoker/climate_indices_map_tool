@@ -11,3 +11,6 @@ rasterio
 shapely
 psutil
 localtileserver
+folium
+numpy
+Pillow

@@ -1,0 +1,26 @@
+{
+    "CHELSA_TR_yearly_1995_2014_PCD_passive_comfort_days_cog.tif": {
+        "min": 0.05000000074505806,
+        "max": 163.9499969482422
+    },
+    "CHELSA_TR_yearly_1995_2014_PRCPTOT_annual_total_precip_cog.tif": {
+        "min": 286.80316162109375,
+        "max": 2112.446533203125
+    },
+    "CHELSA_TR_yearly_1995_2014_SU_summer_days_cog.tif": {
+        "min": 0.0,
+        "max": 202.10000610351562
+    },
+    "CHELSA_TR_yearly_1995_2014_TR_tropical_nights_cog.tif": {
+        "min": 0.0,
+        "max": 148.85000610351562
+    },
+    "CHELSA_TR_yearly_2000_2009_UTCI_universal_thermal_comfort_index_cog.tif": {
+        "min": -6.97153338153258,
+        "max": 24.20937446530098
+    },
+    "CHELSA_TR_yearly_2000_2014_DI_discomfort_index_cog.tif": {
+        "min": 3.154155263725211,
+        "max": 17.775806712928816
+    }
+}

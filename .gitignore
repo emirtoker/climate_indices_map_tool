@@ -1,6 +1,10 @@
-*.pyc
+# .gitignore
+
+# Gereksiz sistem ve python dosyaları
 __pycache__/
+*.pyc
 .DS_Store
-*_backup.py
-*backup.py
-.streamlit/
+.ipynb_checkpoints/
+
+# LOG ve geçici dosyalar
+*.log

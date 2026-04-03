@@ -1,23 +1,99 @@
 import streamlit as st
 import leafmap.foliumap as leafmap
+import os
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
-import xarray as xr
 import branca.colormap as cm
 import folium
 from folium.raster_layers import ImageOverlay 
-import rioxarray
-import time
+from PIL import Image
+import io
+import base64 
+from config.settings import INDICES_DIR
 
-def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict, available_dict):
-    """
-    Professional climate visualization engine.
-    Tooltips are forced to show only values via CSS override.
-    """
-    m = leafmap.Map(center=[39, 35], zoom=6, tiles=None, control_scale=True, zoom_snap=0.1, zoom_delta=0.1)
+st.cache_data(show_spinner=False)
+def rgba_to_png_base64(rgba_uint8):
+    img = Image.fromarray(rgba_uint8)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    b64_str = base64.b64encode(buf.getvalue()).decode('utf-8')
+    return f"data:image/png;base64,{b64_str}"
+
+# --- ADIM 2: SINGLE INDICES CACHE (ANLIK TEPKİ İÇİN) ---
+@st.cache_data(show_spinner=False)
+def get_cached_rgba(file_name, vmin, vmax, cmap_input, mode, thresh=None, color_below=None, color_above=None, no_b=False, no_a=False):
+    from core.data_loader import load_index_data
+    data, _, _ = load_index_data(file_name)
     
-    # --- CSS CONFIGURATION (Fixed Tooltip & Legends) ---
+    vals = data.values
+    mask = ~np.isnan(vals)
+    
+    # Başlangıçta her yer tamamen şeffaf (Alpha = 0)
+    rgba = np.zeros((*vals.shape, 4), dtype=np.float32)
+
+    if mode == "Threshold":
+        t = thresh
+        # Sadece Threshold şartını sağlayan yerleri boya VE görünür yap (Alpha = 1.0)
+        if not no_b: 
+            idx_below = mask & (vals < t)
+            rgba[idx_below, :3] = mpl.colors.to_rgba(color_below)[:3]
+            rgba[idx_below, 3] = 1.0
+        if not no_a: 
+            idx_above = mask & (vals > t)
+            rgba[idx_above, :3] = mpl.colors.to_rgba(color_above)[:3]
+            rgba[idx_above, 3] = 1.0
+    else:
+        # Sadece vmin ve vmax aralığındaki pikselleri hedefle
+        valid_range = mask & (vals >= vmin) & (vals <= vmax)
+        
+        # 1. Renkleri (RGB) ata
+        if isinstance(cmap_input, str) and cmap_input.startswith('#'):
+            rgba[valid_range, :3] = mpl.colors.to_rgba(cmap_input)[:3]
+        else:
+            norm = plt.Normalize(vmin=vmin, vmax=vmax)
+            cmap = plt.get_cmap(cmap_input)
+            rgba[valid_range, :3] = cmap(norm(vals[valid_range]))[:, :3]
+            
+        # 2. KRİTİK DOKUNUŞ: Sadece geçerli aralıktakilerin Alpha'sını 1.0 yap
+        # Geri kalan her yer (aralık dışı ve NaN) otomatik olarak 0.0 (Transparan) kalacak.
+        rgba[valid_range, 3] = 1.0 
+    
+    left, bottom, right, top = data.rio.transform_bounds("EPSG:4326")
+    return (rgba * 255).astype(np.uint8), [[bottom, left], [top, right]]
+
+# --- ADIM 3: SYNTHESIS CACHE ---
+@st.cache_data(show_spinner=False)
+def get_synthesis_rgba(names, vmin_list, vmax_list, color):
+    from core.data_loader import load_index_data
+    combined_mask = None
+    ref_data = None
+    for i, name in enumerate(names):
+        curr, _, _ = load_index_data(name)
+        if ref_data is None: ref_data = curr
+        v_min, v_max = vmin_list[i], vmax_list[i]
+        if curr.shape == ref_data.shape:
+            mask = (curr.values >= v_min) & (curr.values <= v_max)
+        else:
+            mask = (curr.reindex_like(ref_data, method="nearest").values >= v_min) & (curr.reindex_like(ref_data, method="nearest").values <= v_max)
+        combined_mask = mask if combined_mask is None else combined_mask & mask
+    
+    if combined_mask is not None:
+        rgba = np.zeros((*combined_mask.shape, 4), dtype=np.float32)
+        rgba[combined_mask, :3] = mpl.colors.to_rgba(color)[:3]
+        rgba[combined_mask, 3] = 1.0
+        left, bottom, right, top = ref_data.rio.transform_bounds("EPSG:4326")
+        return (rgba * 255).astype(np.uint8), [[bottom, left], [top, right]]
+    return None, None
+
+def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_dict):
+    m = leafmap.Map(
+        center=st.session_state.get('map_center', [38.9, 35.5]), 
+        zoom=st.session_state.get('map_zoom', 5), 
+        tiles=None, control_scale=True
+    )
+
+    # --- CSS CONFIGURATION (İLMEK İLMEK İŞLEDİĞİN KISIM - DOKUNULMADI) ---
     m.get_root().header.add_child(folium.Element("""
     <style>
     .leaflet-image-layer, .leaflet-raster-layer {
@@ -25,11 +101,8 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict, av
         image-rendering: crisp-edges !important;
         image-rendering: pixelated !important;
     }
-    
-    /* NUCLEAR OPTION: Force hide any table headers in tooltips globally */
     .leaflet-tooltip table th { display: none !important; }
     .leaflet-tooltip table td { font-weight: bold !important; font-size: 14px !important; }
-
     .legend {
         font-size: 16px !important;
         font-weight: normal !important;
@@ -47,7 +120,6 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict, av
         font-weight: normal !important;
         text-align: center !important;
         display: block !important;
-        font-style: normal !important;
         color: black !important;
         transform: translateY(3px) !important; 
         margin-bottom: 30px !important; 
@@ -61,152 +133,79 @@ def create_interactive_map(layers, shp, one_bundle, multi_bundle, units_dict, av
         align-items: flex-end !important;
         gap: 10px !important;
     }
-    .leaflet-control-layers { margin-top: 10px !important; margin-right: 10px !important; }
-    .leaflet-control-layers-toggle { width: 36px !important; height: 36px !important; background-size: 20px 20px !important; }
     </style>
     """))
     
     if shp is not None:
-        temp_shp = shp[['ADM1_TR', 'geometry']].copy()
-        temp_shp.columns = ['TR', 'geometry']
-        m.add_gdf(
-            temp_shp, 
-            layer_name="Türkiye Provinces",
-            style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0},
-            fields=['TR'], 
-            aliases=[''], 
-            labels=False,
-            sticky=False
-        )
+        temp_shp = shp[['ADM1_TR', 'geometry']].copy(); temp_shp.columns = ['TR', 'geometry']
+        m.add_gdf(temp_shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0}, fields=['TR'], labels=False)
 
     custom_legend_html = ""
     has_custom = False
-
-    def add_accurate_raster(map_obj, data_arr, cmap_input, layer_name, vmin, vmax, alpha):
-        try:
-            if data_arr.rio.crs is None:
-                data_arr.rio.write_crs("EPSG:4326", inplace=True)
-            
-            data_4326 = data_arr.rio.reproject("EPSG:4326")
-            left, bottom, right, top = data_4326.rio.bounds()
-            bnds = [[bottom, left], [top, right]]
-            
-            data_3857 = data_arr.rio.reproject("EPSG:3857")
-            vals = data_3857.values[0] if len(data_3857.values.shape) == 3 else data_3857.values
-            
-            nodata_val = data_arr.rio.nodata
-            vals_clean = np.where(vals == nodata_val, np.nan, vals)
-            
-            mask = ~np.isnan(vals_clean)
-            rgba_float = np.zeros((*vals_clean.shape, 4))
-
-            if isinstance(cmap_input, mpl.colors.ListedColormap):
-                rgba_float[mask] = mpl.colors.to_rgba(cmap_input.colors[0])
-            elif isinstance(cmap_input, str) and cmap_input.startswith('#'):
-                rgba_float[mask] = mpl.colors.to_rgba(cmap_input)
-            else:
-                cmap = plt.get_cmap(cmap_input) if isinstance(cmap_input, str) else cmap_input
-                norm = plt.Normalize(vmin=vmin, vmax=vmax)
-                rgba_float = cmap(norm(vals_clean))
-            
-            rgba_uint8 = (rgba_float * 255).astype(np.uint8)
-            
-            ImageOverlay(
-                image=rgba_uint8,
-                bounds=bnds,
-                opacity=alpha,
-                name=layer_name,
-                zindex=5
-            ).add_to(map_obj)
-        except Exception as e:
-            st.error(f"Mapping error: {e}")
 
     # --- Section 1: Individual Indices ---
     if one_bundle:
         sel_one, one_conf = one_bundle
         for name in sel_one:
-            if name not in layers: continue
-            
-            unit = units_dict.get(name, "")
-            u_str = f" ({unit})" if unit else ""
-            colorbar_title = f"{name}{u_str}"
-            
+            if name not in available_dict: continue
             c = one_conf[name]
             if not c.get('visible', True): continue
+            v_min, v_max = float(c.get('vmin', 0)), float(c.get('vmax', 100))
             
-            data = layers[name].copy()
-            if 'time' in data.dims: data = data.mean('time')
-
-            if c['mode'] == "Threshold":
-                t = c['thresh']
-                if c.get('b_m') == "Color":
-                    add_accurate_raster(m, data.where(data < t, np.nan), c['b_c'], f"{name} < {t}", t-1, t, c['alpha'])
-                    custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["b_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name} < {t:.0f}</span></div>'
-                    has_custom = True
-                if c.get('a_m') == "Color":
-                    add_accurate_raster(m, data.where(data > t, np.nan), c['a_c'], f"{name} > {t}", t, t+1, c['alpha'])
-                    custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["a_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name} > {t:.0f}</span></div>'
-                    has_custom = True
-            else:
-                v_min, v_max = float(c['vmin']), float(c['vmax'])
-                d_plot = data.copy()
-                if not c.get('ext_min', True): d_plot = d_plot.where(d_plot >= v_min, np.nan)
-                if not c.get('ext_max', True): d_plot = d_plot.where(d_plot <= v_max, np.nan)
-
+            # --- ONE-COLOR MANTIĞI BURADA GÖNDERİLİYOR ---
+            visual_input = c['one_c'] if c.get('sub_mode') == "One-Color" else c.get('cmap', 'viridis')
+            
+            rgba_uint8, bnds = get_cached_rgba(
+                available_dict[name], v_min, v_max, visual_input, c['mode'],
+                c.get('thresh'), c.get('b_c'), c.get('a_c'), c.get('b_m') == "No Color", c.get('a_m') == "No Color"
+            )
+            
+            png_url = rgba_to_png_base64(rgba_uint8)
+            ImageOverlay(image=png_url, bounds=bnds, opacity=c['alpha'], name=name, zindex=5).add_to(m)
+            
+            # LEJANT KODLARI
+            unit = units_dict.get(name, ""); colorbar_title = f"{name} ({unit})" if unit else name
+            if c['mode'] == "Interval":
                 if c.get('sub_mode') == "Multi-Color":
                     if c.get('disc'):
-                        n_lv = int(c['lv'])
-                        bins = np.linspace(v_min, v_max, n_lv + 1)
-                        idx = np.digitize(d_plot.values, bins) - 1
-                        idx = np.clip(idx, 0, n_lv - 1)
-                        bin_centers = (bins[:-1] + bins[1:]) / 2
-                        data_disc = d_plot.copy(data=bin_centers[idx])
-                        data_disc = data_disc.where(d_plot.notnull(), np.nan)
-                        
-                        add_accurate_raster(m, data_disc, c['cmap'], name, v_min, v_max, c['alpha'])
+                        n_lv = int(c['lv']); bins = np.linspace(v_min, v_max, n_lv + 1)
                         colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, n_lv)]
                         m.add_child(cm.StepColormap(colors, vmin=v_min, vmax=v_max, index=bins, caption=colorbar_title))
                     else:
-                        add_accurate_raster(m, d_plot, c['cmap'], name, v_min, v_max, c['alpha'])
                         colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, 256)]
-                        cmap_obj = cm.LinearColormap(colors=colors, vmin=v_min, vmax=v_max, caption=colorbar_title)
-                        m.add_child(cmap_obj.to_step(index=np.linspace(v_min, v_max, 6)))
+                        m.add_child(cm.LinearColormap(colors=colors, vmin=v_min, vmax=v_max, caption=colorbar_title).to_step(index=np.linspace(v_min, v_max, 6)))
                 else:
-                    d_one = d_plot.where((d_plot >= v_min) & (d_plot <= v_max), np.nan)
-                    add_accurate_raster(m, d_one, c['one_c'], name, v_min, v_max, c['alpha'])
-                    custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["one_c"]};margin-right:10px;"></div><span style="font-size:14px;color:black;">{name}: {v_min:.0f}-{v_max:.0f}</span></div>'
+                    custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["one_c"]};margin-right:10px;"></div><span style="color:black; font-size:14px;">{name}: {v_min:.0f}-{v_max:.0f}</span></div>'
+                    has_custom = True
+            else:
+                if c.get('b_m') == "Color":
+                    custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["b_c"]};margin-right:10px;"></div><span style="color:black; font-size:14px;">{name} < {c["thresh"]:.1f}</span></div>'
+                    has_custom = True
+                if c.get('a_m') == "Color":
+                    custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:6px;"><div style="width:18px;height:18px;background:{c["a_c"]};margin-right:10px;"></div><span style="color:black; font-size:14px;">{name} > {c["thresh"]:.1f}</span></div>'
                     has_custom = True
 
     # --- Section 2: Synthesis ---
     if st.session_state.get('synthesis_active') and multi_bundle[0]:
         sel_multi, multi_conf = multi_bundle
-        if sel_multi and sel_multi[0] in layers:
-            ref_data = layers[sel_multi[0]].copy()
-            if 'time' in ref_data.dims: ref_data = ref_data.mean('time')
-            combined_mask = None
-            synth_rows = ""
-            for i, name in enumerate(sel_multi):
-                if name not in layers: continue
-                curr = layers[name].copy()
-                if 'time' in curr.dims: curr = curr.mean('time')
-                curr = curr.reindex_like(ref_data, method="nearest")
-                v_min_m, v_max_m = multi_conf['indices'][name]['vmin'], multi_conf['indices'][name]['vmax']
-                mask = (curr >= v_min_m) & (curr <= v_max_m)
-                combined_mask = mask if combined_mask is None else combined_mask & mask
-                
-                color_box = f'<div style="width:18px;height:18px;background:{multi_conf["color"]};margin-right:10px;"></div>' if i==0 else '<div style="width:18px;height:18px;margin-right:10px;"></div>'
-                synth_rows += f'<div style="display:flex;align-items:center;margin-bottom:4px;">{color_box}<span style="font-size:14px;color:black;">{name}: {v_min_m:.0f}-{v_max_m:.0f}</span></div>'
+        names = [available_dict[n] for n in sel_multi]
+        vmin_list = [multi_conf['indices'][n]['vmin'] for n in sel_multi]
+        vmax_list = [multi_conf['indices'][n]['vmax'] for n in sel_multi]
+        
+        synth_rgba, bnds = get_synthesis_rgba(tuple(names), tuple(vmin_list), tuple(vmax_list), multi_conf['color'])
+        
+        if synth_rgba is not None:
+            synth_url = rgba_to_png_base64(synth_rgba)
+            ImageOverlay(image=synth_url, bounds=bnds, opacity=multi_conf['alpha'], name="MULTI INDICES", zindex=6).add_to(m)
             
-            if combined_mask is not None:
-                synth = ref_data.where(combined_mask, np.nan)
-                # Mapped to 'MULTI INDICES' as requested
-                add_accurate_raster(m, synth, multi_conf['color'], "MULTI INDICES", 0, 1, multi_conf['alpha'])
-                custom_legend_html += f'<div style="margin-top:10px;">{synth_rows}</div>'
-                has_custom = True
+            synth_rows = "".join([f'<div style="display:flex;align-items:center;margin-bottom:4px;"><div style="width:18px;height:18px;background:{multi_conf["color"] if i==0 else "transparent"};margin-right:10px;"></div><span style="color:black; font-size:14px;">{name}: {multi_conf["indices"][name]["vmin"]:.0f}-{multi_conf["indices"][name]["vmax"]:.0f}</span></div>' for i, name in enumerate(sel_multi)])
+            
+            separator = 'border-top:1px solid #ccc; margin-top:10px; padding-top:10px;' if custom_legend_html else ''
+            custom_legend_html += f'<div style="{separator}">{synth_rows}</div>'
+            has_custom = True
 
     if has_custom:
-        legend_div = f'<div style="position:fixed; bottom:35px; right:40px; z-index:9999; background:none; border:none; padding:0; min-width:280px;">{custom_legend_html}</div>'
-        m.get_root().html.add_child(folium.Element(legend_div))
+        m.get_root().html.add_child(folium.Element(f'<div style="position:fixed; bottom:35px; right:40px; z-index:9999; background:rgba(255,255,255,0.9); padding:12px; border-radius:8px; box-shadow: 0 0 10px rgba(0,0,0,0.2); min-width:220px;">{custom_legend_html}</div>'))
     
     m.add_layer_control()
     return m
