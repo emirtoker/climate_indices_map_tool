@@ -135,11 +135,14 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
             # LEJANT KODLARI
             unit = units_dict.get(name, ""); colorbar_title = f"{name} ({unit})" if unit else name
             if c['mode'] == "Interval" and c.get('sub_mode') == "Multi-Color":
-                n_lv = int(c.get('lv', 5)); bins = np.linspace(v_min, v_max, n_lv + 1)
+                n_lv = int(c.get('lv', 5))
+                bins = [float(x) for x in np.linspace(v_min, v_max, n_lv + 1)]
                 colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, n_lv)]
                 m.add_child(cm.StepColormap(colors, vmin=v_min, vmax=v_max, index=bins, caption=colorbar_title))
             elif c['mode'] == "Interval":
-                custom_legend_html += f'<div style="display:flex;align-items:center;margin-bottom:8px;"><div style="width:20px;height:20px;background:{c["one_c"]};margin-right:10px; border:1px solid black; opacity:1;"></div><span style="color:black; font-size:15px; font-weight:bold;">{name}: {v_min:.0f}-{v_max:.0f}</span></div>'; has_custom = True
+                line = '<div style="border-top:1px solid #ccc; margin:8px 0;"></div>' if custom_legend_html else ""
+                custom_legend_html += f'{line}<div style="display:flex;align-items:center;margin-bottom:8px;"><div style="width:20px;height:20px;background:{c["one_c"]};margin-right:10px; border:1px solid black; opacity:1;"></div><span style="color:black; font-size:15px; font-weight:bold;">{name}: {v_min:.0f}-{v_max:.0f}</span></div>'
+                has_custom = True
 
     # Section 2: Synthesis (Aynı Mantık)
     if st.session_state.get('synthesis_active') and multi_bundle[0]:
@@ -148,8 +151,9 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
         if s_rgba is not None:
             s_png = rgba_to_png_base64(s_rgba)
             ImageOverlay(image=s_png, bounds=bnds, opacity=multi_conf['alpha'], name="MULTI INDICES", zindex=6).add_to(m)
+            line = '<div style="border-top:2px solid #333; margin-top:10px; padding-top:10px;"></div>' if custom_legend_html else ""
             synth_rows = "".join([f'<div style="display:flex;align-items:center;margin-bottom:5px;"><div style="width:20px;height:20px;background:{multi_conf["color"] if i==0 else "transparent"};margin-right:10px; border:{ "1px solid black" if i==0 else "none"};"></div><span style="color:black; font-size:15px; font-weight:bold;">{name}: {multi_conf["indices"][name]["vmin"]:.0f}-{multi_conf["indices"][name]["vmax"]:.0f}</span></div>' for i, name in enumerate(sel_multi)])
-            custom_legend_html += f'<div style="border-top:2px solid #333; margin-top:10px; padding-top:10px;">{synth_rows}</div>'; has_custom = True
+            custom_legend_html += f'{line}<div>{synth_rows}</div>'; has_custom = True
 
     if has_custom:
         m.get_root().html.add_child(folium.Element(f'<div style="position:fixed; bottom:40px; right:40px; z-index:9999; background:rgba(255,255,255,0.95); padding:15px; border-radius:10px; border:2px solid #333; box-shadow: 5px 5px 15px rgba(0,0,0,0.3); min-width:240px;">{custom_legend_html}</div>'))
