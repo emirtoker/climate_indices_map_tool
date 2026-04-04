@@ -11,203 +11,189 @@ def thin_divider():
     DIVIDER_COLOR = "#888a8d"
     st.markdown(f'<hr style="border: none; border-top: 1.5px solid {DIVIDER_COLOR}; margin: 2px 0 12px 0;">', unsafe_allow_html=True)
 
-def get_clean_name(file_name, group_prefix=""):
+def get_clean_name_logic(file_name, is_historical=False):
     """
-    Dosya isminden indisi (PCD, DI, UTCI vb.) hatasız yakalar.
-    Kısaltmayı her zaman BÜYÜK HARF, açıklamayı Title Case yapar.
+    Ham dosya isminden (filename) temiz isim üretir.
+    Historical için 6. eleman taktiği, Future için sondan başa tarama.
     """
-    # Projedeki geçerli indis kodları
     codes = ["PCD", "PRCPTOT", "SU", "TR", "DI", "HI", "PET", "SPI", "SPEI", "UTCI"]
-    
-    # Uzantıyı ve 'cog' ibaresini temizle
     clean = file_name.replace(".tif", "").replace("_cog", "")
     parts = clean.split('_')
     
-    found_code = None
-    found_idx = -1
-    
-    # TAKTİK: İsmi sondan başa tarıyoruz. 
-    # Böylece 'TR_yearly' gibi baştaki ülke kodlarına takılmadan 
-    # en sondaki gerçek indisi (PCD, DI vb.) yakalıyoruz.
-    for i in range(len(parts) - 1, -1, -1):
-        p_upper = parts[i].upper()
-        if p_upper in codes:
-            # 'TR' hem ülke kodu hem Tropical Nights olduğu için index kontrolü şart
-            if p_upper == "TR" and i < 4: 
-                continue
-            found_code = p_upper
-            found_idx = i
-            break
-            
-    if found_code and found_idx != -1:
-        # Koddan sonra gelen tüm kelimeleri al (summer_days -> Summer Days)
-        description_parts = parts[found_idx + 1:]
-        description = " ".join(description_parts).replace("_", " ").title()
-        
-        # Kısaltma BÜYÜK HARF - Açıklama Baş Harfleri Büyük
-        name = f"{found_code} - {description}"
+    found_code, found_idx = None, -1
+
+    if is_historical:
+        if len(parts) > 5 and parts[5].upper() in codes:
+            found_code = parts[5].upper()
+            found_idx = 5
     else:
-        # Beklenmedik bir isim gelirse en azından temizle bas
-        name = clean.replace("_", " ").title()
-        
-    return f"{group_prefix}{name}" if group_prefix else name
+        for i in range(len(parts) - 1, -1, -1):
+            if parts[i].upper() in codes:
+                if parts[i].upper() == "TR" and i < 4: continue
+                found_code = parts[i].upper()
+                found_idx = i
+                break
+            
+    if found_code:
+        description = " ".join(parts[found_idx + 1:]).replace("_", " ").title()
+        return f"{found_code} - {description}"
+    
+    return clean.replace("_", " ").title()
+
+def get_stats_logic(file_name, stats_dict):
+    """
+    JSON'dan gerçek değerleri okur.
+    """
+    if not stats_dict: return 0.0, 100.0, ""
+    
+    if file_name in stats_dict:
+        s = stats_dict[file_name]
+        return float(s.get("min", 0)), float(s.get("max", 100)), s.get("unit", "")
+                
+    return 0.0, 100.0, ""
 
 # --- SINGLE INDICE UI ---
 @st.fragment
-def render_single_indices_ui(available_dict, units_dict, stats, prefix="one"):
-    LABEL_STYLE = '<p style="font-size: 14px; color: #eeeeee; margin-bottom: 2px; font-weight: 400;">'
+def render_single_indices_ui(available_dict, units_dict, stats, is_historical=False, prefix="one"):
     one_conf = {}
     selected_keys = []
     
     sorted_keys = sorted(available_dict.keys())
-    for file_key in sorted_keys:
-        display_name = get_clean_name(file_key)
-        if st.checkbox(display_name, key=f"{prefix}_check_{file_key}"):
-            selected_keys.append(file_key)
+    
+    for key in sorted_keys:
+        filename = available_dict[key] if is_historical else key
+        label = get_clean_name_logic(filename, is_historical)
+        
+        if st.checkbox(label, key=f"{prefix}_check_{filename}"):
+            selected_keys.append(filename)
     
     if selected_keys:
         st.markdown('<div style="margin-top: 20px;"></div>', unsafe_allow_html=True)
         thin_divider()
-        for file_key in selected_keys:
-            display_name = get_clean_name(file_key)
-            with st.expander(display_name, expanded=True):
-                conf = {'visible': st.toggle("Visible on Map", value=True, key=f"vis_{prefix}_{file_key}")}
+        for filename in selected_keys:
+            label = get_clean_name_logic(filename, is_historical)
+            
+            with st.expander(label, expanded=True):
+                d_min, d_max, d_unit = get_stats_logic(filename, stats)
+                
+                conf = {'visible': st.toggle("Visible on Map", value=True, key=f"vis_{prefix}_{filename}")}
+                conf['unit'] = d_unit if d_unit else units_dict.get(filename, "")
                 thin_divider()
                 
-                d_min, d_max = (float(np.floor(stats[file_key]["min"])), float(np.ceil(stats[file_key]["max"]))) if stats and file_key in stats else (0.0, 100.0)
-                conf['unit'] = stats.get(file_key, {}).get('unit', '')
-                
-                mode = st.radio("Mode", ["Interval", "Threshold"], key=f"mod_{prefix}_{file_key}")
+                mode = st.radio("Mode", ["Interval", "Threshold"], key=f"mod_{prefix}_{filename}")
                 conf['mode'] = mode
-                thin_divider()
                 
                 if mode == "Interval":
-                    use_slider = st.toggle("Slider Control", value=False, key=f"use_sl_{prefix}_{file_key}")
+                    use_slider = st.toggle("Slider Control", value=False, key=f"use_sl_{prefix}_{filename}")
                     if not use_slider:
                         col_min, col_max = st.columns(2)
-                        with col_min: v_min = st.number_input("Min", value=d_min, key=f"num_min_{prefix}_{file_key}")
-                        with col_max: v_max = st.number_input("Max", value=d_max, key=f"num_max_{prefix}_{file_key}")
+                        v_min = col_min.number_input("Min", value=float(d_min), key=f"n_min_{prefix}_{filename}")
+                        v_max = col_max.number_input("Max", value=float(d_max), key=f"n_max_{prefix}_{filename}")
                         conf['vmin'], conf['vmax'] = v_min, v_max
                     else:
-                        range_values = st.slider("Range Selector", d_min, d_max, (d_min, d_max), step=1.0, key=f"sl_bar_{prefix}_{file_key}", label_visibility="collapsed")
-                        conf['vmin'], conf['vmax'] = range_values
+                        r = st.slider("Range", float(d_min), float(d_max), (float(d_min), float(d_max)), step=1.0, key=f"sl_{prefix}_{filename}")
+                        conf['vmin'], conf['vmax'] = r
 
-                    thin_divider()
-                    conf['sub_mode'] = st.selectbox("Figure Mode", ["Multi-Color", "One-Color"], key=f"sub_{prefix}_{file_key}")
+                    conf['sub_mode'] = st.selectbox("Figure Mode", ["Multi-Color", "One-Color"], key=f"sub_{prefix}_{filename}")
                     if conf['sub_mode'] == "Multi-Color":
-                        conf['cmap'] = st.selectbox("Color Palette", [
-        "RdYlBu_r", "Spectral_r", "coolwarm", "RdBu_r", "BrBG",
-        "viridis", "magma", "inferno", "plasma",
-        "Blues", "Reds", "Greens", "Oranges", "Purples", "YlOrRd", "YlGnBu",
-        "terrain", "gist_earth", "cubehelix"
-    ], key=f"cp_{prefix}_{file_key}")
-                        
-                        gradient = np.linspace(0, 1, 256).reshape(1, -1); fig, ax = plt.subplots(figsize=(6, 0.18)) 
+                        # Palet seçenekleri artırıldı
+                        palette_list = [
+                            "RdYlBu_r", "Spectral_r", "viridis", "coolwarm", "magma", "plasma", "inferno", 
+                            "terrain", "gist_earth", "cubehelix", "RdBu_r", "BrBG", "PRGn", "PiYG", 
+                            "YlGnBu", "YlOrRd", "Blues", "Reds", "Greens", "Purples"
+                        ]
+                        conf['cmap'] = st.selectbox("Color Palette", palette_list, key=f"cp_{prefix}_{filename}")
+                        gradient = np.linspace(0, 1, 256).reshape(1, -1); fig, ax = plt.subplots(figsize=(6, 0.18))
                         ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(conf['cmap']))
-                        for spine in ax.spines.values(): spine.set_linewidth(0.3); spine.set_color('lightgrey')
-                        ax.set_xticks([]); ax.set_yticks([]); st.pyplot(fig); plt.close(fig)
+                        ax.set_axis_off(); st.pyplot(fig); plt.close(fig)
                         
-                        col_ext1, col_ext2 = st.columns(2)
-                        with col_ext1: conf['ext_min'] = st.checkbox("Extend Min", value=True, key=f"exmin_{prefix}_{file_key}")
-                        with col_ext2: conf['ext_max'] = st.checkbox("Extend Max", value=True, key=f"exmax_{prefix}_{file_key}")
-                        thin_divider()
-                        conf['disc'] = st.toggle("Discrete Values", value=True, key=f"ds_{prefix}_{file_key}")
-                        if conf['disc']: conf['lv'] = st.number_input("Levels", 2, 20, 10, key=f"lv_{prefix}_{file_key}")
+                        col1, col2 = st.columns(2)
+                        conf['ext_min'] = col1.checkbox("Extend Min", value=True, key=f"exmin_{prefix}_{filename}")
+                        conf['ext_max'] = col2.checkbox("Extend Max", value=True, key=f"exmax_{prefix}_{filename}")
+                        conf['disc'] = st.toggle("Discrete", value=True, key=f"ds_{prefix}_{filename}")
+                        if conf['disc']: conf['lv'] = st.number_input("Levels", 2, 20, 10, key=f"lv_{prefix}_{filename}")
                     else:
-                        conf['one_c'] = st.color_picker("Color", "#DC7933", key=f"c_{prefix}_{file_key}")
+                        conf['one_c'] = st.color_picker("Color", "#DC7933", key=f"c_{prefix}_{filename}")
                 else:
-                    conf['thresh'] = st.number_input("Threshold Value", value=float((d_min+d_max)/2), key=f"th_val_{prefix}_{file_key}")
+                    conf['thresh'] = st.number_input("Threshold", value=float((d_min+d_max)/2), key=f"th_{prefix}_{filename}")
                     col_b, col_a = st.columns(2)
-                    with col_b: conf['b_c'] = st.color_picker("Below", "#4747B5", key=f"bc_{prefix}_{file_key}"); conf['b_m'] = "Color"
-                    with col_a: conf['a_c'] = st.color_picker("Above", "#C93131", key=f"ac_{prefix}_{file_key}"); conf['a_m'] = "Color"
+                    conf['b_c'] = col_b.color_picker("Below Color", "#4747B5", key=f"bc_{prefix}_{filename}")
+                    conf['a_c'] = col_a.color_picker("Above Color", "#C93131", key=f"ac_{prefix}_{filename}")
+                    conf['b_m'] = "Color" if not col_b.toggle("No Color (Below)", key=f"nb_{prefix}_{filename}") else "No Color"
+                    conf['a_m'] = "Color" if not col_a.toggle("No Color (Above)", key=f"na_{prefix}_{filename}") else "No Color"
 
-                conf['alpha'] = st.slider("Opacity", 0.0, 1.0, 0.7, key=f"al_{prefix}_{file_key}")
-                one_conf[file_key] = conf
-                
-    return [k for k in sorted(available_dict.keys()) if st.session_state.get(f"{prefix}_check_{k}")], one_conf
+                conf['alpha'] = st.slider("Opacity", 0.0, 1.0, 0.7, key=f"al_{prefix}_{filename}")
+                one_conf[filename] = conf
+    return selected_keys, one_conf
 
-# --- MULTI INDICES UI (Fragment) ---
+# --- MULTI INDICES UI ---
 @st.fragment
-def render_multi_indices_ui_fragment(av_dict_hist, av_dict_future, stats_hist, stats_future):
-    selected_meta = [] # (file_key, legend_display_name, stats)
+def render_multi_indices_ui_fragment(av_hist, av_future, stats_h, stats_f):
+    selected_meta = []
     
-    def ssp_filter(d, period):
-        return {k: v for k, v in d.items() if period in k}
-
-    # 1. Aşama: Hiyerarşik Seçim
     with st.expander("CHELSA Historical (1995-2014)", expanded=False):
-        for k in sorted(av_dict_hist.keys()):
-            # Legend İsmi: Hist: PCD - Passive Comfort Days
-            legend_label = f"Hist: {get_clean_name(k)}"
-            if st.checkbox(get_clean_name(k), key=f"m_check_h_{k}"):
-                selected_meta.append((k, legend_label, stats_hist))
+        for f_name, filename in sorted(av_hist.items()):
+            label = get_clean_name_logic(filename, is_historical=True)
+            if st.checkbox(label, key=f"m_h_{filename}"):
+                selected_meta.append((filename, f"Hist: {label}", stats_h))
     
     with st.expander("CHELSA+GCMs Future", expanded=False):
         st.info("SSP126 (Empty)")
         with st.expander("SSP245", expanded=True):
-            with st.expander("Middle of the Century (2041-2060)", expanded=False):
-                f_mid = ssp_filter(av_dict_future, "2041-2060")
-                for k in sorted(f_mid.keys()):
-                    legend_label = f"SSP245 Mid: {get_clean_name(k)}"
-                    if st.checkbox(get_clean_name(k), key=f"m_check_fm_{k}"):
-                        selected_meta.append((k, legend_label, stats_future))
-            with st.expander("End of the Century (2081-2100)", expanded=False):
-                f_end = ssp_filter(av_dict_future, "2081-2100")
-                for k in sorted(f_end.keys()):
-                    legend_label = f"SSP245 End: {get_clean_name(k)}"
-                    if st.checkbox(get_clean_name(k), key=f"m_check_fe_{k}"):
-                        selected_meta.append((k, legend_label, stats_future))
+            # Middle ve End Century isimlendirmeleri düzenlendi
+            for period, label, prefix in [
+                ("2041-2060", "Middle of the Century (2041-2060)", "SSP245 Mid: "), 
+                ("2081-2100", "End of the Century (2081-2100)", "SSP245 End: ")
+            ]:
+                with st.expander(label, expanded=False):
+                    f_data = [k for k in av_future.keys() if period in k]
+                    for filename in sorted(f_data):
+                        clean_label = get_clean_name_logic(filename, is_historical=False)
+                        if st.checkbox(clean_label, key=f"m_{period}_{filename}"):
+                            selected_meta.append((filename, f"{prefix}{clean_label}", stats_f))
         st.info("SSP585 (Empty)")
 
-    # 2. Aşama: Toplu Ayarlar
     all_sel_m, all_ind_conf = [], {}
     m_color, m_alpha = "#2FA42F", 0.8
-    
     if selected_meta:
-        st.markdown('<div style="margin-top: 25px;"></div>', unsafe_allow_html=True)
-        st.subheader("Synthesis Intersection Settings")
-        thin_divider()
-        
-        for file_key, legend_name, stats_src in selected_meta:
-            with st.expander(legend_name, expanded=True):
-                d_min_m, d_max_m = (float(stats_src[file_key]["min"]), float(stats_src[file_key]["max"])) if stats_src and file_key in stats_src else (0.0, 100.0)
-                m_range = st.slider("Target Range", d_min_m, d_max_m, (d_min_m, d_max_m), step=1.0, key=f"rs_m_{file_key}")
-                all_sel_m.append(file_key)
-                # Map Engine lejantı için temiz ismi saklıyoruz
-                all_ind_conf[file_key] = {'vmin': m_range[0], 'vmax': m_range[1], 'legend_name': legend_name}
-        
-        m_color = st.color_picker("Synthesis Color", "#2FA42F", key="m_global_cp")
-        m_alpha = st.slider("Synthesis Opacity", 0.0, 1.0, 0.8, key="m_global_al")
-
+        st.markdown('<div style="margin-top: 25px;"></div>', unsafe_allow_html=True); thin_divider()
+        for filename, leg_name, s_src in selected_meta:
+            with st.expander(leg_name, expanded=True):
+                m_min, m_max, _ = get_stats_logic(filename, s_src)
+                r = st.slider("Target Range", float(m_min), float(m_max), (float(m_min), float(m_max)), key=f"rs_m_{filename}")
+                all_sel_m.append(filename)
+                all_ind_conf[filename] = {'vmin': r[0], 'vmax': r[1], 'legend_name': leg_name}
+        m_color = st.color_picker("Synthesis Color", "#2FA42F", key="m_g_cp")
+        m_alpha = st.slider("Synthesis Opacity", 0.0, 1.0, 0.8, key="m_g_al")
     return all_sel_m, {'indices': all_ind_conf, 'color': m_color, 'alpha': m_alpha}
 
 # --- ANA RENDER ---
-def render_sidebar(av_dict_hist, av_dict_future, units_dict_hist, units_dict_future, stats_hist, stats_future):
+def render_sidebar(av_hist, av_future, units_h, units_f, stats_h, stats_f):
     st.sidebar.title("Indices Map Tool")
-    tab_single, tab_multi = st.sidebar.tabs(["Single-Indice", "Multi-Indices"])
-
-    def ssp_filter(d, period):
-        return {k: v for k, v in d.items() if period in k}
-
-    with tab_single:
-        all_sel_one, all_conf_one = [], {}
+    one_bundle, multi_bundle = ([], {}), ([], {})
+    tab1, tab2 = st.sidebar.tabs(["Single-Indice", "Multi-Indices"])
+    
+    with tab1:
+        sel_o, conf_o = [], {}
         with st.expander("CHELSA Historical (1995-2014)", expanded=False):
-            sel, conf = render_single_indices_ui(av_dict_hist, units_dict_hist, stats_hist, prefix="one_h")
-            all_sel_one.extend(sel); all_conf_one.update(conf)
-            
+            s, c = render_single_indices_ui(av_hist, units_h, stats_h, is_historical=True, prefix="one_h")
+            for k in c: c[k]['legend_prefix'] = "Hist: "
+            sel_o.extend(s); conf_o.update(c)
         with st.expander("CHELSA+GCMs Future", expanded=False):
             st.info("SSP126 (Empty)")
             with st.expander("SSP245", expanded=True):
-                with st.expander("Middle of the Century (2041-2060)", expanded=False):
-                    sel, conf = render_single_indices_ui(ssp_filter(av_dict_future, "2041-2060"), units_dict_future, stats_future, prefix="one_fm")
-                    all_sel_one.extend(sel); all_conf_one.update(conf)
-                with st.expander("End of the Century (2081-2100)", expanded=False):
-                    sel, conf = render_single_indices_ui(ssp_filter(av_dict_future, "2081-2100"), units_dict_future, stats_future, prefix="one_fe")
-                    all_sel_one.extend(sel); all_conf_one.update(conf)
+                for period, label, pre in [
+                    ("2041-2060", "Middle of the Century (2041-2060)", "SSP245 Mid: "), 
+                    ("2081-2100", "End of the Century (2081-2100)", "SSP245 End: ")
+                ]:
+                    with st.expander(label, expanded=False):
+                        f_data_sidebar = {k: k for k in av_future.keys() if period in k}
+                        s, c = render_single_indices_ui(f_data_sidebar, units_f, stats_f, is_historical=False, prefix=f"one_{period}")
+                        for k in c: c[k]['legend_prefix'] = pre
+                        sel_o.extend(s); conf_o.update(c)
             st.info("SSP585 (Empty)")
-        one_bundle = (all_sel_one, all_conf_one)
+        one_bundle = (sel_o, conf_o)
 
-    with tab_multi:
-        multi_bundle = render_multi_indices_ui_fragment(av_dict_hist, av_dict_future, stats_hist, stats_future)
-
+    with tab2:
+        multi_bundle = render_multi_indices_ui_fragment(av_hist, av_future, stats_h, stats_f)
     return one_bundle, multi_bundle

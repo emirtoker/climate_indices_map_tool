@@ -13,33 +13,39 @@ for key, val in [('map_center', [38.9, 35.5]), ('map_zoom', 5), ('map_rendered',
     if key not in st.session_state: st.session_state[key] = val
 
 from core.data_loader import load_turkiye_shp, list_available_indices, load_stats
-from app.sidebar import render_sidebar
+from app.sidebar import render_sidebar, get_clean_name_logic
 from viz.map_engine import create_interactive_map
 import leafmap.foliumap as leafmap
-from config.settings import FUTURE_SSP245_DIR, FUTURE_SSP245_STATS
+from config.settings import FUTURE_SSP245_DIR, FUTURE_SSP245_STATS, INDICES_DIR
 
 # --- CSS (Genel Görsel Ayarlar) ---
 st.markdown("<style>.main .block-container { padding-top: 5rem !important; } footer {visibility: hidden;}</style>", unsafe_allow_html=True)
 
-# 2. VERİ ÖN YÜKLEME
+# --- 2. VERİ ÖN YÜKLEME ---
 shp = load_turkiye_shp()
 
-# A. Historical Veriler
+# A. Historical Veriler {Friendly_Name: Filename}
 av_dict_hist = list_available_indices()
 stats_hist = load_stats()
 
-# B. Future (SSP245) Verileri
+# B. Future (SSP245) Verileri {Filename: Filename}
+# ÖNEMLİ: Anahtarı dosya adı yaptık ki farklı dönemlerdeki aynı isimli indisler birbirini silmesin.
 future_files = glob.glob(os.path.join(FUTURE_SSP245_DIR, "*.tif"))
-av_dict_future = {os.path.basename(f): f for f in future_files}
+av_dict_future = {os.path.basename(f): os.path.basename(f) for f in future_files}
 
 with open(FUTURE_SSP245_STATS, 'r') as f:
     stats_future = json.load(f)
 
-# C. Map Engine İçin Sözlükleri Birleştir
-total_av_dict = {**av_dict_hist, **av_dict_future}
+# C. MAP ENGINE İÇİN YOL SÖZLÜĞÜ: {Filename: Full_Path}
+engine_path_map = {
+    **{f: os.path.join(INDICES_DIR, f) for f in av_dict_hist.values()}, # Historical
+    **{os.path.basename(f): f for f in future_files}                   # Future
+}
+
+# D. Tüm istatistikleri birleştir {Filename: Stats}
 total_stats = {**stats_hist, **stats_future}
 
-# 3. SIDEBAR RENDER
+# --- 3. SIDEBAR RENDER ---
 one_bundle, multi_bundle = render_sidebar(
     av_dict_hist, 
     av_dict_future, 
@@ -72,10 +78,10 @@ def render_isolated_map_section(trigger):
         # Birimleri total_stats üzerinden çekiyoruz
         units_data = {k: total_stats.get(k, {}).get('unit', '') for k in list(set(sel) | set(multi[0]))}
 
-        # Haritayı oluştur (total_av_dict gönderiyoruz)
-        m = create_interactive_map(shp, (sel, conf), multi, units_data, total_av_dict)
+        # Haritayı oluştur (Yol haritasını engine_path_map ile gönderiyoruz)
+        m = create_interactive_map(shp, (sel, conf), multi, units_data, engine_path_map)
         
-        # Haritayı ekrana bas (Tek çağrı!)
+        # Haritayı ekrana bas
         output = m.to_streamlit(height=1200, key="main_map_stable_key")
         
         # Zoom/Center güncellemeleri

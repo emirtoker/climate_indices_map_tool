@@ -26,26 +26,26 @@ def get_friendly_name(filename):
 
 # --- DÜZENLENEN KISIM: ADIM 1 (RAM CACHE OPTİMİZASYONU) ---
 @st.cache_data(show_spinner="RAM'e yükleniyor...")
-def load_index_data(file_name):
+def load_index_data(file_name_or_path):
     """
-    CHELSA verisini diskten okur ve RAM'e (.load()) kilitler.
-    Lazy loading (tembel okuma) iptal edildiği için hız 10 kat artar.
+    Hem sadece dosya ismini (Historical) hem de tam yolu (Future) kabul eder.
     """
-    path = os.path.join(INDICES_DIR, file_name)
+    # Eğer gelen değer tam bir yolsa (Future), direkt onu kullan
+    if os.path.isabs(file_name_or_path):
+        path = file_name_or_path
+    else:
+        # Eğer sadece dosya ismiyse (Historical), INDICES_DIR ile birleştir
+        path = os.path.join(INDICES_DIR, file_name_or_path)
     
-    # Veriyi rioxarray ile aç
     ds = rioxarray.open_rasterio(path, mask_and_scale=True)
     
-    # KRİTİK DOKUNUŞ: 
-    # .load() ekleyerek veriyi diskten söküp RAM'e alıyoruz.
-    # .astype("float32") ile bellek kullanımını %50 düşürüyoruz.
     if 'band' in ds.dims:
         data = ds.isel(band=0).load().astype("float32")
     else:
         data = ds.load().astype("float32")
         
     unit = ds.attrs.get('units', 'unit')
-    return data, file_name, unit
+    return data, os.path.basename(path), unit
 # -------------------------------------------------------
 
 @st.cache_data
