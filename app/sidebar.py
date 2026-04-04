@@ -11,28 +11,46 @@ def thin_divider():
     DIVIDER_COLOR = "#888a8d"
     st.markdown(f'<hr style="border: none; border-top: 1.5px solid {DIVIDER_COLOR}; margin: 2px 0 12px 0;">', unsafe_allow_html=True)
 
-def get_clean_name(file_name):
-    """Kısaltmayı (PCD, DI vb.) her zaman BÜYÜK HARF yapar, açıklamayı Title Case yapar."""
-    codes = ["PCD", "PRCPTOT", "SU", "TR", "DI", "HI", "PET", "SPI", "SPEI"]
+def get_clean_name(file_name, group_prefix=""):
+    """
+    Dosya isminden indisi (PCD, DI, UTCI vb.) hatasız yakalar.
+    Kısaltmayı her zaman BÜYÜK HARF, açıklamayı Title Case yapar.
+    """
+    # Projedeki geçerli indis kodları
+    codes = ["PCD", "PRCPTOT", "SU", "TR", "DI", "HI", "PET", "SPI", "SPEI", "UTCI"]
+    
+    # Uzantıyı ve 'cog' ibaresini temizle
     clean = file_name.replace(".tif", "").replace("_cog", "")
     parts = clean.split('_')
     
     found_code = None
     found_idx = -1
     
-    # İsmi sondan başa tarayarak indisi bul (TR ülke koduyla karışmaması için)
+    # TAKTİK: İsmi sondan başa tarıyoruz. 
+    # Böylece 'TR_yearly' gibi baştaki ülke kodlarına takılmadan 
+    # en sondaki gerçek indisi (PCD, DI vb.) yakalıyoruz.
     for i in range(len(parts) - 1, -1, -1):
-        if parts[i].upper() in codes:
-            found_code = parts[i].upper() # Zorunlu Büyük Harf
+        p_upper = parts[i].upper()
+        if p_upper in codes:
+            # 'TR' hem ülke kodu hem Tropical Nights olduğu için index kontrolü şart
+            if p_upper == "TR" and i < 4: 
+                continue
+            found_code = p_upper
             found_idx = i
             break
             
-    if found_code:
-        # Koddan sonraki kısmı Title Case yap (PCD - Passive Comfort Days)
-        description = " ".join(parts[found_idx + 1:]).replace("_", " ").title()
-        return f"{found_code} - {description}"
-    
-    return clean.replace("_", " ").title()
+    if found_code and found_idx != -1:
+        # Koddan sonra gelen tüm kelimeleri al (summer_days -> Summer Days)
+        description_parts = parts[found_idx + 1:]
+        description = " ".join(description_parts).replace("_", " ").title()
+        
+        # Kısaltma BÜYÜK HARF - Açıklama Baş Harfleri Büyük
+        name = f"{found_code} - {description}"
+    else:
+        # Beklenmedik bir isim gelirse en azından temizle bas
+        name = clean.replace("_", " ").title()
+        
+    return f"{group_prefix}{name}" if group_prefix else name
 
 # --- SINGLE INDICE UI ---
 @st.fragment
