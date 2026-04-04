@@ -16,27 +16,15 @@ from app.sidebar import render_sidebar
 from viz.map_engine import create_interactive_map
 import leafmap.foliumap as leafmap
 
-# --- CSS (Senin Orijinal Ayarların) ---
-st.markdown("""
-    <style>
-    .leaflet-control-container .leaflet-top.leaflet-right {
-        display: flex !important;
-        flex-wrap: wrap-reverse !important;
-        flex-direction: row-reverse !important;
-        top: 100px !important;
-        right: 10px !important;
-    }
-    .main .block-container { padding-top: 5rem !important; }
-    footer {visibility: hidden;}
-    </style>
-    """, unsafe_allow_html=True)
+# --- CSS (Genel Görsel Ayarlar) ---
+st.markdown("<style>.main .block-container { padding-top: 5rem !important; } footer {visibility: hidden;}</style>", unsafe_allow_html=True)
 
-# VERİ ÖN YÜKLEME
+# 2. VERİ ÖN YÜKLEME
 shp = load_turkiye_shp()
 av_dict = list_available_indices()
 stats = load_stats()
 
-# 2. SIDEBAR RENDER
+# 3. SIDEBAR RENDER
 one_bundle, multi_bundle = render_sidebar(av_dict, {}, {}, stats)
 
 # --- UPDATE MAP BUTONU ---
@@ -51,7 +39,7 @@ with st.sidebar:
         st.session_state.map_rendered = True
         st.rerun()
 
-# --- 3. HARİTA BÖLÜMÜ (FRAGMENT) ---
+# --- 4. HARİTA BÖLÜMÜ (FRAGMENT) ---
 @st.fragment
 def render_isolated_map_section(trigger):
     if st.session_state.map_rendered:
@@ -59,13 +47,13 @@ def render_isolated_map_section(trigger):
         conf = st.session_state.applied_one_conf
         multi = st.session_state.applied_multi_bundle
 
-        # Üniteleri stats.json üzerinden IŞIK HIZINDA çekiyoruz
+        # Birimleri stats.json üzerinden çekiyoruz (IŞIK HIZI)
         units_data = {k: stats.get(av_dict[k], {}).get('unit', '') for k in list(set(sel) | set(multi[0]))}
 
-        # HARİTAYI ÇİZ (Cache artık map_engine içinde matris seviyesinde)
+        # Haritayı oluştur (Veri motoru map_engine içinde cache'li)
         m = create_interactive_map(shp, (sel, conf), multi, units_data, av_dict)
         
-        # Haritayı ekrana bas (Stable Key ile)
+        # Haritayı ekrana bas
         output = m.to_streamlit(height=1200, key="main_map_stable_key")
         
         # Zoom/Center güncellemeleri
