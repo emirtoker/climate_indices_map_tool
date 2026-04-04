@@ -1,0 +1,29 @@
+{
+  "name": "climate_indices_map_tool",
+  "version": "1.0.0",
+  "stlite": {
+    "desktop": {
+      "files": [
+        "app",
+        "viz",
+        "core",
+        "data",
+        "requirements.txt"
+      ],
+      "entrypoint": "app/main.py",
+      "dependencies": [
+        "streamlit",
+        "leafmap",
+        "xarray",
+        "rioxarray",
+        "matplotlib",
+        "numpy",
+        "branca",
+        "folium",
+        "pandas",
+        "geopandas",
+        "pillow"
+      ]
+    }
+  }
+}

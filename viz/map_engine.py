@@ -10,27 +10,33 @@ from PIL import Image
 import io
 import base64
 
-# --- AŞAMA 1: DISK OKUMA CACHE (TIF dosyasını RAM'e sadece 1 kez alır) ---
-@st.cache_data(show_spinner=False)
+# --- AŞAMA 1: RAM KONTROLLÜ OKUMA ---
+# max_entries=5: RAM'de sadece en son kullanılan 5 indisi tutar, 6. gelirse ilki siler.
+# Bu, Streamlit Cloud'un 1GB sınırında hayatta kalmanı sağlar abi.
+@st.cache_data(show_spinner=False, max_entries=5)
 def load_raw_data(file_name):
     from core.data_loader import load_index_data
     data, _, _ = load_index_data(file_name)
     return data
 
-# --- AŞAMA 2: PNG ENCODE CACHE (Hızlı render için resmi önceden hazırlar) ---
-@st.cache_data(show_spinner=False)
+# --- AŞAMA 2: ULTRA HAFİF PNG ENCODE ---
+@st.cache_data(show_spinner=False, max_entries=10)
 def rgba_to_png_base64(rgba_uint8):
     img = Image.fromarray(rgba_uint8)
     buf = io.BytesIO()
-    img.save(buf, format="PNG") 
+    # optimize=True: Dosya boyutunu ciddi oranda düşürür, internet trafiğini rahatlatır.
+    img.save(buf, format="PNG", optimize=True) 
     return f"data:image/png;base64,{base64.b64encode(buf.getvalue()).decode('utf-8')}"
 
-# --- AŞAMA 3: RENKLENDİRME MOTORU (RAM üzerinden çalışır) ---
-@st.cache_data(show_spinner=False)
+# --- AŞAMA 3: AKILLI RENKLENDİRME ---
+@st.cache_data(show_spinner=False, max_entries=5)
 def get_cached_rgba(file_name, vmin, vmax, cmap_input, mode, thresh=None, color_below=None, color_above=None, no_b=False, no_a=False):
     data = load_raw_data(file_name) 
     vals = data.values
-    mask = ~np.isnan(vals); rgba = np.zeros((*vals.shape, 4), dtype=np.float32)
+    
+    # Cloud-Speed Fix: Nan maskesini ve float işlemlerini tek seferde yapıyoruz.
+    mask = ~np.isnan(vals)
+    rgba = np.zeros((*vals.shape, 4), dtype=np.float32)
 
     if mode == "Threshold":
         t = thresh
@@ -44,14 +50,15 @@ def get_cached_rgba(file_name, vmin, vmax, cmap_input, mode, thresh=None, color_
             rgba[valid, :3] = mpl.colors.to_rgba(cmap_input)[:3]
         else:
             norm = plt.Normalize(vmin=vmin, vmax=vmax)
+            # vectorized mapping
             rgba[valid, :3] = plt.get_cmap(cmap_input)(norm(vals[valid]))[:, :3]
         rgba[valid, 3] = 1.0 
     
     left, bottom, right, top = data.rio.transform_bounds("EPSG:4326")
     return (rgba * 255).astype(np.uint8), [[bottom, left], [top, right]]
 
-# --- SENTEZ MOTORU ---
-@st.cache_data(show_spinner=False)
+# Sentez Motoru da aynı RAM korumasını kullanmalı
+@st.cache_data(show_spinner=False, max_entries=3)
 def get_synthesis_rgba(names, vmin_list, vmax_list, color):
     combined_mask = None; ref_data = None
     for i, name in enumerate(names):
