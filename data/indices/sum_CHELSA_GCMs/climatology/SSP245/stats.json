@@ -1,0 +1,42 @@
+{
+    "CHELSA_sum_GCMs_Ensemble_TR_yearly_2041-2060_delta_1995_2014_PCD_passive_comfort_days.tif": {
+        "min": -12.09,
+        "max": 153.25,
+        "unit": "days/year"
+    },
+    "CHELSA_sum_GCMs_Ensemble_TR_yearly_2041-2060_delta_1995_2014_PRCPTOT_annual_total_precip.tif": {
+        "min": 278.84,
+        "max": 2080.89,
+        "unit": "mm/year"
+    },
+    "CHELSA_sum_GCMs_Ensemble_TR_yearly_2041-2060_delta_1995_2014_SU_summer_days.tif": {
+        "min": 20.18,
+        "max": 223.04,
+        "unit": "days/year"
+    },
+    "CHELSA_sum_GCMs_Ensemble_TR_yearly_2041-2060_delta_1995_2014_TR_tropical_nights.tif": {
+        "min": 0.0,
+        "max": 172.56,
+        "unit": "days/year"
+    },
+    "CHELSA_sum_GCMs_Ensemble_TR_yearly_2081-2100_delta_1995_2014_PCD_passive_comfort_days.tif": {
+        "min": -19.72,
+        "max": 162.89,
+        "unit": "days/year"
+    },
+    "CHELSA_sum_GCMs_Ensemble_TR_yearly_2081-2100_delta_1995_2014_PRCPTOT_annual_total_precip.tif": {
+        "min": 279.22,
+        "max": 2179.17,
+        "unit": "mm/year"
+    },
+    "CHELSA_sum_GCMs_Ensemble_TR_yearly_2081-2100_delta_1995_2014_SU_summer_days.tif": {
+        "min": 29.75,
+        "max": 234.31,
+        "unit": "days/year"
+    },
+    "CHELSA_sum_GCMs_Ensemble_TR_yearly_2081-2100_delta_1995_2014_TR_tropical_nights.tif": {
+        "min": 0.0,
+        "max": 187.14,
+        "unit": "days/year"
+    }
+}

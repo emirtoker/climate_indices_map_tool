@@ -1,6 +1,7 @@
 import sys, os
 import streamlit as st
 import json
+import glob
 
 # Sayfa konfigürasyonu
 st.set_page_config(page_title="Indices Map Tool", layout="wide")
@@ -15,17 +16,38 @@ from core.data_loader import load_turkiye_shp, list_available_indices, load_stat
 from app.sidebar import render_sidebar
 from viz.map_engine import create_interactive_map
 import leafmap.foliumap as leafmap
+from config.settings import FUTURE_SSP245_DIR, FUTURE_SSP245_STATS
 
 # --- CSS (Genel Görsel Ayarlar) ---
 st.markdown("<style>.main .block-container { padding-top: 5rem !important; } footer {visibility: hidden;}</style>", unsafe_allow_html=True)
 
 # 2. VERİ ÖN YÜKLEME
 shp = load_turkiye_shp()
-av_dict = list_available_indices()
-stats = load_stats()
+
+# A. Historical Veriler
+av_dict_hist = list_available_indices()
+stats_hist = load_stats()
+
+# B. Future (SSP245) Verileri
+future_files = glob.glob(os.path.join(FUTURE_SSP245_DIR, "*.tif"))
+av_dict_future = {os.path.basename(f): f for f in future_files}
+
+with open(FUTURE_SSP245_STATS, 'r') as f:
+    stats_future = json.load(f)
+
+# C. Map Engine İçin Sözlükleri Birleştir
+total_av_dict = {**av_dict_hist, **av_dict_future}
+total_stats = {**stats_hist, **stats_future}
 
 # 3. SIDEBAR RENDER
-one_bundle, multi_bundle = render_sidebar(av_dict, {}, {}, stats)
+one_bundle, multi_bundle = render_sidebar(
+    av_dict_hist, 
+    av_dict_future, 
+    {}, # units_dict_hist
+    {}, # units_dict_future
+    stats_hist, 
+    stats_future
+)
 
 # --- UPDATE MAP BUTONU ---
 with st.sidebar:
@@ -47,13 +69,13 @@ def render_isolated_map_section(trigger):
         conf = st.session_state.applied_one_conf
         multi = st.session_state.applied_multi_bundle
 
-        # Birimleri stats.json üzerinden çekiyoruz (IŞIK HIZI)
-        units_data = {k: stats.get(av_dict[k], {}).get('unit', '') for k in list(set(sel) | set(multi[0]))}
+        # Birimleri total_stats üzerinden çekiyoruz
+        units_data = {k: total_stats.get(k, {}).get('unit', '') for k in list(set(sel) | set(multi[0]))}
 
-        # Haritayı oluştur (Veri motoru map_engine içinde cache'li)
-        m = create_interactive_map(shp, (sel, conf), multi, units_data, av_dict)
+        # Haritayı oluştur (total_av_dict gönderiyoruz)
+        m = create_interactive_map(shp, (sel, conf), multi, units_data, total_av_dict)
         
-        # Haritayı ekrana bas
+        # Haritayı ekrana bas (Tek çağrı!)
         output = m.to_streamlit(height=1200, key="main_map_stable_key")
         
         # Zoom/Center güncellemeleri
