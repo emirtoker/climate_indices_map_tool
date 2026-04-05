@@ -84,15 +84,36 @@ def render_single_indices_ui(available_dict, units_dict, stats, is_historical=Fa
                 conf['mode'] = mode
                 
                 if mode == "Interval":
-                    use_slider = st.toggle("Slider Control", value=False, key=f"use_sl_{prefix}_{filename}")
+                    # 1- Slider Control Switch (Default ON)
+                    use_slider = st.toggle("Slider Control", value=True, key=f"use_sl_{prefix}_{filename}")
+                    
                     if not use_slider:
                         col_min, col_max = st.columns(2)
                         v_min = col_min.number_input("Min", value=float(d_min), key=f"n_min_{prefix}_{filename}")
                         v_max = col_max.number_input("Max", value=float(d_max), key=f"n_max_{prefix}_{filename}")
                         conf['vmin'], conf['vmax'] = v_min, v_max
                     else:
-                        r = st.slider("Range", float(d_min), float(d_max), (float(d_min), float(d_max)), step=1.0, key=f"sl_{prefix}_{filename}")
+                        # Sol tarafa Min, sağ tarafa Max (Daha yukarı kaydırıldı ve aralık açıldı)
+                        st.markdown(
+                            f'<div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; margin-bottom: 10px; margin-top: 0px;">'
+                            f'<span>Min</span><span>Max</span>'
+                            f'</div>', 
+                            unsafe_allow_html=True
+                        )
+                        
+                        # Slider (Label gizli, CSS marjı sayesinde tooltip ile çakışmaz)
+                        r = st.slider(
+                            "Interval Slider", 
+                            float(d_min), 
+                            float(d_max), 
+                            (float(d_min), float(d_max)), 
+                            step=1.0, 
+                            key=f"sl_{prefix}_{filename}",
+                            label_visibility="collapsed" 
+                        )
                         conf['vmin'], conf['vmax'] = r
+
+                    thin_divider()
 
                     conf['sub_mode'] = st.selectbox("Figure Mode", ["Multi-Color", "One-Color"], key=f"sub_{prefix}_{filename}")
                     if conf['sub_mode'] == "Multi-Color":
@@ -115,12 +136,47 @@ def render_single_indices_ui(available_dict, units_dict, stats, is_historical=Fa
                     else:
                         conf['one_c'] = st.color_picker("Color", "#DC7933", key=f"c_{prefix}_{filename}")
                 else:
-                    conf['thresh'] = st.number_input("Threshold", value=float((d_min+d_max)/2), key=f"th_{prefix}_{filename}")
+                    # 1- Slider Control Switch (Default ON)
+                    use_slider_th = st.toggle("Slider Control", value=True, key=f"use_sl_th_{prefix}_{filename}")
+                    
+                    init_val = float((d_min + d_max) / 2)
+                    
+                    if use_slider_th:
+                        # 2- Threshold için de Min/Max etiketleri (Jilet gibi hizalı)
+                        st.markdown(
+                            f'<div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; margin-bottom: 10px; margin-top: 0px;">'
+                            f'<span>Min</span><span>Max</span>'
+                            f'</div>', 
+                            unsafe_allow_html=True
+                        )
+                        
+                        th_val = st.slider(
+                            "Threshold Slider", 
+                            min_value=float(d_min), 
+                            max_value=float(d_max), 
+                            value=init_val, 
+                            key=f"sl_th_{prefix}_{filename}",
+                            label_visibility="collapsed" 
+                        )
+                    else:
+                        th_val = st.number_input(
+                            "Threshold Value", 
+                            value=init_val, 
+                            key=f"num_th_{prefix}_{filename}",
+                            label_visibility="collapsed" 
+                        )
+                    
+                    conf['thresh'] = th_val
+                    
+                    thin_divider()
+                    
+                    # Alt ve Üst Renk Seçenekleri (Lower / Higher)
                     col_b, col_a = st.columns(2)
-                    conf['b_c'] = col_b.color_picker("Below Color", "#4747B5", key=f"bc_{prefix}_{filename}")
-                    conf['a_c'] = col_a.color_picker("Above Color", "#C93131", key=f"ac_{prefix}_{filename}")
-                    conf['b_m'] = "Color" if not col_b.toggle("No Color (Below)", key=f"nb_{prefix}_{filename}") else "No Color"
-                    conf['a_m'] = "Color" if not col_a.toggle("No Color (Above)", key=f"na_{prefix}_{filename}") else "No Color"
+                    conf['b_c'] = col_b.color_picker("Lower", "#4747B5", key=f"bc_{prefix}_{filename}")
+                    conf['b_m'] = "Color" if not col_b.toggle("No Color", key=f"nb_{prefix}_{filename}") else "No Color"
+                    
+                    conf['a_c'] = col_a.color_picker("Higher", "#C93131", key=f"ac_{prefix}_{filename}")
+                    conf['a_m'] = "Color" if not col_a.toggle("No Color ", key=f"na_{prefix}_{filename}") else "No Color"
 
                 conf['alpha'] = st.slider("Opacity", 0.0, 1.0, 0.7, key=f"al_{prefix}_{filename}")
                 one_conf[filename] = conf
@@ -140,7 +196,6 @@ def render_multi_indices_ui_fragment(av_hist, av_future, stats_h, stats_f):
     with st.expander("CHELSA+GCMs Future", expanded=False):
         st.info("SSP126 (Empty)")
         with st.expander("SSP245", expanded=True):
-            # Middle ve End Century isimlendirmeleri düzenlendi
             for period, label, prefix in [
                 ("2041-2060", "Middle of the Century (2041-2060)", "SSP245 Mid: "), 
                 ("2081-2100", "End of the Century (2081-2100)", "SSP245 End: ")
@@ -160,9 +215,36 @@ def render_multi_indices_ui_fragment(av_hist, av_future, stats_h, stats_f):
         for filename, leg_name, s_src in selected_meta:
             with st.expander(leg_name, expanded=True):
                 m_min, m_max, _ = get_stats_logic(filename, s_src)
-                r = st.slider("Target Range", float(m_min), float(m_max), (float(m_min), float(m_max)), key=f"rs_m_{filename}")
+                
+                # 1- Slider Control Switch (Default ON)
+                use_slider_m = st.toggle("Slider Control", value=True, key=f"use_sl_m_{filename}")
+                
+                if use_slider_m:
+                    # 2- "Range" kelimesi yerine Min/Max etiketleri (10px boşlukla)
+                    st.markdown(
+                        f'<div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; margin-bottom: 10px; margin-top: 0px;">'
+                        f'<span>Min</span><span>Max</span>'
+                        f'</div>', 
+                        unsafe_allow_html=True
+                    )
+                    
+                    r = st.slider(
+                        "Multi Range Slider", # Etiket gizli kalacak
+                        float(m_min), 
+                        float(m_max), 
+                        (float(m_min), float(m_max)), 
+                        key=f"rs_m_{filename}",
+                        label_visibility="collapsed" 
+                    )
+                    v_min_final, v_max_final = r[0], r[1]
+                else:
+                    col1, col2 = st.columns(2)
+                    v_min_final = col1.number_input("Min", value=float(m_min), key=f"n_min_m_{filename}")
+                    v_max_final = col2.number_input("Max", value=float(m_max), key=f"n_max_m_{filename}")
+                
                 all_sel_m.append(filename)
-                all_ind_conf[filename] = {'vmin': r[0], 'vmax': r[1], 'legend_name': leg_name}
+                all_ind_conf[filename] = {'vmin': v_min_final, 'vmax': v_max_final, 'legend_name': leg_name}
+        
         m_color = st.color_picker("Synthesis Color", "#2FA42F", key="m_g_cp")
         m_alpha = st.slider("Synthesis Opacity", 0.0, 1.0, 0.8, key="m_g_al")
     return all_sel_m, {'indices': all_ind_conf, 'color': m_color, 'alpha': m_alpha}

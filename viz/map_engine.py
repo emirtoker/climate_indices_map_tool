@@ -160,19 +160,35 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
             c = one_conf[name]
             if not c.get('visible', True): continue
             
-            # Veriyi renklendir
+            # Veriyi renklendir (Anahtarları .get() ile güvenli okuyoruz)
             rgba, bnds = get_cached_rgba(
-                available_dict[name], c['vmin'], c['vmax'], 
-                (c['one_c'] if c.get('sub_mode') == "One-Color" else c.get('cmap', 'viridis')), 
-                c['mode'], c.get('thresh'), c.get('b_c'), c.get('a_c'), 
-                c.get('b_m') == "No Color", c.get('a_m') == "No Color",
-                c.get('ext_min', True), c.get('ext_max', True)
+                available_dict[name], 
+                c.get('vmin', 0.0), # Değişen yer 1: KeyError engellendi
+                c.get('vmax', 1.0), # Değişen yer 2: KeyError engellendi
+                (c.get('one_c', '#DC7933') if c.get('sub_mode') == "One-Color" else c.get('cmap', 'viridis')), 
+                c['mode'], 
+                c.get('thresh'), 
+                c.get('b_c'), 
+                c.get('a_c'), 
+                c.get('b_m') == "No Color", 
+                c.get('a_m') == "No Color",
+                c.get('ext_min', True), 
+                c.get('ext_max', True)
             )
-            ImageOverlay(image=rgba_to_png_base64(rgba), bounds=bnds, opacity=c['alpha'], name=name, zindex=5).add_to(m)
-            
+
             # Başlık Hazırla
             prefix = c.get('legend_prefix', "")
-            clean_name, fb_unit = get_clean_label(name, prefix)
+            clean_name, fb_unit = get_clean_label(name, prefix) 
+
+            ImageOverlay(
+                image=rgba_to_png_base64(rgba), 
+                bounds=bnds, 
+                opacity=c['alpha'], 
+                name=clean_name, # Artık layer panelinde temiz isim görünecek
+                zindex=5
+            ).add_to(m)
+            
+            # Başlık Hazırla
             json_unit = units_dict.get(name, "")
             unit = json_unit if json_unit else fb_unit
             colorbar_title = f"{clean_name} ({unit})" if unit else clean_name
@@ -186,18 +202,53 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
                 m.add_child(step_cm)
                 
             elif c['mode'] == "Interval":
+                # Tek renkli lejant kutusu (Boyut 20px, border 1px siyah yapıldı)
                 line = '<div style="border-top:1px solid #ccc; margin:8px 0;"></div>' if custom_legend_html else ""
                 custom_legend_html += f'{line}<div style="display:flex;align-items:center;margin-bottom:8px;"><div style="width:20px;height:20px;background:{c["one_c"]};margin-right:10px; border:1px solid black;"></div><span style="color:black; font-size:15px; font-weight:bold;">{clean_name}: {c["vmin"]:.0f}-{c["vmax"]:.0f}</span></div>'
                 has_custom = True
+
+            elif c['mode'] == "Threshold":
+                line = '<div style="border-top:1px solid #ccc; margin:8px 0;"></div>' if custom_legend_html else ""
+                thresh_val = c.get('thresh', 0.0)
+                unit_str = f" {unit}" if unit else ""
+                
+                rows = ""
+                # Lower (Boyut 20px, border 1px siyah yapıldı)
+                if c.get('b_m') != "No Color":
+                    rows += f'''
+                    <div style="display:flex;align-items:center;margin-bottom:4px;">
+                        <div style="width:20px;height:20px;background:{c.get('b_c', '#4747B5')};margin-right:10px; border:1px solid black;"></div>
+                        <span style="color:black; font-size:14px; font-weight:bold;">{clean_name} < {thresh_val:.1f}{unit_str}</span>
+                    </div>'''
+                
+                # Higher (Boyut 20px, border 1px siyah yapıldı)
+                if c.get('a_m') != "No Color":
+                    rows += f'''
+                    <div style="display:flex;align-items:center;margin-bottom:4px;">
+                        <div style="width:20px;height:20px;background:{c.get('a_c', '#C93131')};margin-right:10px; border:1px solid black;"></div>
+                        <span style="color:black; font-size:14px; font-weight:bold;">{clean_name} > {thresh_val:.1f}{unit_str}</span>
+                    </div>'''
+                
+                if rows:
+                    custom_legend_html += f'{line}{rows}'
+                    has_custom = True
 
     # --- 2. MULTI INDICES ---
     if st.session_state.get('synthesis_active') and multi_bundle[0]:
         sel_multi, multi_conf = multi_bundle
         s_rgba, bnds = get_synthesis_rgba(tuple([available_dict[n] for n in sel_multi]), tuple([multi_conf['indices'][n]['vmin'] for n in sel_multi]), tuple([multi_conf['indices'][n]['vmax'] for n in sel_multi]), multi_conf['color'])
         if s_rgba is not None:
-            ImageOverlay(image=rgba_to_png_base64(s_rgba), bounds=bnds, opacity=multi_conf['alpha'], name="MULTI INDICES", zindex=6).add_to(m)
+            ImageOverlay(
+                image=rgba_to_png_base64(s_rgba), 
+                bounds=bnds, 
+                opacity=multi_conf['alpha'], 
+                name="Synthesis Map", 
+                zindex=6
+            ).add_to(m)
             
-            if custom_legend_html: custom_legend_html += '<div style="border-top:2px solid #333; margin:10px 0; padding-top:10px;"></div>'
+            # AYAR: Çizgi marjı 8px yapıldı ve padding-top (fazla boşluk) kaldırıldı
+            if custom_legend_html: 
+                custom_legend_html += '<div style="border-top:1px solid #ccc; margin:8px 0;"></div>'
             
             synth_rows = ""
             for i, name in enumerate(sel_multi):
@@ -206,9 +257,16 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
                 v_max_m = multi_conf['indices'][name]['vmax']
                 color_box = multi_conf["color"] if i == 0 else "transparent"
                 border = "1px solid black" if i == 0 else "none"
-                synth_rows += f'<div style="display:flex;align-items:center;margin-bottom:5px;"><div style="width:20px;height:20px;background:{color_box};margin-right:10px; border:{border};"></div><span style="color:black; font-size:15px; font-weight:bold;">{display_name}: {v_min_m:.0f}-{v_max_m:.0f}</span></div>'
+                
+                # Alt boşluk (margin-bottom) 6px yapılarak diğer modlarla dengelendi
+                synth_rows += f'''
+                <div style="display:flex;align-items:center;margin-bottom:6px;">
+                    <div style="width:20px;height:20px;background:{color_box};margin-right:10px; border:{border};"></div>
+                    <span style="color:black; font-size:15px; font-weight:bold;">{display_name}: {v_min_m:.0f}-{v_max_m:.0f}</span>
+                </div>'''
             
-            custom_legend_html += f'<div>{synth_rows}</div>'; has_custom = True
+            custom_legend_html += f'<div>{synth_rows}</div>'
+            has_custom = True
 
     if has_custom:
         m.get_root().html.add_child(folium.Element(f'<div style="position:fixed; bottom:40px; right:40px; z-index:9999; background:rgba(255,255,255,0.95); padding:15px; border-radius:10px; border:2px solid #333; box-shadow: 5px 5px 15px rgba(0,0,0,0.3); min-width:240px;">{custom_legend_html}</div>'))
