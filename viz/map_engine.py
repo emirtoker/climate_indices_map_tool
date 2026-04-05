@@ -11,29 +11,23 @@ import io
 import base64
 
 def get_clean_label(file_name, prefix=""):
-    """
-    Dosya isminden indisi (PCD, DI, UTCI vb.) hatasız yakalar.
-    Kısaltmayı her zaman BÜYÜK HARF yapar, açıklamayı Title Case yapar.
-    """
     codes = ["PCD", "PRCPTOT", "SU", "TR", "DI", "HI", "PET", "SPI", "SPEI", "UTCI"]
+    unit_fallback = {"PCD":"Days","SU":"Days","TR":"Days","PRCPTOT":"mm","PET":"mm","UTCI":"°C","DI":"°C","HI":"°C","SPI":"Index","SPEI":"Index"}
     clean = file_name.replace(".tif", "").replace("_cog", "")
     parts = clean.split('_')
-    
     found_code, found_idx = None, -1
     for i in range(len(parts) - 1, -1, -1):
         if parts[i].upper() in codes:
             if parts[i].upper() == "TR" and i < 4: continue
-            found_code = parts[i].upper()
-            found_idx = i
+            found_code, found_idx = parts[i].upper(), i
             break
-            
     if found_code:
         description = " ".join(parts[found_idx + 1:]).replace("_", " ").title()
         label = f"{found_code} - {description}"
+        unit = unit_fallback.get(found_code, "")
     else:
-        label = clean.replace("_", " ").title()
-        
-    return f"{prefix}{label}" if prefix else label
+        label, unit = clean.replace("_", " ").title(), ""
+    return f"{prefix}{label}", unit
 
 # --- AŞAMA 1: RAM KONTROLLÜ OKUMA ---
 @st.cache_data(show_spinner=False, max_entries=5)
@@ -65,28 +59,20 @@ def get_cached_rgba(file_name, vmin, vmax, cmap_input, mode, thresh=None, color_
         if not no_a: 
             idx = mask & (vals > t); rgba[idx, :3] = mpl.colors.to_rgba(color_above)[:3]; rgba[idx, 3] = 1.0
     else:
-        # Eğer vmin == vmax ise hata vermemesi için küçük bir koruma
         if vmin == vmax: vmax += 0.001
-        
-        cmap = plt.get_cmap(cmap_input)
-        norm = plt.Normalize(vmin=vmin, vmax=vmax)
-        
-        # 1. Normal Aralık (vmin - vmax)
-        valid = mask & (vals >= vmin) & (vals <= vmax)
-        rgba[valid, :3] = cmap(norm(vals[valid]))[:, :3]
-        rgba[valid, 3] = 1.0
-        
-        # 2. Extend Min: vmin'den küçükleri en alt renge boya
-        if ext_min:
-            low = mask & (vals < vmin)
-            rgba[low, :3] = cmap(0.0)[:3]
-            rgba[low, 3] = 1.0
-            
-        # 3. Extend Max: vmax'tan büyükleri en üst renge boya
-        if ext_max:
-            high = mask & (vals > vmax)
-            rgba[high, :3] = cmap(1.0)[:3]
-            rgba[high, 3] = 1.0
+        if isinstance(cmap_input, str) and cmap_input.startswith('#'):
+            single_c = mpl.colors.to_rgba(cmap_input)[:3]
+            valid = mask & (vals >= vmin) & (vals <= vmax)
+            rgba[valid, :3] = single_c; rgba[valid, 3] = 1.0
+            if ext_min: rgba[mask & (vals < vmin), :3] = single_c; rgba[mask & (vals < vmin), 3] = 1.0
+            if ext_max: rgba[mask & (vals > vmax), :3] = single_c; rgba[mask & (vals > vmax), 3] = 1.0
+        else:
+            cmap = plt.get_cmap(cmap_input)
+            norm = plt.Normalize(vmin=vmin, vmax=vmax)
+            valid = mask & (vals >= vmin) & (vals <= vmax)
+            rgba[valid, :3] = cmap(norm(vals[valid]))[:, :3]; rgba[valid, 3] = 1.0
+            if ext_min: rgba[mask & (vals < vmin), :3] = cmap(0.0)[:3]; rgba[mask & (vals < vmin), 3] = 1.0
+            if ext_max: rgba[mask & (vals > vmax), :3] = cmap(1.0)[:3]; rgba[mask & (vals > vmax), 3] = 1.0
     
     left, bottom, right, top = data.rio.transform_bounds("EPSG:4326")
     return (rgba * 255).astype(np.uint8), [[bottom, left], [top, right]]
@@ -186,21 +172,18 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
             
             # Başlık Hazırla
             prefix = c.get('legend_prefix', "")
-            clean_name = get_clean_label(name, prefix)
-            unit = units_dict.get(name, "")
+            clean_name, fb_unit = get_clean_label(name, prefix)
+            json_unit = units_dict.get(name, "")
+            unit = json_unit if json_unit else fb_unit
             colorbar_title = f"{clean_name} ({unit})" if unit else clean_name
             
             if c['mode'] == "Interval" and c.get('sub_mode') == "Multi-Color":
                 n_lv = int(c.get('lv', 10))
-                bins = [float(x) for x in np.linspace(c['vmin'], c['vmax'], n_lv + 0)]
+                bins = [float(x) for x in np.linspace(c['vmin'], c['vmax'], n_lv + 1)]
                 colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, n_lv)]
-                m.add_child(cm.StepColormap(
-                    colors, 
-                    vmin=bins[0], 
-                    vmax=bins[-1], 
-                    index=bins, 
-                    caption=colorbar_title
-                ))
+                step_cm = cm.StepColormap(colors, vmin=bins[0], vmax=bins[-1], index=bins, caption=colorbar_title)
+                step_cm.tick_labels = bins # 0'ı silecek olan vuruş bu!
+                m.add_child(step_cm)
                 
             elif c['mode'] == "Interval":
                 line = '<div style="border-top:1px solid #ccc; margin:8px 0;"></div>' if custom_legend_html else ""
