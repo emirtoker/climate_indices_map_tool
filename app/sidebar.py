@@ -117,7 +117,7 @@ def render_single_indices_ui(available_dict, units_dict, stats, is_historical=Fa
 
                     conf['sub_mode'] = st.selectbox("Figure Mode", ["Multi-Color", "One-Color"], key=f"sub_{prefix}_{filename}")
                     if conf['sub_mode'] == "Multi-Color":
-                        # 1. Ham Palet Listesi (Alfabetik)
+                        # 1. Ham Palet Listesi
                         raw_palettes = sorted([
                             "Blues", "BrBG", "BuGn", "BuPu", "GnBu", "Greens", "Greys", 
                             "Oranges", "OrRd", "PiYG", "PRGn", "PuBu", "PuBuGn", "PuOr", 
@@ -127,11 +127,10 @@ def render_single_indices_ui(available_dict, units_dict, stats, is_historical=Fa
                             "terrain", "gist_earth", "cubehelix", "coolwarm"
                         ], key=str.lower)
                         
-                        # 2. Yan Yana Düzen (Palet Seçimi ve Reverse Tiki)
-                        col_pal, col_rev = st.columns([0.7, 0.3])
+                        # 2. AYAR: Sütun oranları [0.5, 0.5] yapılarak kutu kısaltıldı
+                        col_pal, col_rev = st.columns([0.5, 0.5])
                         
                         with col_pal:
-                            # RdYlBu paletinin index'ini buluyoruz (Default seçili gelsin diye)
                             default_idx = raw_palettes.index("RdYlBu") if "RdYlBu" in raw_palettes else 0
                             selected_base = st.selectbox(
                                 "Color Palette", 
@@ -141,7 +140,7 @@ def render_single_indices_ui(available_dict, units_dict, stats, is_historical=Fa
                             )
                         
                         with col_rev:
-                            # Checkbox'ı etiketin yanına yaklaştırmak için üstten boşluk
+                            # Hizalama için üst boşluk (Kutuyla aynı hizada dursun)
                             st.markdown('<div style="padding-top: 35px;"></div>', unsafe_allow_html=True)
                             is_reversed = st.checkbox(
                                 "Reverse", 
@@ -149,7 +148,7 @@ def render_single_indices_ui(available_dict, units_dict, stats, is_historical=Fa
                                 key=f"cp_rev_{prefix}_{filename}"
                             )
                         
-                        # 3. Final Palet İsmini Oluştur (Reverse seçiliyse sonuna _r ekle)
+                        # 3. Final Palet İsmi
                         conf['cmap'] = f"{selected_base}_r" if is_reversed else selected_base
                         
                         # Önizleme Barı
@@ -160,7 +159,7 @@ def render_single_indices_ui(available_dict, units_dict, stats, is_historical=Fa
                         st.pyplot(fig)
                         plt.close(fig)
                         
-                        # Extend ve Discrete Ayarları...
+                        # Diğer ayarlar aynı kalıyor...
                         col1, col2 = st.columns(2)
                         conf['ext_min'] = col1.checkbox("Extend Min", value=True, key=f"exmin_{prefix}_{filename}")
                         conf['ext_max'] = col2.checkbox("Extend Max", value=True, key=f"exmax_{prefix}_{filename}")
