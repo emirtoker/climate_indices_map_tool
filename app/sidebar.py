@@ -117,17 +117,50 @@ def render_single_indices_ui(available_dict, units_dict, stats, is_historical=Fa
 
                     conf['sub_mode'] = st.selectbox("Figure Mode", ["Multi-Color", "One-Color"], key=f"sub_{prefix}_{filename}")
                     if conf['sub_mode'] == "Multi-Color":
-                        # Palet seçenekleri artırıldı
-                        palette_list = [
-                            "RdYlBu_r", "Spectral_r", "viridis", "coolwarm", "magma", "plasma", "inferno", 
-                            "terrain", "gist_earth", "cubehelix", "RdBu_r", "BrBG", "PRGn", "PiYG", 
-                            "YlGnBu", "YlOrRd", "Blues", "Reds", "Greens", "Purples"
-                        ]
-                        conf['cmap'] = st.selectbox("Color Palette", palette_list, key=f"cp_{prefix}_{filename}")
-                        gradient = np.linspace(0, 1, 256).reshape(1, -1); fig, ax = plt.subplots(figsize=(6, 0.18))
-                        ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(conf['cmap']))
-                        ax.set_axis_off(); st.pyplot(fig); plt.close(fig)
+                        # 1. Ham Palet Listesi (Alfabetik)
+                        raw_palettes = sorted([
+                            "Blues", "BrBG", "BuGn", "BuPu", "GnBu", "Greens", "Greys", 
+                            "Oranges", "OrRd", "PiYG", "PRGn", "PuBu", "PuBuGn", "PuOr", 
+                            "PuRd", "Purples", "RdBu", "RdGy", "RdPu", "RdYlBu", "RdYlGn", 
+                            "Reds", "Spectral", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd",
+                            "viridis", "plasma", "inferno", "magma", "cividis",
+                            "terrain", "gist_earth", "cubehelix", "coolwarm"
+                        ], key=str.lower)
                         
+                        # 2. Yan Yana Düzen (Palet Seçimi ve Reverse Tiki)
+                        col_pal, col_rev = st.columns([0.7, 0.3])
+                        
+                        with col_pal:
+                            # RdYlBu paletinin index'ini buluyoruz (Default seçili gelsin diye)
+                            default_idx = raw_palettes.index("RdYlBu") if "RdYlBu" in raw_palettes else 0
+                            selected_base = st.selectbox(
+                                "Color Palette", 
+                                raw_palettes, 
+                                index=default_idx, 
+                                key=f"cp_base_{prefix}_{filename}"
+                            )
+                        
+                        with col_rev:
+                            # Checkbox'ı etiketin yanına yaklaştırmak için üstten boşluk
+                            st.markdown('<div style="padding-top: 35px;"></div>', unsafe_allow_html=True)
+                            is_reversed = st.checkbox(
+                                "Reverse", 
+                                value=True, 
+                                key=f"cp_rev_{prefix}_{filename}"
+                            )
+                        
+                        # 3. Final Palet İsmini Oluştur (Reverse seçiliyse sonuna _r ekle)
+                        conf['cmap'] = f"{selected_base}_r" if is_reversed else selected_base
+                        
+                        # Önizleme Barı
+                        gradient = np.linspace(0, 1, 256).reshape(1, -1)
+                        fig, ax = plt.subplots(figsize=(6, 0.18))
+                        ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(conf['cmap']))
+                        ax.set_axis_off()
+                        st.pyplot(fig)
+                        plt.close(fig)
+                        
+                        # Extend ve Discrete Ayarları...
                         col1, col2 = st.columns(2)
                         conf['ext_min'] = col1.checkbox("Extend Min", value=True, key=f"exmin_{prefix}_{filename}")
                         conf['ext_max'] = col2.checkbox("Extend Max", value=True, key=f"exmax_{prefix}_{filename}")
