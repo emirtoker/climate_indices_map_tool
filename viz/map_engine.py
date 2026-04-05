@@ -135,7 +135,7 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
         margin-bottom: 5px !important; 
         line-height: 1.2 !important; 
         font-weight: bold !important;
-        transform: translateY(8px) !important;
+        transform: translateY(5px) !important;
         overflow: visible !important;
     }
     
@@ -192,7 +192,7 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
             
             if c['mode'] == "Interval" and c.get('sub_mode') == "Multi-Color":
                 n_lv = int(c.get('lv', 10))
-                bins = [float(x) for x in np.linspace(c['vmin'], c['vmax'], n_lv + 1)]
+                bins = [float(x) for x in np.linspace(c['vmin'], c['vmax'], n_lv + 0)]
                 colors = [mpl.colors.rgb2hex(plt.get_cmap(c['cmap'])(i)) for i in np.linspace(0, 1, n_lv)]
                 m.add_child(cm.StepColormap(
                     colors, 
