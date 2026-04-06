@@ -29,51 +29,79 @@ def get_clean_label(file_name, prefix=""):
         label, unit = clean.replace("_", " ").title(), ""
     return f"{prefix}{label}", unit
 
-# --- AŞAMA 1: RAM KONTROLLÜ OKUMA ---
+# --- AŞAMA 1: AKILLI COG OKUMA (OVERVIEWS DESTEKLİ) ---
 @st.cache_data(show_spinner=False, max_entries=5)
-def load_raw_data(file_name):
-    from core.data_loader import load_index_data
-    data, _, _ = load_index_data(file_name)
-    return data
+def load_raw_data(file_name, max_width=1200):
+    import rioxarray
+    # Doğrudan rioxarray ile açarak overview'lardan faydalanıyoruz
+    # Bu sayede koca dosyayı değil, ihtiyacımız olan çözünürlüğü okuyoruz
+    ds = rioxarray.open_rasterio(file_name, mask_and_scale=True)
+    
+    # Eğer veri çok büyükse, en yakın overview seviyesine küçült (Decimation)
+    # Bu işlem COG olduğu için milisaniyeler sürer
+    if ds.rio.width > max_width:
+        scale_factor = max_width / ds.rio.width
+        new_width = int(ds.rio.width * scale_factor)
+        new_height = int(ds.rio.height * scale_factor)
+        # out_shape kullanımı COG içindeki piramitleri (overviews) otomatik seçer
+        ds = ds.rio.reproject(ds.rio.crs, shape=(new_height, new_width))
+        
+    if 'time' in ds.dims: ds = ds.mean(dim='time')
+    if 'band' in ds.dims: ds = ds.sel(band=1)
+        
+    return ds
 
-# --- AŞAMA 2: ULTRA HAFİF PNG ENCODE ---
+# --- AŞAMA 2: HIZLI PNG ENCODE ---
 @st.cache_data(show_spinner=False, max_entries=10)
 def rgba_to_png_base64(rgba_uint8):
     img = Image.fromarray(rgba_uint8)
     buf = io.BytesIO()
-    img.save(buf, format="PNG", optimize=True) 
+    # 'optimize=True' kısmını kaldırdık, CPU yerine ağ hızına odaklandık
+    # PNG yerine bazen WebP denenebilir ama uyumluluk için PNG iyidir
+    img.save(buf, format="PNG", compress_level=3) # 1-9 arası; 3 hız/boyut dengesidir
     return f"data:image/png;base64,{base64.b64encode(buf.getvalue()).decode('utf-8')}"
 
-# --- AŞAMA 3: AKILLI RENKLENDİRME (EXTEND DESTEKLİ) ---
+# --- AŞAMA 3: AKILLI RENKLENDİRME ---
 @st.cache_data(show_spinner=False, max_entries=5)
-def get_cached_rgba(file_name, vmin, vmax, cmap_input, mode, thresh=None, color_below=None, color_above=None, no_b=False, no_a=False, ext_min=True, ext_max=True):
-    data = load_raw_data(file_name) 
+def get_cached_rgba(file_path, vmin, vmax, cmap_input, mode, thresh=None, color_below=None, color_above=None, no_b=False, no_a=False, ext_min=True, ext_max=True):
+    # Artık dosya yolunu (full_path) gönderiyoruz
+    data = load_raw_data(file_path) 
     vals = data.values
     mask = ~np.isnan(vals)
+    
+    # Bellek tasarrufu için float32 yerine uint8'e hazırlık yapıyoruz
     rgba = np.zeros((*vals.shape, 4), dtype=np.float32)
 
     if mode == "Threshold":
         t = thresh
         if not no_b: 
-            idx = mask & (vals < t); rgba[idx, :3] = mpl.colors.to_rgba(color_below)[:3]; rgba[idx, 3] = 1.0
+            idx = mask & (vals < t)
+            rgba[idx, :3] = mpl.colors.to_rgba(color_below)[:3]
+            rgba[idx, 3] = 1.0
         if not no_a: 
-            idx = mask & (vals > t); rgba[idx, :3] = mpl.colors.to_rgba(color_above)[:3]; rgba[idx, 3] = 1.0
+            idx = mask & (vals > t)
+            rgba[idx, :3] = mpl.colors.to_rgba(color_above)[:3]
+            rgba[idx, 3] = 1.0
     else:
         if vmin == vmax: vmax += 0.001
         if isinstance(cmap_input, str) and cmap_input.startswith('#'):
             single_c = mpl.colors.to_rgba(cmap_input)[:3]
             valid = mask & (vals >= vmin) & (vals <= vmax)
-            rgba[valid, :3] = single_c; rgba[valid, 3] = 1.0
+            rgba[valid, :3] = single_c
+            rgba[valid, 3] = 1.0
             if ext_min: rgba[mask & (vals < vmin), :3] = single_c; rgba[mask & (vals < vmin), 3] = 1.0
             if ext_max: rgba[mask & (vals > vmax), :3] = single_c; rgba[mask & (vals > vmax), 3] = 1.0
         else:
             cmap = plt.get_cmap(cmap_input)
             norm = plt.Normalize(vmin=vmin, vmax=vmax)
             valid = mask & (vals >= vmin) & (vals <= vmax)
-            rgba[valid, :3] = cmap(norm(vals[valid]))[:, :3]; rgba[valid, 3] = 1.0
+            # Matplotlib'in vektörize gücünü kullanıyoruz
+            rgba[valid, :3] = cmap(norm(vals[valid]))[:, :3]
+            rgba[valid, 3] = 1.0
             if ext_min: rgba[mask & (vals < vmin), :3] = cmap(0.0)[:3]; rgba[mask & (vals < vmin), 3] = 1.0
             if ext_max: rgba[mask & (vals > vmax), :3] = cmap(1.0)[:3]; rgba[mask & (vals > vmax), 3] = 1.0
     
+    # Koordinat sınırlarını al
     left, bottom, right, top = data.rio.transform_bounds("EPSG:4326")
     return (rgba * 255).astype(np.uint8), [[bottom, left], [top, right]]
 
