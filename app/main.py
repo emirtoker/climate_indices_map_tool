@@ -18,11 +18,11 @@ from config.settings import FUTURE_SSP245_DIR, FUTURE_SSP245_STATS, INDICES_DIR
 
 # --- LCZ LEJANT METNİ ---
 LCZ_LEGEND_HTML = """
-<div style="position: fixed; bottom: 80px; left: 20px; width: 180px; z-index:9999; 
+<div style="position: fixed; bottom: 40px; left: 5px; width: 200px; z-index:9999; 
             background-color: rgba(255, 255, 255, 0.95); padding: 8px; border: 1px solid #888; 
-            border-radius: 5px; font-size: 10.5px; font-family: 'Arial Narrow'; color: black;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.2);">
-    <b style="font-size:12px; display:block; margin-bottom:5px; border-bottom:1px solid #ccc;">Local Climate Zones</b>
+            border-radius: 5px; font-size: 10.5px; font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; color: #333;
+            box-shadow: none;">
+    <b style="font-size:12px; display:block; margin-bottom:5px; border-bottom:1px solid #ddd;">Local Climate Zones</b>
     <div style="display: flex; gap: 4px;">
         <div style="flex: 1;">
             <b style="color:#555;">Built</b><br>

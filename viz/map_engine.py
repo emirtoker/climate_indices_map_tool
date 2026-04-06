@@ -143,7 +143,9 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
     .leaflet-image-layer, .leaflet-raster-layer { image-rendering: pixelated !important; }
     
     .legend { 
-        margin-bottom: 30px !important; 
+        margin-top: 10px !important;
+        margin-bottom: 40px !important; 
+        margin-right: 10px !important; 
         font-size: 16px !important; 
         display: flex !important; 
         flex-direction: column-reverse !important; 
@@ -152,16 +154,26 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         overflow: visible !important;
         height: auto !important;
         min-height: 90px !important;
+        background: rgba(245, 245, 245, 0.95) !important; /* Kırık beyaz/gri */
+        border: 1px solid #999 !important;               /* Düz gri çerçeve */
+        border-radius: 5px !important;                    /* Yumuşak köşe */
+        padding: 0px 8px 10px 8px !important; /* Üst(2px), Sağ(8px), Alt(0px), Sol(8px) */
+        width: fit-content !important;        /* İçerik kadar genişle (Daraltır)
+        height: auto !important;             /* İçerik kadar boylan */
+        box-shadow: none !important;                      /* Gölgeyi kaldırdık */
+        margin-bottom: 20px !important;                                                                                  
     }
     
     .legend .caption { 
         font-size: 16px !important; 
-        color: black !important; 
+        color: #333 !important; 
         margin-bottom: 5px !important; 
         line-height: 1.2 !important; 
         font-weight: bold !important;
         transform: translateY(5px) !important;
         overflow: visible !important;
+        color: #333 !important;
+        font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif !important;                                         
     }
     
     .legend svg { 
@@ -171,7 +183,8 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
     }
     
     .legend svg text { 
-        fill: black !important; 
+        fill: #333 !important; 
+        font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif !important;
         font-weight: bold !important; 
         font-size: 14px !important; 
     }
@@ -180,7 +193,8 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         display: flex !important; 
         flex-direction: column !important; 
         align-items: flex-end !important; 
-        gap: 25px !important; 
+        gap: 15px !important; 
+        top: 10px !important;    /* Değer küçüldükçe yukarı
     }
     </style>
     """))
@@ -218,12 +232,13 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         
         # Lejant HTML (NameError engellemek için fonksiyon içinde de tanımlı)
         lcz_leg_final = """
-        <div style="position: fixed; bottom: 80px; left: 20px; width: 180px; z-index:9999; 
-                    background-color: rgba(255, 255, 255, 0.95); padding: 8px; border: 1px solid #888; 
-                    border-radius: 5px; font-size: 10.5px; font-family: 'Arial Narrow'; color: black;">
-            <b style="font-size:12px; display:block; margin-bottom:5px; border-bottom:1px solid #ccc;">Local Climate Zones</b>
-            <div style="display: flex; gap: 4px;">
-                <div style="flex: 1;">
+        <div style="position: fixed; bottom: 40px; left: 5px; width: 200px; z-index:9999; 
+            background-color: rgba(255, 255, 255, 0.95); padding: 8px; border: 1px solid #888; 
+            border-radius: 5px; font-size: 10.5px; font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; color: #333;
+            box-shadow: none;">
+    <b style="font-size:12px; display:block; margin-bottom:5px; border-bottom:1px solid #ddd;">Local Climate Zones</b>
+    <div style="display: flex; gap: 4px;">
+        <div style="flex: 1;">
                     <b>Built</b><br>
                     <i style="background:#990000;width:9px;height:9px;display:inline-block"></i> 1 Comp. High<br>
                     <i style="background:#e40000;width:9px;height:9px;display:inline-block"></i> 2 Comp. Mid<br>
@@ -370,7 +385,18 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
             has_custom = True
 
     if has_custom:
-        m.get_root().html.add_child(folium.Element(f'<div style="position:fixed; bottom:40px; right:40px; z-index:9999; background:rgba(255,255,255,0.95); padding:15px; border-radius:10px; border:2px solid #333; box-shadow: 5px 5px 15px rgba(0,0,0,0.3); min-width:240px;">{custom_legend_html}</div>'))
+        m.get_root().html.add_child(folium.Element(f'''
+            <div style="position:fixed; bottom:40px; 
+            right:10px; z-index:9999; 
+            background:rgba(255,255,255,0.95); 
+            padding:15px; border-radius:10px; 
+            border:2px solid #333; 
+            box-shadow: none; 
+            min-width:240px;
+            font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; color: #333;">
+            {custom_legend_html}
+            </div>
+        '''))
     
     m.add_layer_control()
     return m
