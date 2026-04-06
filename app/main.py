@@ -59,8 +59,8 @@ one_bundle, multi_bundle = render_sidebar(
 
 with st.sidebar:
     st.subheader("Layers")
-    show_provinces = st.toggle("Show Provinces", value=True, key="show_provinces")
-    show_districts = st.toggle("Show Districts", value=True, key="show_districts")
+    show_provinces = st.toggle("Provinces", value=True, key="show_provinces")
+    show_districts = st.toggle("Districts", value=True, key="show_districts")
     show_osm = st.toggle("OpenStreetMap", value=True, key="show_osm") 
     st.markdown("---")
 
@@ -93,14 +93,21 @@ def render_isolated_map_section(trigger, show_provinces, show_districts, show_os
         m.to_streamlit(height=1200, key="main_map_stable_key")
 
     else:
-        # 1. Haritayı oluştur (OSM kontrolü)
-        m = leafmap.Map(
-            center=[38.9, 35.5], 
-            zoom=5, 
-            tiles="OpenStreetMap" if show_osm else None
-        )
+        # 1. Haritayı oluştur 
+        m = leafmap.Map(center=[38.9, 35.5], zoom=5, tiles=None)
         
-        # 2. İLÇE KATMANI (Temizleme ve Ekleme bir arada)
+        # OSM KATMANI 
+        if show_osm:
+            import folium
+            folium.TileLayer(
+                tiles='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                attr='&copy; OpenStreetMap contributors',
+                name='OpenStreetMap',
+                overlay=True,
+                control=True
+            ).add_to(m)
+
+        # 2. İLÇE KATMANI 
         if show_districts and districts_shp is not None:
             # Değişkeni burada oluşturuyoruz
             temp_dist = districts_shp[['ADM1_TR', 'ADM2_TR', 'geometry']].copy()
@@ -113,14 +120,14 @@ def render_isolated_map_section(trigger, show_provinces, show_districts, show_os
             m.add_gdf(
                 temp_dist, 
                 layer_name="Türkiye Districts", 
-                style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.1}
+                style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.2}
             )
 
-        # 3. İL KATMANI (Temizleme ve Ekleme bir arada)
+        # 3. İL KATMANI 
         if show_provinces and shp is not None:
             temp_shp = shp[['ADM1_TR', 'geometry']].copy()
             temp_shp.columns = ['Şehir', 'geometry']
-            
+        
             m.add_gdf(
                 temp_shp, 
                 layer_name="Türkiye Provinces", 
