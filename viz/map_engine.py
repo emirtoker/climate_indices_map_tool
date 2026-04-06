@@ -157,7 +157,7 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         background: rgba(245, 245, 245, 0.95) !important; /* Kırık beyaz/gri */
         border: 1px solid #999 !important;               /* Düz gri çerçeve */
         border-radius: 5px !important;                    /* Yumuşak köşe */
-        padding: 0px 8px 10px 8px !important; /* Üst(2px), Sağ(8px), Alt(0px), Sol(8px) */
+        padding: 10px 8px 15px 8px !important; /* Üst(2px), Sağ(8px), Alt(0px), Sol(8px) */
         width: fit-content !important;        /* İçerik kadar genişle (Daraltır)
         height: auto !important;             /* İçerik kadar boylan */
         box-shadow: none !important;                      /* Gölgeyi kaldırdık */
@@ -389,8 +389,8 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
             <div style="position:fixed; bottom:40px; 
             right:10px; z-index:9999; 
             background:rgba(255,255,255,0.95); 
-            padding:15px; border-radius:10px; 
-            border:2px solid #333; 
+            padding:15px; border-radius:5px; 
+            border:1px solid #333; 
             box-shadow: none; 
             min-width:240px;
             font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; color: #333;">
