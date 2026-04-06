@@ -128,7 +128,7 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
     m = leafmap.Map(
         center=st.session_state.get('map_center', [38.9, 35.5]), 
         zoom=st.session_state.get('map_zoom', 5), 
-        tiles=None, #
+        tiles=None, 
         control_scale=True
     )
 
@@ -180,26 +180,27 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
     </style>
     """))
     
-    # --- 1. İLÇE SINIRLARI (Yeni Katman) ---
+    # --- 1. EN ALT: OSM ---
+    if show_osm:
+        folium.TileLayer(
+            tiles='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            attr='&copy; OpenStreetMap contributors',
+            name='OpenStreetMap',
+            overlay=True,
+            control=True
+        ).add_to(m)
+
+    # --- 2. ORTA: İLLER (Provinces) ---
+    if show_provinces and shp is not None:
+        temp_shp = shp[['ADM1_TR', 'geometry']].copy(); temp_shp.columns = ['Şehir', 'geometry']
+        m.add_gdf(temp_shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.2}, labels=False)
+
+    # --- 3. EN ÜST: İLÇELER (Districts) ---
     if show_districts and districts_shp is not None:
         temp_dist = districts_shp[['ADM1_TR', 'ADM2_TR', 'geometry']].copy()
         temp_dist.columns = ['Şehir', 'İlçe', 'geometry']
         temp_dist.loc[temp_dist['Şehir'] == temp_dist['İlçe'], 'İlçe'] = temp_dist['İlçe'] + " (Merkez)"
         m.add_gdf(temp_dist, layer_name="Türkiye Districts", style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.2}, labels=False, zoom_to_layer=False)
-
-    if show_provinces and shp is not None:
-        temp_shp = shp[['ADM1_TR', 'geometry']].copy(); temp_shp.columns = ['Şehir', 'geometry']
-        m.add_gdf(temp_shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0}, labels=False)
-
-    if show_osm:
-        import folium
-        folium.TileLayer(
-            tiles='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            attr='&copy; OpenStreetMap contributors',
-            name='OpenStreetMap',
-            overlay=True,     # İŞTE SİHİR BURADA: Artık radyo butonu değil, tick kutusu!
-            control=True      # Katman menüsünde görünsün
-        ).add_to(m)
 
     custom_legend_html = ""; has_custom = False
 

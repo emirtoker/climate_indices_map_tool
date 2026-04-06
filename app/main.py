@@ -96,7 +96,7 @@ def render_isolated_map_section(trigger, show_provinces, show_districts, show_os
         # 1. Haritayı oluştur 
         m = leafmap.Map(center=[38.9, 35.5], zoom=5, tiles=None)
         
-        # OSM KATMANI 
+        # --- A. EN ALT: OSM ---
         if show_osm:
             import folium
             folium.TileLayer(
@@ -107,31 +107,26 @@ def render_isolated_map_section(trigger, show_provinces, show_districts, show_os
                 control=True
             ).add_to(m)
 
-        # 2. İLÇE KATMANI 
+        # --- B. ORTA: İLLER (Provinces) ---
+        if show_provinces and shp is not None:
+            temp_shp = shp[['ADM1_TR', 'geometry']].copy()
+            temp_shp.columns = ['Şehir', 'geometry']
+            m.add_gdf(
+                temp_shp, 
+                layer_name="Türkiye Provinces", 
+                style={'color': 'black', 'fillOpacity': 0, 'weight': 1.2} # Çizgiyi azıcık kalınlaştırdım
+            )
+
+        # --- C. EN ÜST: İLÇELER (Districts) ---
         if show_districts and districts_shp is not None:
-            # Değişkeni burada oluşturuyoruz
             temp_dist = districts_shp[['ADM1_TR', 'ADM2_TR', 'geometry']].copy()
             temp_dist.columns = ['Şehir', 'İlçe', 'geometry']
-            
-            # Merkez ilçe düzeltmesi
             temp_dist.loc[temp_dist['Şehir'] == temp_dist['İlçe'], 'İlçe'] = temp_dist['İlçe'] + " (Merkez)"
             
-            # add_gdf mutlaka bu if'in içinde olmalı!
             m.add_gdf(
                 temp_dist, 
                 layer_name="Türkiye Districts", 
                 style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.2}
-            )
-
-        # 3. İL KATMANI 
-        if show_provinces and shp is not None:
-            temp_shp = shp[['ADM1_TR', 'geometry']].copy()
-            temp_shp.columns = ['Şehir', 'geometry']
-        
-            m.add_gdf(
-                temp_shp, 
-                layer_name="Türkiye Provinces", 
-                style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0}
             )
             
         m.to_streamlit(height=1200, key="stable_map_render")
