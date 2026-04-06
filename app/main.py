@@ -12,7 +12,7 @@ for key, val in [('map_center', [38.9, 35.5]), ('map_zoom', 5), ('map_rendered',
                  ('applied_sel_one', []), ('applied_one_conf', {}), ('applied_multi_bundle', ([], {}))]:
     if key not in st.session_state: st.session_state[key] = val
 
-from core.data_loader import load_turkiye_shp, list_available_indices, load_stats
+from core.data_loader import load_turkiye_shp, load_districts_shp, list_available_indices, load_stats
 from app.sidebar import render_sidebar, get_clean_name_logic
 from viz.map_engine import create_interactive_map
 import leafmap.foliumap as leafmap
@@ -23,6 +23,8 @@ st.markdown("<style>.main .block-container { padding-top: 5rem !important; } foo
 
 # --- 2. VERİ ÖN YÜKLEME ---
 shp = load_turkiye_shp()
+districts_shp = load_districts_shp() # İlçeleri yükle
+
 
 # A. Historical Veriler {Friendly_Name: Filename}
 av_dict_hist = list_available_indices()
@@ -55,6 +57,13 @@ one_bundle, multi_bundle = render_sidebar(
     stats_future
 )
 
+with st.sidebar:
+    st.subheader("Layers")
+    show_provinces = st.toggle("Show Provinces", value=True, key="show_provinces")
+    show_districts = st.toggle("Show Districts", value=True, key="show_districts")
+    show_osm = st.toggle("OpenStreetMap", value=True, key="show_osm") 
+    st.markdown("---")
+
 # --- UPDATE MAP BUTONU ---
 with st.sidebar:
     st.markdown("---")
@@ -69,31 +78,55 @@ with st.sidebar:
 
 # --- 4. HARİTA BÖLÜMÜ (FRAGMENT) ---
 @st.fragment
-def render_isolated_map_section(trigger):
+def render_isolated_map_section(trigger, show_provinces, show_districts, show_osm):
     if st.session_state.map_rendered:
+        # ... (buradaki kodların doğru, create_interactive_map zaten ilçeleri alıyor)
         sel = st.session_state.applied_sel_one
         conf = st.session_state.applied_one_conf
         multi = st.session_state.applied_multi_bundle
-
-        # Birimleri total_stats üzerinden çekiyoruz
         units_data = {k: total_stats.get(k, {}).get('unit', '') for k in list(set(sel) | set(multi[0]))}
 
-        # Haritayı oluştur (Yol haritasını engine_path_map ile gönderiyoruz)
-        m = create_interactive_map(shp, (sel, conf), multi, units_data, engine_path_map)
-        
-        # Haritayı ekrana bas
-        output = m.to_streamlit(height=1200, key="main_map_stable_key")
-        
-        # Zoom/Center güncellemeleri
-        if isinstance(output, dict) and "center" in output and output["center"]:
-            st.session_state.map_center = [output["center"]["lat"], output["center"]["lng"]]
-            st.session_state.map_zoom = output["zoom"]
+        m = create_interactive_map(
+            shp, districts_shp, (sel, conf), multi, units_data, 
+            engine_path_map, show_provinces, show_districts
+        )
+        m.to_streamlit(height=1200, key="main_map_stable_key")
+
     else:
-        # Boş başlangıç haritası
-        m = leafmap.Map(center=[38.9, 35.5], zoom=5, tiles=None)
-        if shp is not None:
-            temp_shp = shp[['ADM1_TR', 'geometry']].copy(); temp_shp.columns = ['TR', 'geometry']
-            m.add_gdf(temp_shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0})
+        # 1. Haritayı oluştur (OSM kontrolü)
+        m = leafmap.Map(
+            center=[38.9, 35.5], 
+            zoom=5, 
+            tiles="OpenStreetMap" if show_osm else None
+        )
+        
+        # 2. İLÇE KATMANI (Temizleme ve Ekleme bir arada)
+        if show_districts and districts_shp is not None:
+            # Değişkeni burada oluşturuyoruz
+            temp_dist = districts_shp[['ADM1_TR', 'ADM2_TR', 'geometry']].copy()
+            temp_dist.columns = ['Şehir', 'İlçe', 'geometry']
+            
+            # Merkez ilçe düzeltmesi
+            temp_dist.loc[temp_dist['Şehir'] == temp_dist['İlçe'], 'İlçe'] = temp_dist['İlçe'] + " (Merkez)"
+            
+            # add_gdf mutlaka bu if'in içinde olmalı!
+            m.add_gdf(
+                temp_dist, 
+                layer_name="Türkiye Districts", 
+                style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.1}
+            )
+
+        # 3. İL KATMANI (Temizleme ve Ekleme bir arada)
+        if show_provinces and shp is not None:
+            temp_shp = shp[['ADM1_TR', 'geometry']].copy()
+            temp_shp.columns = ['Şehir', 'geometry']
+            
+            m.add_gdf(
+                temp_shp, 
+                layer_name="Türkiye Provinces", 
+                style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0}
+            )
+            
         m.to_streamlit(height=1200, key="stable_map_render")
 
-render_isolated_map_section(st.session_state.map_trigger)
+render_isolated_map_section(st.session_state.map_trigger, show_provinces, show_districts, show_osm)

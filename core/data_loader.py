@@ -50,10 +50,19 @@ def load_index_data(file_name_or_path):
 
 @st.cache_data
 def load_turkiye_shp():
-    if not os.path.exists(SHP_PATH):
-        st.error(f"SHP dosyası bulunamadı: {SHP_PATH}")
+    # Artık doğrudan 4326 olan dosyayı okuyoruz
+    path = "/Users/emirtoker/Desktop/Proje_Tubitak_Bap/Iklim_Mimarlik_Projesi/Script/Python/climate_indices_map_tool/data/shapefiles/tur_adm_2025_ab_shp/tur_admbnda_adm1_2025_4326.shp"
+    if not os.path.exists(path):
         return None
-    return gpd.read_file(SHP_PATH).to_crs("EPSG:4326")
+    return gpd.read_file(path)
+
+@st.cache_data
+def load_districts_shp():
+    # Doğrudan 4326 olan ilçeler dosyası
+    path = "/Users/emirtoker/Desktop/Proje_Tubitak_Bap/Iklim_Mimarlik_Projesi/Script/Python/climate_indices_map_tool/data/shapefiles/tur_adm_2025_ab_shp/tur_admbnda_adm2_2025_4326.shp"
+    if not os.path.exists(path):
+        return None
+    return gpd.read_file(path) 
 
 def list_available_indices():
     if not os.path.exists(INDICES_DIR):

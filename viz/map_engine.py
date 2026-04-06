@@ -123,8 +123,14 @@ def get_synthesis_rgba(names, vmin_list, vmax_list, color):
         return (rgba * 255).astype(np.uint8), [[bottom, left], [top, right]]
     return None, None
 
-def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_dict):
-    m = leafmap.Map(center=st.session_state.get('map_center', [38.9, 35.5]), zoom=st.session_state.get('map_zoom', 5), tiles=None, control_scale=True)
+def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_dict, available_dict, 
+                           show_provinces=True, show_districts=True, show_osm=True):
+    m = leafmap.Map(
+        center=st.session_state.get('map_center', [38.9, 35.5]), 
+        zoom=st.session_state.get('map_zoom', 5), 
+        tiles="OpenStreetMap" if show_osm else None, 
+        control_scale=True
+    )
 
     # --- CSS: LEJANT VE YAZI DÜZENİ ---
     m.get_root().header.add_child(folium.Element("""
@@ -174,8 +180,15 @@ def create_interactive_map(shp, one_bundle, multi_bundle, units_dict, available_
     </style>
     """))
     
-    if shp is not None:
-        temp_shp = shp[['ADM1_TR', 'geometry']].copy(); temp_shp.columns = ['TR', 'geometry']
+    # --- 1. İLÇE SINIRLARI (Yeni Katman) ---
+    if show_districts and districts_shp is not None:
+        temp_dist = districts_shp[['ADM1_TR', 'ADM2_TR', 'geometry']].copy()
+        temp_dist.columns = ['Şehir', 'İlçe', 'geometry']
+        temp_dist.loc[temp_dist['Şehir'] == temp_dist['İlçe'], 'İlçe'] = temp_dist['İlçe'] + " (Merkez)"
+        m.add_gdf(temp_dist, layer_name="Türkiye Districts", style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.5}, labels=False, zoom_to_layer=False)
+
+    if show_provinces and shp is not None:
+        temp_shp = shp[['ADM1_TR', 'geometry']].copy(); temp_shp.columns = ['Şehir', 'geometry']
         m.add_gdf(temp_shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.0}, labels=False)
 
     custom_legend_html = ""; has_custom = False
