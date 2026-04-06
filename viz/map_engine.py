@@ -1,14 +1,16 @@
+import os
 import streamlit as st
 import leafmap.foliumap as leafmap
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 import branca.colormap as cm
-import folium
+import folium  # En üstte olduğundan emin ol
 from folium.raster_layers import ImageOverlay 
 from PIL import Image
 import io
 import base64
+
 
 def get_clean_label(file_name, prefix=""):
     codes = ["PCD", "PRCPTOT", "SU", "TR", "DI", "HI", "PET", "SPI", "SPEI", "UTCI"]
@@ -124,7 +126,10 @@ def get_synthesis_rgba(names, vmin_list, vmax_list, color):
     return None, None
 
 def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_dict, available_dict, 
-                           show_provinces=True, show_districts=True, show_osm=True):
+                           show_provinces=True, show_districts=True, show_osm=True, 
+                           lcz_bundle=(None, None)):
+
+    # Haritayı oluştur
     m = leafmap.Map(
         center=st.session_state.get('map_center', [38.9, 35.5]), 
         zoom=st.session_state.get('map_zoom', 5), 
@@ -190,17 +195,29 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
             control=True
         ).add_to(m)
 
-    # --- 2. ORTA: İLLER (Provinces) ---
+    # --- 2. ORTA: İLLER ---
     if show_provinces and shp is not None:
-        temp_shp = shp[['ADM1_TR', 'geometry']].copy(); temp_shp.columns = ['Şehir', 'geometry']
+        temp_shp = shp[['Şehir', 'geometry']].copy() if 'Şehir' in shp.columns else shp[['ADM1_TR', 'geometry']].copy()
+        temp_shp.columns = ['Şehir', 'geometry']
         m.add_gdf(temp_shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.2}, labels=False)
 
-    # --- 3. EN ÜST: İLÇELER (Districts) ---
+    # --- 3. EN ÜST: İLÇELER ---
     if show_districts and districts_shp is not None:
-        temp_dist = districts_shp[['ADM1_TR', 'ADM2_TR', 'geometry']].copy()
+        temp_dist = districts_shp[['Şehir', 'İlçe', 'geometry']].copy() if 'Şehir' in districts_shp.columns else districts_shp[['ADM1_TR', 'ADM2_TR', 'geometry']].copy()
         temp_dist.columns = ['Şehir', 'İlçe', 'geometry']
         temp_dist.loc[temp_dist['Şehir'] == temp_dist['İlçe'], 'İlçe'] = temp_dist['İlçe'] + " (Merkez)"
         m.add_gdf(temp_dist, layer_name="Türkiye Districts", style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.2}, labels=False, zoom_to_layer=False)
+
+    # --- 4. LCZ KATMANI ---
+    lcz_b64, lcz_bounds = lcz_bundle
+    if lcz_b64:
+        folium.raster_layers.ImageOverlay(
+            image=lcz_b64,
+            bounds=lcz_bounds,
+            opacity=0.6,
+            name="Local Climate Zones (LCZ)",
+            zindex=4
+        ).add_to(m)
 
     custom_legend_html = ""; has_custom = False
 

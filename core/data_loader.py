@@ -4,7 +4,25 @@ import streamlit as st
 import os
 import rioxarray
 import json
-from config.settings import INDICES_DIR, SHP_PATH
+import base64
+from config.settings import INDICES_DIR, SHP_PATH, DISTRICTS_PATH, LCZ_PNG, LCZ_META, LCZ_PATH
+
+@st.cache_data(show_spinner="LCZ Verisi Yükleniyor...")
+def load_lcz_data():
+    if not os.path.exists(LCZ_PATH):
+        return None, None
+    
+    import rioxarray
+    ds = rioxarray.open_rasterio(LCZ_PATH, mask_and_scale=True)
+    
+    if 'band' in ds.dims:
+        ds = ds.sel(band=1)
+    
+    # Koordinatları al
+    left, bottom, right, top = ds.rio.transform_bounds("EPSG:4326")
+    bounds = [[bottom, left], [top, right]]
+    
+    return ds, bounds
 
 @st.cache_data
 def load_stats():
@@ -24,7 +42,7 @@ def get_friendly_name(filename):
         return f"{abbr} - {full_name}"
     return clean_name.upper()
 
-# --- DÜZENLENEN KISIM: ADIM 1 (RAM CACHE OPTİMİZASYONU) ---
+# --- ADIM 1 (RAM CACHE OPTİMİZASYONU) ---
 @st.cache_data(show_spinner="RAM'e yükleniyor...")
 def load_index_data(file_name_or_path):
     """
@@ -50,19 +68,27 @@ def load_index_data(file_name_or_path):
 
 @st.cache_data
 def load_turkiye_shp():
-    # Artık doğrudan 4326 olan dosyayı okuyoruz
-    path = "/Users/emirtoker/Desktop/Proje_Tubitak_Bap/Iklim_Mimarlik_Projesi/Script/Python/climate_indices_map_tool/data/shapefiles/tur_adm_2025_ab_shp/tur_admbnda_adm1_2025_4326.shp"
-    if not os.path.exists(path):
+    # Hardcoded path silindi, settings'teki yol kullanıldı
+    if not os.path.exists(SHP_PATH):
         return None
-    return gpd.read_file(path)
+    return gpd.read_file(SHP_PATH)
 
 @st.cache_data
 def load_districts_shp():
-    # Doğrudan 4326 olan ilçeler dosyası
-    path = "/Users/emirtoker/Desktop/Proje_Tubitak_Bap/Iklim_Mimarlik_Projesi/Script/Python/climate_indices_map_tool/data/shapefiles/tur_adm_2025_ab_shp/tur_admbnda_adm2_2025_4326.shp"
-    if not os.path.exists(path):
+    # Hardcoded path silindi
+    if not os.path.exists(DISTRICTS_PATH):
         return None
-    return gpd.read_file(path) 
+    return gpd.read_file(DISTRICTS_PATH) 
+
+@st.cache_data
+def load_lcz_static():
+    if os.path.exists(LCZ_PNG) and os.path.exists(LCZ_META):
+        with open(LCZ_META, "r") as f:
+            meta = json.load(f)
+        with open(LCZ_PNG, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode('utf-8')
+        return f"data:image/png;base64,{b64}", meta["bounds"]
+    return None, None
 
 def list_available_indices():
     if not os.path.exists(INDICES_DIR):

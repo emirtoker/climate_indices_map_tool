@@ -2,6 +2,30 @@ import sys, os
 import streamlit as st
 import json
 import glob
+import folium
+
+# --- KRİTİK: PATH AYARI EN ÜSTTE OLMALI ---
+# Bu satır, Python'un 'core', 'viz', 'app' klasörlerini görmesini sağlar.
+current_dir = os.path.dirname(os.path.abspath(__file__)) # app klasörü
+project_root = os.path.dirname(current_dir) # Proje ana dizini
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+# --- ŞİMDİ KENDİ MODÜLLERİNİ ÇAĞIRABİLİRSİN ---
+from core.data_loader import load_turkiye_shp, load_districts_shp, list_available_indices, load_stats, load_lcz_static
+from app.sidebar import render_sidebar, get_clean_name_logic
+from viz.map_engine import create_interactive_map
+
+
+
+from core.data_loader import load_turkiye_shp, load_districts_shp, list_available_indices, load_stats
+from app.sidebar import render_sidebar, get_clean_name_logic
+from viz.map_engine import create_interactive_map
+import leafmap.foliumap as leafmap
+from config.settings import FUTURE_SSP245_DIR, FUTURE_SSP245_STATS, INDICES_DIR
+from core.data_loader import load_lcz_data
+from core.data_loader import load_lcz_static
+
 
 # Sayfa konfigürasyonu
 st.set_page_config(page_title="Indices Map Tool", layout="wide")
@@ -12,19 +36,12 @@ for key, val in [('map_center', [38.9, 35.5]), ('map_zoom', 5), ('map_rendered',
                  ('applied_sel_one', []), ('applied_one_conf', {}), ('applied_multi_bundle', ([], {}))]:
     if key not in st.session_state: st.session_state[key] = val
 
-from core.data_loader import load_turkiye_shp, load_districts_shp, list_available_indices, load_stats
-from app.sidebar import render_sidebar, get_clean_name_logic
-from viz.map_engine import create_interactive_map
-import leafmap.foliumap as leafmap
-from config.settings import FUTURE_SSP245_DIR, FUTURE_SSP245_STATS, INDICES_DIR
-
 # --- CSS (Genel Görsel Ayarlar) ---
 st.markdown("<style>.main .block-container { padding-top: 5rem !important; } footer {visibility: hidden;}</style>", unsafe_allow_html=True)
 
 # --- 2. VERİ ÖN YÜKLEME ---
 shp = load_turkiye_shp()
 districts_shp = load_districts_shp() # İlçeleri yükle
-
 
 # A. Historical Veriler {Friendly_Name: Filename}
 av_dict_hist = list_available_indices()
@@ -61,8 +78,11 @@ with st.sidebar:
     st.subheader("Layers")
     show_provinces = st.toggle("Provinces", value=True, key="show_provinces")
     show_districts = st.toggle("Districts", value=True, key="show_districts")
-    show_osm = st.toggle("OpenStreetMap", value=True, key="show_osm") 
+    show_osm = st.toggle("Open Street Map", value=True, key="show_osm") 
+    show_lcz = st.toggle("Local Climate Zones", value=False)
     st.markdown("---")
+
+lcz_bundle = load_lcz_static() if show_lcz else (None, None)
 
 # --- UPDATE MAP BUTONU ---
 with st.sidebar:
@@ -78,27 +98,33 @@ with st.sidebar:
 
 # --- 4. HARİTA BÖLÜMÜ (FRAGMENT) ---
 @st.fragment
-def render_isolated_map_section(trigger, show_provinces, show_districts, show_osm):
+def render_isolated_map_section(trigger, show_provinces, show_districts, show_osm, lcz_bundle):
     if st.session_state.map_rendered:
-        # ... (buradaki kodların doğru, create_interactive_map zaten ilçeleri alıyor)
         sel = st.session_state.applied_sel_one
         conf = st.session_state.applied_one_conf
         multi = st.session_state.applied_multi_bundle
         units_data = {k: total_stats.get(k, {}).get('unit', '') for k in list(set(sel) | set(multi[0]))}
 
-        m = create_interactive_map(
-            shp, districts_shp, (sel, conf), multi, units_data, 
-            engine_path_map, show_provinces, show_districts
-        )
+        m = create_interactive_map(shp, districts_shp, (sel, conf), multi, units_data, engine_path_map, show_provinces, show_districts, show_osm, lcz_bundle)
         m.to_streamlit(height=1200, key="main_map_stable_key")
 
     else:
         # 1. Haritayı oluştur 
         m = leafmap.Map(center=[38.9, 35.5], zoom=5, tiles=None)
         
-        # --- A. EN ALT: OSM ---
+        # --- LCZ (Başlangıçta da görünsün istenirse) ---
+        lcz_b64, lcz_bounds = lcz_bundle
+        if lcz_b64:
+            folium.raster_layers.ImageOverlay(
+                image=lcz_b64,
+                bounds=lcz_bounds,
+                opacity=0.6,
+                name="Local Climate Zones (LCZ)",
+                zindex=4
+            ).add_to(m)
+
+        # --- A. OSM ---
         if show_osm:
-            import folium
             folium.TileLayer(
                 tiles='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 attr='&copy; OpenStreetMap contributors',
@@ -131,4 +157,4 @@ def render_isolated_map_section(trigger, show_provinces, show_districts, show_os
             
         m.to_streamlit(height=1200, key="stable_map_render")
 
-render_isolated_map_section(st.session_state.map_trigger, show_provinces, show_districts, show_osm)
+render_isolated_map_section(st.session_state.map_trigger, show_provinces, show_districts, show_osm, lcz_bundle)
