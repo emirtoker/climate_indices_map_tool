@@ -127,7 +127,7 @@ def get_synthesis_rgba(names, vmin_list, vmax_list, color):
 
 def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_dict, available_dict, 
                            show_provinces=True, show_districts=True, show_osm=True, 
-                           lcz_bundle=(None, None)):
+                           lcz_bundle=(None, None), lcz_alpha=0.6):
 
     # Haritayı oluştur
     m = leafmap.Map(
@@ -189,7 +189,7 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
     if show_osm:
         folium.TileLayer(
             tiles='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            attr='&copy; OpenStreetMap contributors',
+            attr='&copy; OSM',
             name='OpenStreetMap',
             overlay=True,
             control=True
@@ -212,12 +212,44 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
     lcz_b64, lcz_bounds = lcz_bundle
     if lcz_b64:
         folium.raster_layers.ImageOverlay(
-            image=lcz_b64,
-            bounds=lcz_bounds,
-            opacity=0.6,
-            name="Local Climate Zones (LCZ)",
-            zindex=4
+            image=lcz_b64, bounds=lcz_bounds, opacity=lcz_alpha,
+            name="Local Climate Zones", zindex=4
         ).add_to(m)
+        
+        # Lejant HTML (NameError engellemek için fonksiyon içinde de tanımlı)
+        lcz_leg_final = """
+        <div style="position: fixed; bottom: 80px; left: 20px; width: 180px; z-index:9999; 
+                    background-color: rgba(255, 255, 255, 0.95); padding: 8px; border: 1px solid #888; 
+                    border-radius: 5px; font-size: 10.5px; font-family: 'Arial Narrow'; color: black;">
+            <b style="font-size:12px; display:block; margin-bottom:5px; border-bottom:1px solid #ccc;">Local Climate Zones</b>
+            <div style="display: flex; gap: 4px;">
+                <div style="flex: 1;">
+                    <b>Built</b><br>
+                    <i style="background:#990000;width:9px;height:9px;display:inline-block"></i> 1 Comp. High<br>
+                    <i style="background:#e40000;width:9px;height:9px;display:inline-block"></i> 2 Comp. Mid<br>
+                    <i style="background:#ff0000;width:9px;height:9px;display:inline-block"></i> 3 Comp. Low<br>
+                    <i style="background:#ce4400;width:9px;height:9px;display:inline-block"></i> 4 Open High<br>
+                    <i style="background:#ff5900;width:9px;height:9px;display:inline-block"></i> 5 Open Mid<br>
+                    <i style="background:#ff9442;width:9px;height:9px;display:inline-block"></i> 6 Open Low<br>
+                    <i style="background:#fcef00;width:9px;height:9px;display:inline-block"></i> 7 Light Low<br>
+                    <i style="background:#bcbcbc;width:9px;height:9px;display:inline-block"></i> 8 Large Low<br>
+                    <i style="background:#ffcaa5;width:9px;height:9px;display:inline-block"></i> 9 Sparsely<br>
+                    <i style="background:#555555;width:9px;height:9px;display:inline-block"></i> 10 Industry
+                </div>
+                <div style="flex: 1;">
+                    <b>Land Cover</b><br>
+                    <i style="background:#006d00;width:9px;height:9px;display:inline-block"></i> A Dense Trees<br>
+                    <i style="background:#00ae00;width:9px;height:9px;display:inline-block"></i> B Scattered<br>
+                    <i style="background:#5a8700;width:9px;height:9px;display:inline-block"></i> C Bush/Scrub<br>
+                    <i style="background:#b0dd6a;width:9px;height:9px;display:inline-block"></i> D Low Plants<br>
+                    <i style="background:#000000;width:9px;height:9px;display:inline-block"></i> E Bare Rock<br>
+                    <i style="background:#fbf7ae;width:9px;height:9px;display:inline-block"></i> F Bare Soil<br>
+                    <i style="background:#6a6aff;width:9px;height:9px;display:inline-block"></i> G Water
+                </div>
+            </div>
+        </div>
+        """
+        m.get_root().html.add_child(folium.Element(lcz_leg_final))
 
     custom_legend_html = ""; has_custom = False
 
