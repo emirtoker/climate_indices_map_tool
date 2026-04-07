@@ -129,7 +129,7 @@ with st.sidebar:
         st.session_state.app_show_districts = st.session_state.ui_districts
         st.session_state.app_show_osm = st.session_state.ui_osm
         st.session_state.app_show_lcz = st.session_state.ui_lcz
-        st.session_state.app_lcz_alpha = st.session_state.get('ui_alpha', 0.4)
+        st.session_state.app_lcz_alpha = st.session_state.ui_alpha
         
         # İndisleri de kilitliyoruz (render_sidebar'dan gelenler)
         st.session_state.applied_one_conf = one_bundle[1].copy()
