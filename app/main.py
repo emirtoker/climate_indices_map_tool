@@ -60,9 +60,9 @@ init_vals = [
     ('map_center', [38.9, 35.5]), ('map_zoom', 5), ('map_rendered', False), ('map_trigger', 0), 
     ('applied_sel_one', []), ('applied_one_conf', {}), ('applied_multi_bundle', ([], {})),
     ('app_show_provinces', True), ('app_show_districts', True), ('app_show_osm', True),
-    ('app_show_lcz', False), ('app_lcz_alpha', 0.4),
+    ('app_show_lcz', True), ('app_lcz_alpha', 0.4),
     ('ui_provinces', True), ('ui_districts', True), ('ui_osm', True), 
-    ('ui_lcz', False), ('ui_alpha', 0.4)
+    ('ui_lcz', True), ('ui_alpha', 0.4)
 ]
 for key, val in init_vals:
     if key not in st.session_state: st.session_state[key] = val
