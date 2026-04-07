@@ -157,11 +157,10 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         background: rgba(245, 245, 245, 0.95) !important; /* Kırık beyaz/gri */
         border: 1px solid #999 !important;               /* Düz gri çerçeve */
         border-radius: 5px !important;                    /* Yumuşak köşe */
-        padding: 10px 8px 15px 8px !important; /* Üst(2px), Sağ(8px), Alt(0px), Sol(8px) */
+        padding: 15px 8px 15px 8px !important; /* Üst, Sağ, Alt, Sol */
         width: fit-content !important;        /* İçerik kadar genişle (Daraltır)
         height: auto !important;             /* İçerik kadar boylan */
         box-shadow: none !important;                      /* Gölgeyi kaldırdık */
-        margin-bottom: 20px !important;                                                                                  
     }
     
     .legend .caption { 
@@ -232,9 +231,9 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         
         # Lejant HTML (NameError engellemek için fonksiyon içinde de tanımlı)
         lcz_leg_final = """
-        <div style="position: fixed; bottom: 40px; left: 5px; width: 200px; z-index:9999; 
-            background-color: rgba(255, 255, 255, 0.95); padding: 8px; border: 1px solid #888; 
-            border-radius: 5px; font-size: 10.5px; font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; color: #333;
+        <div style="position: fixed; bottom: 40px; left: 5px; width: 210px; z-index:9999; 
+            background-color: rgba(255, 255, 255, 0.95); padding: 8px; border: 1px solid #999; 
+            border-radius: 5px; font-size: 11px; font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; color: #333;
             box-shadow: none;">
     <b style="font-size:12px; display:block; margin-bottom:5px; border-bottom:1px solid #ddd;">Local Climate Zones</b>
     <div style="display: flex; gap: 4px;">
@@ -390,7 +389,7 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
             right:10px; z-index:9999; 
             background:rgba(255,255,255,0.95); 
             padding:15px; border-radius:5px; 
-            border:1px solid #333; 
+            border:1px solid #999; 
             box-shadow: none; 
             min-width:240px;
             font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; color: #333;">

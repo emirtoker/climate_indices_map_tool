@@ -18,9 +18,9 @@ from config.settings import FUTURE_SSP245_DIR, FUTURE_SSP245_STATS, INDICES_DIR
 
 # --- LCZ LEJANT METNİ ---
 LCZ_LEGEND_HTML = """
-<div style="position: fixed; bottom: 40px; left: 5px; width: 200px; z-index:9999; 
-            background-color: rgba(255, 255, 255, 0.95); padding: 8px; border: 1px solid #888; 
-            border-radius: 5px; font-size: 10.5px; font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; color: #333;
+<div style="position: fixed; bottom: 40px; left: 5px; width: 210px; z-index:9999; 
+            background-color: rgba(255, 255, 255, 0.95); padding: 8px; border: 1px solid #999; 
+            border-radius: 5px; font-size: 11px; font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; color: #333;
             box-shadow: none;">
     <b style="font-size:12px; display:block; margin-bottom:5px; border-bottom:1px solid #ddd;">Local Climate Zones</b>
     <div style="display: flex; gap: 4px;">
@@ -54,11 +54,17 @@ LCZ_LEGEND_HTML = """
 
 # Sayfa konfigürasyonu
 st.set_page_config(page_title="Indices Map Tool", layout="wide")
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # --- 1. SESSION STATE ---
-for key, val in [('map_center', [38.9, 35.5]), ('map_zoom', 5), ('map_rendered', False), ('map_trigger', 0), 
-                 ('applied_sel_one', []), ('applied_one_conf', {}), ('applied_multi_bundle', ([], {}))]:
+init_vals = [
+    ('map_center', [38.9, 35.5]), ('map_zoom', 5), ('map_rendered', False), ('map_trigger', 0), 
+    ('applied_sel_one', []), ('applied_one_conf', {}), ('applied_multi_bundle', ([], {})),
+    ('app_show_provinces', True), ('app_show_districts', True), ('app_show_osm', True),
+    ('app_show_lcz', False), ('app_lcz_alpha', 0.4),
+    ('ui_provinces', True), ('ui_districts', True), ('ui_osm', True), 
+    ('ui_lcz', False), ('ui_alpha', 0.4)
+]
+for key, val in init_vals:
     if key not in st.session_state: st.session_state[key] = val
 
 # --- CSS (Genel Görsel Ayarlar) ---
@@ -91,42 +97,71 @@ total_stats = {**stats_hist, **stats_future}
 
 # --- 3. SIDEBAR RENDER ---
 one_bundle, multi_bundle = render_sidebar(
-    av_dict_hist, 
-    av_dict_future, 
-    {}, # units_dict_hist
-    {}, # units_dict_future
-    stats_hist, 
-    stats_future
+    av_dict_hist, av_dict_future, {}, {}, stats_hist, stats_future
 )
 
+@st.fragment
+def render_reference_layers_ui():
+    with st.container(border=True):
+        st.subheader("Reference Layers")
+        # 'key' kullanarak değerleri doğrudan session_state'e bağlıyoruz
+        # Bu sayede tıklandığında SADECE bu fonksiyon (kutu) yenilenir, harita kımıldamaz
+        st.checkbox("Provinces", key="ui_provinces")
+        st.checkbox("Districts", key="ui_districts")
+        st.checkbox("Open Street Map", key="ui_osm")
+        show_lcz = st.checkbox("Local Climate Zones", key="ui_lcz")
+        
+        # Tik atıldığı an slider buraya şak diye gelir, harita hala uykusundadır
+        if show_lcz:
+            st.slider("LCZ Opacity", 0.0, 1.0, value=st.session_state.ui_alpha, key="ui_alpha")
+
+# --- 1. REFERENCE LAYERS (Anlık UI, Donmuş Harita) ---
 with st.sidebar:
-    st.subheader("Layers")
-    show_provinces = st.toggle("Provinces", value=True, key="show_provinces")
-    show_districts = st.toggle("Districts", value=True, key="show_districts")
-    show_osm = st.toggle("Open Street Map", value=True, key="show_osm") 
-    show_lcz = st.toggle("Local Climate Zones", value=False, key="show_lcz")
-    lcz_alpha = 0.6 # Varsayılan
-    if show_lcz:
-        lcz_alpha = st.slider("LCZ Opacity", 0.0, 1.0, 0.6, key="lcz_alpha")
+    # 1. Referans katmanların "izole" kutusunu çağırıyoruz
+    render_reference_layers_ui()
+    
     st.markdown("---")
 
-lcz_bundle = load_lcz_static() if show_lcz else (None, None)
-
-# --- UPDATE MAP BUTONU ---
-with st.sidebar:
-    st.markdown("---")
+    # 2. UPDATE MAP (Tüm sayfayı ve haritayı tetikler)
     if st.button("Update Map", use_container_width=True, type="primary"):
+        # UI'daki (fragment içindeki) güncel değerleri 'applied' (onaylı) state'e aktar
+        st.session_state.app_show_provinces = st.session_state.ui_provinces
+        st.session_state.app_show_districts = st.session_state.ui_districts
+        st.session_state.app_show_osm = st.session_state.ui_osm
+        st.session_state.app_show_lcz = st.session_state.ui_lcz
+        st.session_state.app_lcz_alpha = st.session_state.get('ui_alpha', 0.4)
+        
+        # İndisleri de kilitliyoruz (render_sidebar'dan gelenler)
         st.session_state.applied_one_conf = one_bundle[1].copy()
         st.session_state.applied_sel_one = one_bundle[0].copy()
         st.session_state.applied_multi_bundle = multi_bundle if multi_bundle[0] else ([], {})
-        st.session_state.synthesis_active = bool(multi_bundle[0])
+        
         st.session_state.map_trigger += 1 
         st.session_state.map_rendered = True
         st.rerun()
 
+    # 3. RESET MAP
+    if st.button("Reset Map", use_container_width=True, type="secondary"):
+        for key in list(st.session_state.keys()):
+            if key not in ['map_center', 'map_zoom']:
+                del st.session_state[key]
+        st.session_state.map_rendered = False
+        st.rerun()
+
+
 # --- 4. HARİTA BÖLÜMÜ (FRAGMENT) ---
 @st.fragment
-def render_isolated_map_section(trigger, show_provinces, show_districts, show_osm, lcz_bundle, lcz_alpha):
+def render_isolated_map_section(trigger):
+    # Kilitlenmiş değerleri çek
+    show_p = st.session_state.app_show_provinces
+    show_d = st.session_state.app_show_districts
+    show_o = st.session_state.app_show_osm
+    show_l = st.session_state.app_show_lcz
+    alpha_l = st.session_state.app_lcz_alpha
+    
+    # LCZ yüklemesi de butonu bekler
+    lcz_bundle = load_lcz_static() if show_l else (None, None)
+
     if st.session_state.map_rendered:
         sel = st.session_state.applied_sel_one
         conf = st.session_state.applied_one_conf
@@ -135,32 +170,55 @@ def render_isolated_map_section(trigger, show_provinces, show_districts, show_os
 
         m = create_interactive_map(
             shp, districts_shp, (sel, conf), multi, units_data, 
-            engine_path_map, show_provinces, show_districts, show_osm, 
-            lcz_bundle, lcz_alpha # lcz_alpha'yı buraya da ekledik
+            engine_path_map, show_p, show_d, show_o, lcz_bundle, alpha_l
         )
         m.to_streamlit(height=1200, key="main_map_stable_key")
 
     else:
+        # 1. Haritayı oluştur
         m = leafmap.Map(center=[38.9, 35.5], zoom=5, tiles=None)
         
-        # --- LCZ (Else bloğu - Anlık tepki) ---
-        lcz_b64, lcz_bounds = lcz_bundle
-        if show_lcz and lcz_b64:
+        # --- LCZ KATMANI (Kilitli değerlere göre) ---
+        if show_l and lcz_bundle[0]:
             folium.raster_layers.ImageOverlay(
-                image=lcz_b64, bounds=lcz_bounds, opacity=lcz_alpha,
-                name="Local Climate Zones", zindex=4
+                image=lcz_bundle[0], 
+                bounds=lcz_bundle[1], 
+                opacity=alpha_l, 
+                name="Local Climate Zones", 
+                zindex=4
             ).add_to(m)
-            # Demin geliyordu dediğin yöntem (html.add_child)
             m.get_root().html.add_child(folium.Element(LCZ_LEGEND_HTML))
 
-        # --- DİĞER KATMANLAR (OSM, Provinces, districts) ---
-        if show_osm:
-            folium.TileLayer(tiles='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attr='&copy; OSM', name='Open Street Map', overlay=True).add_to(m)
-        if show_provinces and shp is not None:
-            m.add_gdf(shp[['ADM1_TR', 'geometry']].copy(), layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.2})
-        if show_districts and districts_shp is not None:
-            m.add_gdf(districts_shp[['ADM1_TR', 'ADM2_TR', 'geometry']].copy(), layer_name="Türkiye Districts", style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.2})
+        # --- A. EN ALT: OSM (show_o değişkenine bağlı) ---
+        if show_o:
+            folium.TileLayer(
+                tiles='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
+                attr='&copy; OSM', 
+                name='Open Street Map', 
+                overlay=True
+            ).add_to(m)
+
+        # --- B. ORTA: İLLER (show_p değişkenine bağlı) ---
+        if show_p and shp is not None:
+            temp_shp = shp[['ADM1_TR', 'geometry']].copy()
+            temp_shp.columns = ['Şehir', 'geometry']
+            m.add_gdf(
+                temp_shp, 
+                layer_name="Türkiye Provinces", 
+                style={'color': 'black', 'fillOpacity': 0, 'weight': 1.2}
+            )
+
+        # --- C. EN ÜST: İLÇELER (show_d değişkenine bağlı) ---
+        if show_d and districts_shp is not None:
+            temp_dist = districts_shp[['ADM1_TR', 'ADM2_TR', 'geometry']].copy()
+            temp_dist.columns = ['Şehir', 'İlçe', 'geometry']
+            temp_dist.loc[temp_dist['Şehir'] == temp_dist['İlçe'], 'İlçe'] = temp_dist['İlçe'] + " (Merkez)"
+            m.add_gdf(
+                temp_dist, 
+                layer_name="Türkiye Districts", 
+                style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.2}
+            )
             
         m.to_streamlit(height=1200, key="stable_map_render")
 
-render_isolated_map_section(st.session_state.map_trigger, show_provinces, show_districts, show_osm, lcz_bundle, lcz_alpha)
+render_isolated_map_section(st.session_state.map_trigger)
