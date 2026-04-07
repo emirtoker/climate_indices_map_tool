@@ -197,7 +197,7 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         flex-direction: column !important; 
         align-items: flex-end !important; 
         gap: 15px !important; 
-        top: 5px !important;    /* Değer küçüldükçe yukarı
+        top: 0px !important;    /* Değer küçüldükçe yukarı
     }
     </style>
     """))
@@ -254,6 +254,9 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         ).add_to(m)
         m.get_root().html.add_child(folium.Element(lcz_leg_final))
 
+        if lcz_leg_final:  # Sadece içi doluysa haritaya ekle
+            m.get_root().html.add_child(folium.Element(lcz_leg_final))
+
     # --- 3. LİSTEDE 3. SIRADA: İLLER ---
     if show_provinces and shp is not None:
         temp_shp = shp[['Şehir', 'geometry']].copy() if 'Şehir' in shp.columns else shp[['ADM1_TR', 'geometry']].copy()
@@ -268,8 +271,6 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         # zindex kullanmadan bile en son eklediğimiz için en üstte (fareyle dokunulabilir) kalacak
         m.add_gdf(temp_dist, layer_name="Türkiye Districts", style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.2}, labels=False, zoom_to_layer=False)
         
-                if lcz_leg_final:  # Sadece içi doluysa haritaya ekle
-            m.get_root().html.add_child(folium.Element(lcz_leg_final))
 
     custom_legend_html = ""; has_custom = False
 
