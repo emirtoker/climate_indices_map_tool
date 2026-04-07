@@ -113,7 +113,7 @@ def render_reference_layers_ui():
         
         # Tik atıldığı an slider buraya şak diye gelir, harita hala uykusundadır
         if show_lcz:
-            st.slider("LCZ Opacity", 0.0, 1.0, key="ui_alpha")
+            st.slider("LCZ Opacity", 0.0, 1.0, step=0.05, key="ui_alpha")
 
 # --- 1. REFERENCE LAYERS (Anlık UI, Donmuş Harita) ---
 with st.sidebar:
