@@ -65,13 +65,12 @@ def rgba_to_png_base64(rgba_uint8):
 
 # --- AŞAMA 3: AKILLI RENKLENDİRME ---
 @st.cache_data(show_spinner=False, max_entries=5)
-def get_cached_rgba(file_path, vmin, vmax, cmap_input, mode, thresh=None, color_below=None, color_above=None, no_b=False, no_a=False, ext_min=True, ext_max=True):
-    # Artık dosya yolunu (full_path) gönderiyoruz
+def get_cached_rgba(file_path, vmin, vmax, cmap_input, mode, thresh=None, color_below=None, color_above=None, no_b=False, no_a=False, ext_min=False, ext_max=False):
     data = load_raw_data(file_path) 
     vals = data.values
     mask = ~np.isnan(vals)
     
-    # Bellek tasarrufu için float32 yerine uint8'e hazırlık yapıyoruz
+    # Başlangıçta 4. kanal (Alpha) tamamen 0 (Şeffaf)
     rgba = np.zeros((*vals.shape, 4), dtype=np.float32)
 
     if mode == "Threshold":
@@ -85,25 +84,29 @@ def get_cached_rgba(file_path, vmin, vmax, cmap_input, mode, thresh=None, color_
             rgba[idx, :3] = mpl.colors.to_rgba(color_above)[:3]
             rgba[idx, 3] = 1.0
     else:
+        # INTERVAL MODU
         if vmin == vmax: vmax += 0.001
+        
+        # Sadece aralık içindeki pikselleri bul
+        valid_range = mask & (vals >= vmin) & (vals <= vmax)
+        
         if isinstance(cmap_input, str) and cmap_input.startswith('#'):
+            # One-Color Modu
             single_c = mpl.colors.to_rgba(cmap_input)[:3]
-            valid = mask & (vals >= vmin) & (vals <= vmax)
-            rgba[valid, :3] = single_c
-            rgba[valid, 3] = 1.0
+            rgba[valid_range, :3] = single_c
+            rgba[valid_range, 3] = 1.0
+            # Kullanıcı özellikle "altını/üstünü boya" dediyse boya, yoksa şeffaf kalır
             if ext_min: rgba[mask & (vals < vmin), :3] = single_c; rgba[mask & (vals < vmin), 3] = 1.0
             if ext_max: rgba[mask & (vals > vmax), :3] = single_c; rgba[mask & (vals > vmax), 3] = 1.0
         else:
+            # Multi-Color (Cmap) Modu
             cmap = plt.get_cmap(cmap_input)
             norm = plt.Normalize(vmin=vmin, vmax=vmax)
-            valid = mask & (vals >= vmin) & (vals <= vmax)
-            # Matplotlib'in vektörize gücünü kullanıyoruz
-            rgba[valid, :3] = cmap(norm(vals[valid]))[:, :3]
-            rgba[valid, 3] = 1.0
+            rgba[valid_range, :3] = cmap(norm(vals[valid_range]))[:, :3]
+            rgba[valid_range, 3] = 1.0
             if ext_min: rgba[mask & (vals < vmin), :3] = cmap(0.0)[:3]; rgba[mask & (vals < vmin), 3] = 1.0
             if ext_max: rgba[mask & (vals > vmax), :3] = cmap(1.0)[:3]; rgba[mask & (vals > vmax), 3] = 1.0
     
-    # Koordinat sınırlarını al
     left, bottom, right, top = data.rio.transform_bounds("EPSG:4326")
     return (rgba * 255).astype(np.uint8), [[bottom, left], [top, right]]
 
@@ -278,8 +281,8 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
             # Veriyi renklendir (Anahtarları .get() ile güvenli okuyoruz)
             rgba, bnds = get_cached_rgba(
                 available_dict[name], 
-                c.get('vmin', 0.0), # Değişen yer 1: KeyError engellendi
-                c.get('vmax', 1.0), # Değişen yer 2: KeyError engellendi
+                c.get('vmin', 0.0), 
+                c.get('vmax', 1.0), 
                 (c.get('one_c', '#DC7933') if c.get('sub_mode') == "One-Color" else c.get('cmap', 'viridis')), 
                 c['mode'], 
                 c.get('thresh'), 
@@ -287,8 +290,8 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
                 c.get('a_c'), 
                 c.get('b_m') == "No Color", 
                 c.get('a_m') == "No Color",
-                c.get('ext_min', True), 
-                c.get('ext_max', True)
+                c.get('ext_min', False), # False yaptık
+                c.get('ext_max', False)  # False yaptık
             )
 
             # Başlık Hazırla

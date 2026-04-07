@@ -187,6 +187,7 @@ def render_single_indices_ui(available_dict, units_dict, stats, is_historical=Fa
                             min_value=float(d_min), 
                             max_value=float(d_max), 
                             value=init_val, 
+                            step=1.0,
                             key=f"sl_th_{prefix}_{filename}",
                             label_visibility="collapsed" 
                         )
@@ -210,7 +211,7 @@ def render_single_indices_ui(available_dict, units_dict, stats, is_historical=Fa
                     conf['a_c'] = col_a.color_picker("Higher", "#C93131", key=f"ac_{prefix}_{filename}")
                     conf['a_m'] = "Color" if not col_a.toggle("No Color ", key=f"na_{prefix}_{filename}") else "No Color"
 
-                conf['alpha'] = st.slider("Opacity", 0.0, 1.0, 0.7, key=f"al_{prefix}_{filename}")
+                conf['alpha'] = st.slider("Opacity", 0.0, 1.0, 0.7, step=0.1, key=f"al_{prefix}_{filename}")
                 one_conf[filename] = conf
     return selected_keys, one_conf
 
@@ -265,6 +266,7 @@ def render_multi_indices_ui_fragment(av_hist, av_future, stats_h, stats_f):
                         float(m_min), 
                         float(m_max), 
                         (float(m_min), float(m_max)), 
+                        step=1.0,
                         key=f"rs_m_{filename}",
                         label_visibility="collapsed" 
                     )
@@ -278,7 +280,7 @@ def render_multi_indices_ui_fragment(av_hist, av_future, stats_h, stats_f):
                 all_ind_conf[filename] = {'vmin': v_min_final, 'vmax': v_max_final, 'legend_name': leg_name}
         
         m_color = st.color_picker("Synthesis Color", "#2FA42F", key="m_g_cp")
-        m_alpha = st.slider("Synthesis Opacity", 0.0, 1.0, 0.8, key="m_g_al")
+        m_alpha = st.slider("Synthesis Opacity", 0.0, 1.0, 0.8, step=0.1, key="m_g_al")
     return all_sel_m, {'indices': all_ind_conf, 'color': m_color, 'alpha': m_alpha}
 
 # --- ANA RENDER ---

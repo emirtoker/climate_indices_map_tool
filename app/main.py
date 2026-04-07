@@ -124,17 +124,15 @@ with st.sidebar:
 
     # 2. UPDATE MAP (Tüm sayfayı ve haritayı tetikler)
     if st.button("Update Map", use_container_width=True, type="primary"):
-        # UI'daki (fragment içindeki) güncel değerleri 'applied' (onaylı) state'e aktar
+        st.session_state.applied_one_conf = one_bundle[1].copy()
+        st.session_state.applied_sel_one = one_bundle[0].copy()
+        st.session_state.applied_multi_bundle = multi_bundle if multi_bundle[0] else ([], {})
+        st.session_state.synthesis_active = bool(multi_bundle[0])
         st.session_state.app_show_provinces = st.session_state.ui_provinces
         st.session_state.app_show_districts = st.session_state.ui_districts
         st.session_state.app_show_osm = st.session_state.ui_osm
         st.session_state.app_show_lcz = st.session_state.ui_lcz
         st.session_state.app_lcz_alpha = st.session_state.ui_alpha
-        
-        # İndisleri de kilitliyoruz (render_sidebar'dan gelenler)
-        st.session_state.applied_one_conf = one_bundle[1].copy()
-        st.session_state.applied_sel_one = one_bundle[0].copy()
-        st.session_state.applied_multi_bundle = multi_bundle if multi_bundle[0] else ([], {})
         
         st.session_state.map_trigger += 1 
         st.session_state.map_rendered = True
