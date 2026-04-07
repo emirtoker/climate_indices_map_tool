@@ -104,16 +104,18 @@ one_bundle, multi_bundle = render_sidebar(
 def render_reference_layers_ui():
     with st.container(border=True):
         st.subheader("Reference Layers")
-        # 'key' kullanarak değerleri doğrudan session_state'e bağlıyoruz
-        # Bu sayede tıklandığında SADECE bu fonksiyon (kutu) yenilenir, harita kımıldamaz
-        st.checkbox("Provinces", key="ui_provinces")
-        st.checkbox("Districts", key="ui_districts")
+        # 1. Open Street Map (En Üstte)
         st.checkbox("Open Street Map", key="ui_osm")
-        show_lcz = st.checkbox("Local Climate Zones", key="ui_lcz")
         
-        # Tik atıldığı an slider buraya şak diye gelir, harita hala uykusundadır
+        # 2. Local Climate Zones + Opacity hemen altında
+        show_lcz = st.checkbox("Local Climate Zones", key="ui_lcz")
         if show_lcz:
             st.slider("LCZ Opacity", 0.0, 1.0, step=0.05, key="ui_alpha")
+        
+        # 3. İller ve İlçeler
+        st.checkbox("Türkiye Provinces", key="ui_provinces")
+        st.checkbox("Türkiye Districts", key="ui_districts")
+    
 
 # --- 1. REFERENCE LAYERS (Anlık UI, Donmuş Harita) ---
 with st.sidebar:
@@ -173,49 +175,24 @@ def render_isolated_map_section(trigger):
         m.to_streamlit(height=1200, key="main_map_stable_key")
 
     else:
-        # 1. Haritayı oluştur
         m = leafmap.Map(center=[38.9, 35.5], zoom=5, tiles=None)
         
-        # --- LCZ KATMANI (Kilitli değerlere göre) ---
+        # SIRA: OSM -> LCZ -> İl -> İlçe (Bu sıra hem listeyi hem görseli ayarlar)
+        if show_o:
+            folium.TileLayer(tiles='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attr='&copy; OSM', name='Open Street Map', overlay=True).add_to(m)
+        
         if show_l and lcz_bundle[0]:
-            folium.raster_layers.ImageOverlay(
-                image=lcz_bundle[0], 
-                bounds=lcz_bundle[1], 
-                opacity=alpha_l, 
-                name="Local Climate Zones", 
-                zindex=4
-            ).add_to(m)
+            folium.raster_layers.ImageOverlay(image=lcz_bundle[0], bounds=lcz_bundle[1], opacity=alpha_l, name="Local Climate Zones", zindex=4).add_to(m)
             m.get_root().html.add_child(folium.Element(LCZ_LEGEND_HTML))
 
-        # --- A. EN ALT: OSM (show_o değişkenine bağlı) ---
-        if show_o:
-            folium.TileLayer(
-                tiles='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
-                attr='&copy; OSM', 
-                name='Open Street Map', 
-                overlay=True
-            ).add_to(m)
-
-        # --- B. ORTA: İLLER (show_p değişkenine bağlı) ---
         if show_p and shp is not None:
-            temp_shp = shp[['ADM1_TR', 'geometry']].copy()
-            temp_shp.columns = ['Şehir', 'geometry']
-            m.add_gdf(
-                temp_shp, 
-                layer_name="Türkiye Provinces", 
-                style={'color': 'black', 'fillOpacity': 0, 'weight': 1.2}
-            )
+            temp_shp = shp[['ADM1_TR', 'geometry']].copy(); temp_shp.columns = ['Şehir', 'geometry']
+            m.add_gdf(temp_shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.2})
 
-        # --- C. EN ÜST: İLÇELER (show_d değişkenine bağlı) ---
         if show_d and districts_shp is not None:
-            temp_dist = districts_shp[['ADM1_TR', 'ADM2_TR', 'geometry']].copy()
-            temp_dist.columns = ['Şehir', 'İlçe', 'geometry']
+            temp_dist = districts_shp[['ADM1_TR', 'ADM2_TR', 'geometry']].copy(); temp_dist.columns = ['Şehir', 'İlçe', 'geometry']
             temp_dist.loc[temp_dist['Şehir'] == temp_dist['İlçe'], 'İlçe'] = temp_dist['İlçe'] + " (Merkez)"
-            m.add_gdf(
-                temp_dist, 
-                layer_name="Türkiye Districts", 
-                style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.2}
-            )
+            m.add_gdf(temp_dist, layer_name="Türkiye Districts", style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.2})
             
         m.to_streamlit(height=1200, key="stable_map_render")
 

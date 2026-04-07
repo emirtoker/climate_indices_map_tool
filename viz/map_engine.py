@@ -132,6 +132,7 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
                            show_provinces=True, show_districts=True, show_osm=True, 
                            lcz_bundle=(None, None), lcz_alpha=0.6):
 
+    lcz_leg_final = None
     # Haritayı oluştur
     m = leafmap.Map(
         center=st.session_state.get('map_center', [38.9, 35.5]), 
@@ -196,44 +197,23 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         flex-direction: column !important; 
         align-items: flex-end !important; 
         gap: 15px !important; 
-        top: 10px !important;    /* Değer küçüldükçe yukarı
+        top: 5px !important;    /* Değer küçüldükçe yukarı
     }
     </style>
     """))
     
-    # --- 1. EN ALT: OSM ---
+    # --- 1. LİSTEDE EN ÜST / GÖRSELDE EN ALT: OSM ---
     if show_osm:
         folium.TileLayer(
             tiles='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            attr='&copy; OSM',
-            name='OpenStreetMap',
-            overlay=True,
-            control=True
+            attr='&copy; OSM', name='Open Street Map', overlay=True, control=True
         ).add_to(m)
 
-    # --- 2. ORTA: İLLER ---
-    if show_provinces and shp is not None:
-        temp_shp = shp[['Şehir', 'geometry']].copy() if 'Şehir' in shp.columns else shp[['ADM1_TR', 'geometry']].copy()
-        temp_shp.columns = ['Şehir', 'geometry']
-        m.add_gdf(temp_shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.2}, labels=False)
-
-    # --- 3. EN ÜST: İLÇELER ---
-    if show_districts and districts_shp is not None:
-        temp_dist = districts_shp[['Şehir', 'İlçe', 'geometry']].copy() if 'Şehir' in districts_shp.columns else districts_shp[['ADM1_TR', 'ADM2_TR', 'geometry']].copy()
-        temp_dist.columns = ['Şehir', 'İlçe', 'geometry']
-        temp_dist.loc[temp_dist['Şehir'] == temp_dist['İlçe'], 'İlçe'] = temp_dist['İlçe'] + " (Merkez)"
-        m.add_gdf(temp_dist, layer_name="Türkiye Districts", style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.2}, labels=False, zoom_to_layer=False)
-
-    # --- 4. LCZ KATMANI ---
+    # --- 2. LİSTEDE 2. SIRADA: LCZ ---
     lcz_b64, lcz_bounds = lcz_bundle
-    if lcz_b64:
-        folium.raster_layers.ImageOverlay(
-            image=lcz_b64, bounds=lcz_bounds, opacity=lcz_alpha,
-            name="Local Climate Zones", zindex=4
-        ).add_to(m)
-        
-        # Lejant HTML (NameError engellemek için fonksiyon içinde de tanımlı)
-        lcz_leg_final = """
+
+    # Lejant HTML (NameError engellemek için fonksiyon içinde de tanımlı)
+    lcz_leg_final = """
         <div style="position: fixed; bottom: 40px; left: 5px; width: 210px; z-index:9999; 
             background-color: rgba(255, 255, 255, 0.95); padding: 8px; border: 1px solid #999; 
             border-radius: 5px; font-size: 11px; font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif; color: #333;
@@ -266,7 +246,30 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
             </div>
         </div>
         """
+    
+    if lcz_b64:
+        folium.raster_layers.ImageOverlay(
+            image=lcz_b64, bounds=lcz_bounds, opacity=lcz_alpha,
+            name="Local Climate Zones", zindex=4
+        ).add_to(m)
         m.get_root().html.add_child(folium.Element(lcz_leg_final))
+
+    # --- 3. LİSTEDE 3. SIRADA: İLLER ---
+    if show_provinces and shp is not None:
+        temp_shp = shp[['Şehir', 'geometry']].copy() if 'Şehir' in shp.columns else shp[['ADM1_TR', 'geometry']].copy()
+        temp_shp.columns = ['Şehir', 'geometry']
+        m.add_gdf(temp_shp, layer_name="Türkiye Provinces", style={'color': 'black', 'fillOpacity': 0, 'weight': 1.2}, labels=False)
+
+    # --- 4. LİSTEDE 4. SIRADA / GÖRSELDE EN ÜSTTE: İLÇELER ---
+    if show_districts and districts_shp is not None:
+        temp_dist = districts_shp[['Şehir', 'İlçe', 'geometry']].copy() if 'Şehir' in districts_shp.columns else districts_shp[['ADM1_TR', 'ADM2_TR', 'geometry']].copy()
+        temp_dist.columns = ['Şehir', 'İlçe', 'geometry']
+        temp_dist.loc[temp_dist['Şehir'] == temp_dist['İlçe'], 'İlçe'] = temp_dist['İlçe'] + " (Merkez)"
+        # zindex kullanmadan bile en son eklediğimiz için en üstte (fareyle dokunulabilir) kalacak
+        m.add_gdf(temp_dist, layer_name="Türkiye Districts", style={'color': '#444444', 'fillOpacity': 0, 'weight': 0.2}, labels=False, zoom_to_layer=False)
+        
+                if lcz_leg_final:  # Sadece içi doluysa haritaya ekle
+            m.get_root().html.add_child(folium.Element(lcz_leg_final))
 
     custom_legend_html = ""; has_custom = False
 
