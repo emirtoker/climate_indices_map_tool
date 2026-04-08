@@ -13,30 +13,23 @@ def thin_divider():
 
 def get_clean_name_logic(file_name, is_historical=False):
     """
-    Ham dosya isminden (filename) temiz isim üretir.
-    Historical için 6. eleman taktiği, Future için sondan başa tarama.
+    Historical: 5. index (CHELSA_TR_yearly_1995_2014_PCD...)
+    Future: 11. index (CHELSA_sum_GCMs_Ensemble_ssp245_TR_yearly_2081-2100_delta_1995_2014_DI...)
     """
-    codes = ["PCD", "PRCPTOT", "SU", "TR", "DI", "HI", "PET", "SPI", "SPEI", "UTCI"]
     clean = file_name.replace(".tif", "").replace("_cog", "")
     parts = clean.split('_')
     
-    found_code, found_idx = None, -1
-
     if is_historical:
-        if len(parts) > 5 and parts[5].upper() in codes:
+        if len(parts) > 5:
             found_code = parts[5].upper()
-            found_idx = 5
+            description = " ".join(parts[6:]).replace("_", " ").title()
+            return f"{found_code} - {description}"
     else:
-        for i in range(len(parts) - 1, -1, -1):
-            if parts[i].upper() in codes:
-                if parts[i].upper() == "TR" and i < 4: continue
-                found_code = parts[i].upper()
-                found_idx = i
-                break
-            
-    if found_code:
-        description = " ".join(parts[found_idx + 1:]).replace("_", " ").title()
-        return f"{found_code} - {description}"
+        # GELECEK VERİSİ: 11. Segment kuralı
+        if len(parts) > 11:
+            found_code = parts[11].upper()
+            description = " ".join(parts[12:]).replace("_", " ").title()
+            return f"{found_code} - {description}"
     
     return clean.replace("_", " ").title()
 
@@ -211,7 +204,7 @@ def render_single_indices_ui(available_dict, units_dict, stats, is_historical=Fa
                     conf['a_c'] = col_a.color_picker("Higher", "#C93131", key=f"ac_{prefix}_{filename}")
                     conf['a_m'] = "Color" if not col_a.toggle("No Color ", key=f"na_{prefix}_{filename}") else "No Color"
 
-                conf['alpha'] = st.slider("Opacity", 0.0, 1.0, 0.7, step=0.1, key=f"al_{prefix}_{filename}")
+                conf['alpha'] = st.slider("Opacity", 0.0, 1.0, 0.7, step=0.05, key=f"al_{prefix}_{filename}")
                 one_conf[filename] = conf
     return selected_keys, one_conf
 
@@ -280,7 +273,7 @@ def render_multi_indices_ui_fragment(av_hist, av_future, stats_h, stats_f):
                 all_ind_conf[filename] = {'vmin': v_min_final, 'vmax': v_max_final, 'legend_name': leg_name}
         
         m_color = st.color_picker("Synthesis Color", "#2FA42F", key="m_g_cp")
-        m_alpha = st.slider("Synthesis Opacity", 0.0, 1.0, 0.8, step=0.1, key="m_g_al")
+        m_alpha = st.slider("Synthesis Opacity", 0.0, 1.0, 0.8, step=0.05, key="m_g_al")
     return all_sel_m, {'indices': all_ind_conf, 'color': m_color, 'alpha': m_alpha}
 
 # --- ANA RENDER ---

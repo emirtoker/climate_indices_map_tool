@@ -74,25 +74,28 @@ st.markdown("<style>.main .block-container { padding-top: 5rem !important; } foo
 shp = load_turkiye_shp()
 districts_shp = load_districts_shp() # İlçeleri yükle
 
-# A. Historical Veriler {Friendly_Name: Filename}
+# A. Historical Veriler
 av_dict_hist = list_available_indices()
-stats_hist = load_stats()
+stats_hist = load_stats(mode="historical")
 
-# B. Future (SSP245) Verileri {Filename: Filename}
-# ÖNEMLİ: Anahtarı dosya adı yaptık ki farklı dönemlerdeki aynı isimli indisler birbirini silmesin.
-future_files = glob.glob(os.path.join(FUTURE_SSP245_DIR, "*.tif"))
-av_dict_future = {os.path.basename(f): os.path.basename(f) for f in future_files}
+# B. Future (SSP245) Verileri
+if os.path.exists(FUTURE_SSP245_DIR):
+    future_files = glob.glob(os.path.join(FUTURE_SSP245_DIR, "*.tif"))
+    # stats.json'ı listeden çıkar
+    future_files = [f for f in future_files if "stats.json" not in f]
+    av_dict_future = {os.path.basename(f): os.path.basename(f) for f in future_files}
+    stats_future = load_stats(mode="future")
+else:
+    av_dict_future = {}
+    stats_future = {}
 
-with open(FUTURE_SSP245_STATS, 'r') as f:
-    stats_future = json.load(f)
-
-# C. MAP ENGINE İÇİN YOL SÖZLÜĞÜ: {Filename: Full_Path}
+# C. MAP ENGINE İÇİN YOL SÖZLÜĞÜ
 engine_path_map = {
-    **{f: os.path.join(INDICES_DIR, f) for f in av_dict_hist.values()}, # Historical
-    **{os.path.basename(f): f for f in future_files}                   # Future
+    **{f: os.path.join(INDICES_DIR, f) for f in av_dict_hist.values()},
+    **{os.path.basename(f): f for f in future_files}
 }
 
-# D. Tüm istatistikleri birleştir {Filename: Stats}
+# D. Tüm istatistikleri birleştir
 total_stats = {**stats_hist, **stats_future}
 
 # --- 3. SIDEBAR RENDER ---

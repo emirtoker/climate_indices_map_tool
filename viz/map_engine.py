@@ -13,23 +13,28 @@ import base64
 
 
 def get_clean_label(file_name, prefix=""):
-    codes = ["PCD", "PRCPTOT", "SU", "TR", "DI", "HI", "PET", "SPI", "SPEI", "UTCI"]
-    unit_fallback = {"PCD":"Days","SU":"Days","TR":"Days","PRCPTOT":"mm","PET":"mm","UTCI":"°C","DI":"°C","HI":"°C","SPI":"Index","SPEI":"Index"}
+    """
+    Harita katman listesinde görünecek temiz isim.
+    """
     clean = file_name.replace(".tif", "").replace("_cog", "")
     parts = clean.split('_')
-    found_code, found_idx = None, -1
-    for i in range(len(parts) - 1, -1, -1):
-        if parts[i].upper() in codes:
-            if parts[i].upper() == "TR" and i < 4: continue
-            found_code, found_idx = parts[i].upper(), i
-            break
-    if found_code:
-        description = " ".join(parts[found_idx + 1:]).replace("_", " ").title()
-        label = f"{found_code} - {description}"
-        unit = unit_fallback.get(found_code, "")
+    
+    # Otomatik tespit: Eğer isim çok uzunsa (Future), 11. segmenti al
+    if len(parts) > 11:
+        found_code = parts[11].upper()
+        description = " ".join(parts[12:]).replace("_", " ").title()
+    elif len(parts) > 5:
+        # Historical tespiti
+        found_code = parts[5].upper()
+        description = " ".join(parts[6:]).replace("_", " ").title()
     else:
-        label, unit = clean.replace("_", " ").title(), ""
-    return f"{prefix}{label}", unit
+        found_code = "INDEX"
+        description = clean.replace("_", " ").title()
+
+    unit_fallback = {"PCD":"Days","SU":"Days","TR":"Days","PRCPTOT":"mm","PET":"mm","UTCI":"°C","DI":"°C"}
+    unit = unit_fallback.get(found_code, "")
+    
+    return f"{prefix}{found_code} - {description}", unit
 
 # --- AŞAMA 1: AKILLI COG OKUMA (OVERVIEWS DESTEKLİ) ---
 @st.cache_data(show_spinner=False, max_entries=5)
@@ -161,7 +166,7 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         background: rgba(245, 245, 245, 0.95) !important; /* Kırık beyaz/gri */
         border: 1px solid #999 !important;               /* Düz gri çerçeve */
         border-radius: 5px !important;                    /* Yumuşak köşe */
-        padding: 15px 8px 15px 8px !important; /* Üst, Sağ, Alt, Sol */
+        padding: 15px 12px 15px 12px !important; /* Üst, Sağ, Alt, Sol */
         width: fit-content !important;        /* İçerik kadar genişle (Daraltır)
         height: auto !important;             /* İçerik kadar boylan */
         box-shadow: none !important;                      /* Gölgeyi kaldırdık */

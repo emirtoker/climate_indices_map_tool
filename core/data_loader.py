@@ -5,7 +5,8 @@ import os
 import rioxarray
 import json
 import base64
-from config.settings import INDICES_DIR, SHP_PATH, DISTRICTS_PATH, LCZ_PNG, LCZ_META, LCZ_PATH
+from config.settings import INDICES_DIR, SHP_PATH, DISTRICTS_PATH, LCZ_PNG, LCZ_META, LCZ_PATH, FUTURE_SSP245_STATS
+
 
 @st.cache_data(show_spinner="LCZ Verisi Yükleniyor...")
 def load_lcz_data():
@@ -25,20 +26,29 @@ def load_lcz_data():
     return ds, bounds
 
 @st.cache_data
-def load_stats():
-    json_path = os.path.join(INDICES_DIR, "stats.json")
+def load_stats(mode="historical"):
+    """Mode: 'historical' veya 'future'"""
+    if mode == "historical":
+        json_path = os.path.join(INDICES_DIR, "stats.json")
+    else:
+        json_path = FUTURE_SSP245_STATS
+        
     if os.path.exists(json_path):
         with open(json_path, "r", encoding="utf-8") as f:
             return json.load(f)
     return {}
 
 def get_friendly_name(filename):
-    clean_name = filename.replace('_cog.tif', '').replace('.tif', '').replace('.nc', '')
+    """
+    Sadece Historical listesi için basit isim temizliği.
+    Gelecek verileri sidebar.py içinde segment kuralına göre işlenecek.
+    """
+    clean_name = filename.replace('_cog.tif', '').replace('.tif', '')
     parts = clean_name.split('_')
     if len(parts) > 5:
-        content_parts = parts[5:]
-        abbr = content_parts[0].upper()
-        full_name = " ".join(content_parts[1:]).upper()
+        # Historical formatı: CHELSA_TR_yearly_1995_2014_PCD...
+        abbr = parts[5].upper()
+        full_name = " ".join(parts[6:]).upper()
         return f"{abbr} - {full_name}"
     return clean_name.upper()
 
@@ -93,5 +103,5 @@ def load_lcz_static():
 def list_available_indices():
     if not os.path.exists(INDICES_DIR):
         return {}
-    files = sorted([f for f in os.listdir(INDICES_DIR) if f.endswith('.tif')])
+    files = sorted([f for f in os.listdir(INDICES_DIR) if f.endswith('.tif') and f != "stats.json"])
     return {get_friendly_name(f): f for f in files}
