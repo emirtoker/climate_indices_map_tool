@@ -151,6 +151,10 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
     <style>
     .leaflet-image-layer, .leaflet-raster-layer { image-rendering: pixelated !important; }
     
+    .legend:not(:first-of-type) {
+        display: none !important;
+    }
+                                                 
     .legend { 
         margin-top: 10px !important;
         margin-bottom: 40px !important; 
@@ -166,8 +170,8 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         background: rgba(245, 245, 245, 0.95) !important; /* Kırık beyaz/gri */
         border: 1px solid #999 !important;               /* Düz gri çerçeve */
         border-radius: 5px !important;                    /* Yumuşak köşe */
-        padding: 15px 12px 15px 12px !important; /* Üst, Sağ, Alt, Sol */
-        width: fit-content !important;        /* İçerik kadar genişle (Daraltır)
+        padding: 15px 12px 10px 12px !important; /* Üst, Sağ, Alt, Sol */
+        width: fit-content !important;        /* İçerik kadar genişle (Daraltır) */
         height: auto !important;             /* İçerik kadar boylan */
         box-shadow: none !important;                      /* Gölgeyi kaldırdık */
     }
@@ -201,8 +205,8 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         display: flex !important; 
         flex-direction: column !important; 
         align-items: flex-end !important; 
-        gap: 15px !important; 
-        top: 0px !important;    /* Değer küçüldükçe yukarı
+        gap: 30px !important; 
+        top: 0px !important;    /* Değer küçüldükçe yukarı  */
     }
     </style>
     """))
