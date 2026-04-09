@@ -205,9 +205,21 @@ def create_interactive_map(shp, districts_shp, one_bundle, multi_bundle, units_d
         display: flex !important; 
         flex-direction: column !important; 
         align-items: flex-end !important; 
-        gap: 30px !important; 
+        gap: 50px !important; 
         top: 0px !important;    /* Değer küçüldükçe yukarı  */
     }
+                                                 
+    .leaflet-control-layers {
+        background: rgba(245, 245, 245, 0.95) !important; /* aynı kırık beyaz */
+        border: 1px solid #999 !important;
+        border-radius: 5px !important;
+        box-shadow: none !important;
+    }
+                                                 
+    .leaflet-control-layers-expanded {
+        background: rgba(245, 245, 245, 0.95) !important;
+    }
+                                                 
     </style>
     """))
     
