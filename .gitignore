@@ -1,10 +1,37 @@
-# .gitignore
-
-# Gereksiz sistem ve python dosyaları
+# Python
 __pycache__/
 *.pyc
-.DS_Store
-.ipynb_checkpoints/
+*.pyo
+.Python
+venv/
+.venv/
+env/
 
-# LOG ve geçici dosyalar
-*.log
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Backups klasoru (legacy code icin, repo'da kalmayacak)
+_backups/
+
+# Inventory ciktisi (utils ile gerektiginde yeniden uretilebilir)
+inventory_TR.csv
+
+# nc_to_tif geçici dosyaları
+*.tmp.tif
+
+# Streamlit cache
+.streamlit/cache/
