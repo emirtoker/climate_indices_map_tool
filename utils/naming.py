@@ -36,6 +36,22 @@ KEY DESIGN CHOICES
 - stats.json is SOURCE OF TRUTH for per-file value ranges (used for sliders).
 - One `IndexFile` per TIF (so a single indice may have multiple IndexFiles:
   one historical + 6 future versions = 7 IndexFiles for the same indice).
+
+SUPPORTED THRESHOLD-SUFFIX FORMATS
+----------------------------------
+The regex `THRESHOLD_SUFFIX_RE` recognizes three operator families plus
+an optional `_count` tail (used by the UTCI ISO-15743 variants):
+
+    Operator       Catalog key example   Filename suffix example
+    ----------     -------------------   --------------------------------
+    gt<n>          UTCI_GT32             _gt32_hot_days
+                                         _gt32_strong_heat_days_count
+    lt<n>          PET_LT8               _lt8_cold_days
+                                         _lt0_cold_days_count
+    ltm<n>         UTCI_LTM13            _ltm13_cold_days
+                                         _ltm13_strong_cold_days_count
+    bw<a>_<b>      UTCI_BW9_26           _bw9_26_comfort_days_count
+                                         _bw0_9_slight_cold_days_count
 """
 
 from __future__ import annotations
@@ -169,7 +185,9 @@ class IndexFile:
 
     @property
     def display_label(self) -> str:
-        """Full UI label: '[1995-2014] UTCI (>32 deg C) - Universal Thermal Climate Index (Hot Days)'."""
+        """Full UI label, e.g.
+        '[1995-2014] UTCI (> 32 °C) - Strong Heat Stress Days'.
+        """
         return f"{self.period_label} {self.display_code} - {self.long_name}"
 
 
@@ -179,13 +197,23 @@ class IndexFile:
 # Reuses the same logic as nc_to_tif.py, adapted for .tif filenames.
 #
 # Historical:
-#   CHELSA_TR_clim_<startY>_<endY>_<INDICE>_<longname>.tif
+#   CHELSA_TR_clim_<startY>_<endY>_<INDICE>_<longname>[_<thresh>_<days>[_count]].tif
 #
 # Future:
-#   CHELSA_TR_clim_<refS>_<refE>_sum_Ensemble_GCMs_<ssp>_<futS>_<futE>_<INDICE>_<longname>.tif
+#   CHELSA_TR_clim_<refS>_<refE>_sum_Ensemble_GCMs_<ssp>_<futS>_<futE>_<INDICE>_<longname>[_<thresh>_<days>[_count]].tif
+#
+# Threshold suffix examples that must match:
+#   _gt32_hot_days                           (legacy)
+#   _ltm13_cold_days                         (legacy)
+#   _gt32_strong_heat_days_count             (UTCI ISO variant)
+#   _gt38_very_strong_heat_days_count        (UTCI ISO variant)
+#   _lt0_cold_days_count                     (UTCI ISO variant)
+#   _ltm13_strong_cold_days_count            (UTCI ISO variant)
+#   _bw0_9_slight_cold_days_count            (UTCI ISO variant, "between")
+#   _bw9_26_comfort_days_count               (UTCI ISO variant, "between")
 
 THRESHOLD_SUFFIX_RE = re.compile(
-    r"_(gt\d+|lt\d+|ltm\d+)_([a-z_]+_days)$",
+    r"_(gt\d+|lt\d+|ltm\d+|bw\d+_\d+)_([a-z_]+_days)(_count)?$",
     re.IGNORECASE,
 )
 
@@ -209,7 +237,7 @@ def parse_tif_filename(filename: str) -> Dict[str, Any]:
           "scenario": "ssp126" | "ssp245" | "ssp585" | None,
           "period": "YYYY-YYYY",
           "ref_period": "YYYY-YYYY" | None,
-          "catalog_code": "FD" | "UTCI_GT32" | "" if no match
+          "catalog_code": "FD" | "UTCI_GT32" | "UTCI_BW9_26" | "" if no match
         }
     """
     out: Dict[str, Any] = {
@@ -222,11 +250,15 @@ def parse_tif_filename(filename: str) -> Dict[str, Any]:
 
     name = filename.replace(".tif", "")
 
-    # Threshold suffix (gt32_hot_days etc.)
+    # Threshold suffix (gt32_hot_days, gt32_strong_heat_days_count,
+    # bw9_26_comfort_days_count, etc.). We strip the WHOLE matched suffix
+    # so the parent indice code is searched only in the leading part of
+    # the filename.
     m_ts = THRESHOLD_SUFFIX_RE.search(name)
     threshold_part = ""
     if m_ts:
-        threshold_part = m_ts.group(0).lstrip("_")
+        # group(1) = "gt32" | "bw9_26" | "ltm13" | ...
+        threshold_part = m_ts.group(1).lower()
         name_for_indice = name[: m_ts.start()]
     else:
         name_for_indice = name
@@ -267,13 +299,26 @@ def parse_tif_filename(filename: str) -> Dict[str, Any]:
     # Map to final catalog code (parent or threshold variant)
     if found_code:
         if threshold_part:
-            m_t = re.match(r"(gt|lt|ltm)(\d+)", threshold_part, re.IGNORECASE)
-            if m_t:
-                op = m_t.group(1).upper()
-                val = m_t.group(2)
+            # Two threshold operator families:
+            #   1) gt<N>, lt<N>, ltm<N>     ->  candidate = <PARENT>_<OP><N>
+            #      e.g. "gt32"  -> "UTCI_GT32"
+            #           "ltm13" -> "UTCI_LTM13"
+            #           "lt0"   -> "UTCI_LT0"
+            #   2) bw<A>_<B>                 ->  candidate = <PARENT>_BW<A>_<B>
+            #      e.g. "bw9_26"  -> "UTCI_BW9_26"
+            #           "bw0_9"   -> "UTCI_BW0_9"
+            m_bw = re.match(r"bw(\d+)_(\d+)$", threshold_part)
+            m_sided = re.match(r"(gt|lt|ltm)(\d+)$", threshold_part)
+            candidate = ""
+            if m_bw:
+                a, b = m_bw.group(1), m_bw.group(2)
+                candidate = f"{found_code}_BW{a}_{b}"
+            elif m_sided:
+                op = m_sided.group(1).upper()
+                val = m_sided.group(2)
                 candidate = f"{found_code}_{op}{val}"
-                if candidate in INDICES_CATALOG:
-                    out["catalog_code"] = candidate
+            if candidate and candidate in INDICES_CATALOG:
+                out["catalog_code"] = candidate
         else:
             if found_code in INDICES_CATALOG:
                 out["catalog_code"] = found_code
@@ -494,3 +539,18 @@ if __name__ == "__main__":
     hist_periods = get_periods_for(files, "UTCI", scenario=None)
     hist_only = [p for p in hist_periods if "1995-2014" in p or "2000-2006" in p]
     print(f"  historical (no scenario filter): {hist_periods}")
+
+    # UTCI variants explicit check
+    print()
+    print("UTCI variants discovered:")
+    utci_codes = sorted({f.catalog_code for f in files
+                         if f.catalog_code.startswith("UTCI")})
+    for code in utci_codes:
+        n_hist = sum(1 for f in files if f.catalog_code == code
+                     and f.kind == "historical")
+        n_fut = sum(1 for f in files if f.catalog_code == code
+                    and f.kind == "future")
+        entry = INDICES_CATALOG.get(code, {})
+        print(f"  {code:14s} | hist={n_hist} fut={n_fut} | "
+              f"{entry.get('display_code', '?')} - "
+              f"{entry.get('long_name', '?')}")

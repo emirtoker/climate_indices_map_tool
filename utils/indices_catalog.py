@@ -4,7 +4,7 @@ indices_catalog.py
 Climate Indices Map Tool - Master Catalog of Indices
 =====================================================
 
-SOURCE OF TRUTH for all 64 indices used in the tool. Everything the UI,
+SOURCE OF TRUTH for all 69 indices used in the tool. Everything the UI,
 COG converter, and downstream analytics need to know about an index lives
 here - display names, units, descriptions, formulas, categories.
 
@@ -28,22 +28,21 @@ Each entry has these fields:
 
   Identity:
     code              : Catalog key (e.g. "PCD", "UTCI_GT32")
-    display_code      : What the UI shows (e.g. "PCD", "UTCI (>32 deg C)")
+    display_code      : What the UI shows (e.g. "PCD", "UTCI (>32 °C)")
     long_name         : Full English name (e.g. "Passive Comfort Days")
-                        For threshold variants: includes parenthesized
-                        descriptor, e.g. "Universal Thermal Climate Index
-                        (Hot Days)"
+                        For threshold variants: a descriptive variant name,
+                        e.g. "Strong Heat Stress Days", "Hot Days (Heat Index)"
 
   Classification (two-level hierarchy):
     category          : "CLIMATE" | "BIO_CLIMATE"   (top-level sidebar)
     subcategory       : Mid-level sidebar group
 
   Unit:
-    unit              : Clean unit string (e.g. "days/year", "deg C", "mm",
+    unit              : Clean unit string (e.g. "days/year", "°C", "mm",
                         "0-1" for dimensionless)
 
   Documentation:
-    formula           : Single-line clean math (e.g. "TN < 0 deg C").
+    formula           : Single-line clean math (e.g. "TN < 0 °C").
                         "(TBD)" for indices whose method is not yet
                         documented here.
     short_description : ~150 chars, what it measures (hover tooltip)
@@ -53,17 +52,29 @@ Each entry has these fields:
     source_variables  : Which raw climate vars feed this index
 
   Threshold variant relationship (for sub-indices):
-    is_threshold_variant : True for the *_GT## / *_LT## entries
+    is_threshold_variant : True for the *_GT## / *_LT## / *_BW## entries
     parent_code          : Parent index code (None for main indices)
-    threshold            : {"operator": ">"|"<", "value": float, "unit": ...}
+    threshold            : {"operator": ">"|"<"|"between",
+                            "value": float or tuple, "unit": ...}
 
 NOTES
 -----
 - typical_range was REMOVED in v2. Slider defaults come from per-file
   stats (stats.json), not from a hardcoded range here.
-- For threshold variants, long_name uses parentheses, e.g.
-  "Universal Thermal Climate Index (Hot Days)", so it composes cleanly
-  with UI prefixes like "[1995-2014] UTCI (>32 deg C) - Universal ..."
+- All degree-Celsius notations use the proper ° symbol (e.g. "°C")
+  rather than "deg C".
+
+UTCI VARIANTS (ISO 15743 / Brode 2012 thermal stress categories)
+----------------------------------------------------------------
+The UTCI parent index has SEVEN threshold variants spanning the full
+cold-to-hot stress spectrum:
+    UTCI_LTM13   (< -13 °C)   strong cold stress
+    UTCI_LT0     (< 0 °C)     moderate cold stress
+    UTCI_BW0_9   (0 to 9 °C)  slight cold stress
+    UTCI_BW9_26  (9 to 26 °C) no thermal stress (comfort zone)
+    UTCI_GT26    (> 26 °C)    moderate heat stress
+    UTCI_GT32    (> 32 °C)    strong heat stress
+    UTCI_GT38    (> 38 °C)    very strong heat stress
 
 NAMING CONVENTIONS IN FORMULAS
 ------------------------------
@@ -92,7 +103,7 @@ SUBCATEGORIES = {
         "AGRICULTURE",      # 3 indices (plant growth)
     ],
     "BIO_CLIMATE": [
-        "HUMAN_COMFORT",    # 17 indices (incl. outdoor & occupational)
+        "HUMAN_COMFORT",    # 22 indices (UTCI now has 7 ISO variants)
         "LIVESTOCK",        # 6 indices (THI family)
         "ATMOSPHERIC",      # 5 indices (empirical wind/humidity combined)
     ],
@@ -119,9 +130,9 @@ SUBCATEGORY_LABELS = {
 # ---------------------------------------------------------------------------
 # THE CATALOG
 # ---------------------------------------------------------------------------
-# 64 indices total:
+# 69 indices total:
 #   CLIMATE:     14 + 10 + 4 + 5 + 3 = 36
-#   BIO_CLIMATE: 17 + 6 + 5            = 28
+#   BIO_CLIMATE: 22 + 6 + 5            = 33
 # ---------------------------------------------------------------------------
 
 INDICES_CATALOG = {
@@ -137,8 +148,8 @@ INDICES_CATALOG = {
         "category": "CLIMATE",
         "subcategory": "TEMPERATURE",
         "unit": "days/year",
-        "formula": "TN < 0 deg C",
-        "short_description": "Number of days per year when daily minimum temperature falls below 0 deg C.",
+        "formula": "TN < 0 °C",
+        "short_description": "Number of days per year when daily minimum temperature falls below 0 °C.",
         "long_description": "A primary indicator of cold-season severity. Late frosts can damage early-blooming fruit trees, and freezing nights cause pipe bursts and other infrastructure damage. The index also helps delineate the start and end of the growing season.",
         "source_variables": ["tasmin"],
         "is_threshold_variant": False,
@@ -153,8 +164,8 @@ INDICES_CATALOG = {
         "category": "CLIMATE",
         "subcategory": "TEMPERATURE",
         "unit": "days/year",
-        "formula": "TX < 0 deg C",
-        "short_description": "Number of days per year when daily maximum temperature stays below 0 deg C.",
+        "formula": "TX < 0 °C",
+        "short_description": "Number of days per year when daily maximum temperature stays below 0 °C.",
         "long_description": "Identifies days of persistent sub-freezing conditions, when snow cover does not melt during the day. Critical for road icing, transport safety, and peak heating energy demand.",
         "source_variables": ["tasmax"],
         "is_threshold_variant": False,
@@ -169,8 +180,8 @@ INDICES_CATALOG = {
         "category": "CLIMATE",
         "subcategory": "TEMPERATURE",
         "unit": "days/year",
-        "formula": "TX > 25 deg C",
-        "short_description": "Number of days per year when daily maximum temperature exceeds 25 deg C.",
+        "formula": "TX > 25 °C",
+        "short_description": "Number of days per year when daily maximum temperature exceeds 25 °C.",
         "long_description": "A common indicator of warm-season length, relevant to tourism, outdoor activity planning, and the onset of cooling energy demand.",
         "source_variables": ["tasmax"],
         "is_threshold_variant": False,
@@ -185,8 +196,8 @@ INDICES_CATALOG = {
         "category": "CLIMATE",
         "subcategory": "TEMPERATURE",
         "unit": "days/year",
-        "formula": "TN > 20 deg C",
-        "short_description": "Number of nights per year when minimum temperature stays above 20 deg C.",
+        "formula": "TN > 20 °C",
+        "short_description": "Number of nights per year when minimum temperature stays above 20 °C.",
         "long_description": "Warm nights prevent the body from cooling and recovering during sleep. A robust indicator of the Urban Heat Island effect and a known risk factor for vulnerable populations such as the elderly.",
         "source_variables": ["tasmin"],
         "is_threshold_variant": False,
@@ -201,8 +212,8 @@ INDICES_CATALOG = {
         "category": "CLIMATE",
         "subcategory": "TEMPERATURE",
         "unit": "days/year",
-        "formula": "TN > 25 deg C",
-        "short_description": "Number of nights per year when minimum temperature stays above 25 deg C.",
+        "formula": "TN > 25 °C",
+        "short_description": "Number of nights per year when minimum temperature stays above 25 °C.",
         "long_description": "An extreme threshold associated with significant cardiovascular stress, where outdoor life without active cooling becomes impractical. Used to identify the most heat-exposed regions and periods.",
         "source_variables": ["tasmin"],
         "is_threshold_variant": False,
@@ -216,7 +227,7 @@ INDICES_CATALOG = {
         "long_name": "Max Daily Max Temperature",
         "category": "CLIMATE",
         "subcategory": "TEMPERATURE",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "max(TX)",
         "short_description": "Annual highest daily maximum temperature - the absolute record day.",
         "long_description": "Indicator of extreme heat events. Drives infrastructure problems (asphalt deformation, rail buckling), peak wildfire risk, and the highest-load day for electrical grids.",
@@ -232,7 +243,7 @@ INDICES_CATALOG = {
         "long_name": "Min Daily Min Temperature",
         "category": "CLIMATE",
         "subcategory": "TEMPERATURE",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "min(TN)",
         "short_description": "Annual lowest daily minimum temperature - the coldest moment of the year.",
         "long_description": "Defines the survival limit for winter crops (wheat, etc.) and creates hypothermia risk for outdoor livestock. Marks the coldest-day load for energy infrastructure.",
@@ -248,7 +259,7 @@ INDICES_CATALOG = {
         "long_name": "Max Daily Min Temperature",
         "category": "CLIMATE",
         "subcategory": "TEMPERATURE",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "max(TN)",
         "short_description": "Annual highest daily minimum temperature - the warmest night.",
         "long_description": "Identifies the night when temperatures fail to drop, when heat accumulation is at its maximum. Disrupts the balance of nocturnal species in ecosystems.",
@@ -264,7 +275,7 @@ INDICES_CATALOG = {
         "long_name": "Min Daily Max Temperature",
         "category": "CLIMATE",
         "subcategory": "TEMPERATURE",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "min(TX)",
         "short_description": "Annual lowest daily maximum temperature - the coldest daytime.",
         "long_description": "Identifies days when even noon temperatures remain very cold, when snow cover persists, and when the energy grid faces its coldest-daytime load.",
@@ -281,8 +292,8 @@ INDICES_CATALOG = {
         "category": "CLIMATE",
         "subcategory": "TEMPERATURE",
         "unit": "days/year",
-        "formula": "TX > 30 deg C for at least 3 consecutive days",
-        "short_description": "Days within heat waves: three or more consecutive days with TX above 30 deg C.",
+        "formula": "TX > 30 °C for at least 3 consecutive days",
+        "short_description": "Days within heat waves: three or more consecutive days with TX above 30 °C.",
         "long_description": "Directly correlates with elevated mortality rates. In agriculture, drives water stress, crop failure, and yield loss at disaster scale.",
         "source_variables": ["tasmax"],
         "is_threshold_variant": False,
@@ -297,8 +308,8 @@ INDICES_CATALOG = {
         "category": "CLIMATE",
         "subcategory": "TEMPERATURE",
         "unit": "days/year",
-        "formula": "TN < 0 deg C for at least 3 consecutive days",
-        "short_description": "Days within cold waves: three or more consecutive days with TN below 0 deg C.",
+        "formula": "TN < 0 °C for at least 3 consecutive days",
+        "short_description": "Days within cold waves: three or more consecutive days with TN below 0 °C.",
         "long_description": "Sudden, prolonged cold spells cause mortality in migratory birds and disturb the ecological balance of hibernating species.",
         "source_variables": ["tasmin"],
         "is_threshold_variant": False,
@@ -344,7 +355,7 @@ INDICES_CATALOG = {
         "long_name": "Diurnal Temperature Range",
         "category": "CLIMATE",
         "subcategory": "TEMPERATURE",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "mean(TX - TN)",
         "short_description": "Average difference between daily maximum and minimum temperature.",
         "long_description": "High DTR creates physiological stress on both plants and humans (cardiovascular and respiratory effects). It also drives expansion and cracking in building materials such as concrete and asphalt, and serves as an indicator of climatic harshness.",
@@ -597,7 +608,7 @@ INDICES_CATALOG = {
         "category": "CLIMATE",
         "subcategory": "ENERGY",
         "unit": "days/year",
-        "formula": "TG < 18 deg C",
+        "formula": "TG < 18 °C",
         "short_description": "Number of days per year that (theoretically) require heating.",
         "long_description": "Indicates the duration of the heating season - how many days central heating would need to operate, regardless of intensity.",
         "source_variables": ["tas"],
@@ -612,8 +623,8 @@ INDICES_CATALOG = {
         "long_name": "Heating Degree Days",
         "category": "CLIMATE",
         "subcategory": "ENERGY",
-        "unit": "deg C * days",
-        "formula": "sum(18 deg C - TG), only when TG < 18 deg C",
+        "unit": "°C * days",
+        "formula": "sum(18 °C - TG), only when TG < 18 °C",
         "short_description": "Cumulative heating energy demand - how much heating is needed, not just how often.",
         "long_description": "Directly predicts natural gas and coal consumption. Rising HDD translates to higher household energy costs and carbon emissions.",
         "source_variables": ["tas"],
@@ -629,7 +640,7 @@ INDICES_CATALOG = {
         "category": "CLIMATE",
         "subcategory": "ENERGY",
         "unit": "days/year",
-        "formula": "TG > 21 deg C",
+        "formula": "TG > 21 °C",
         "short_description": "Number of days per year that (theoretically) require cooling.",
         "long_description": "Indicates the duration of the cooling season - how many days air conditioning or fans would be needed, regardless of intensity.",
         "source_variables": ["tas"],
@@ -644,8 +655,8 @@ INDICES_CATALOG = {
         "long_name": "Cooling Degree Days",
         "category": "CLIMATE",
         "subcategory": "ENERGY",
-        "unit": "deg C * days",
-        "formula": "sum(TG - 21 deg C), only when TG > 21 deg C",
+        "unit": "°C * days",
+        "formula": "sum(TG - 21 °C), only when TG > 21 °C",
         "short_description": "Cumulative cooling energy demand - measures both how often and how intensely.",
         "long_description": "Determines the intensity of air-conditioning demand. Reflects the summer load on the electrical grid; higher CDD means greater peak-demand stress.",
         "source_variables": ["tas"],
@@ -660,8 +671,8 @@ INDICES_CATALOG = {
         "long_name": "Cooling Degree Days (Approximated)",
         "category": "CLIMATE",
         "subcategory": "ENERGY",
-        "unit": "deg C * days",
-        "formula": "Sinusoidal approximation (Spinoni 2018), threshold 21 deg C",
+        "unit": "°C * days",
+        "formula": "Sinusoidal approximation (Spinoni 2018), threshold 21 °C",
         "short_description": "A more precise cooling demand estimate using daily TX and TN to capture diurnal variation.",
         "long_description": "Captures cooling demand at peak afternoon temperatures, which can be underestimated when using daily mean alone. Recommended for fine-grained energy planning.",
         "source_variables": ["tas", "tasmax", "tasmin"],
@@ -681,7 +692,7 @@ INDICES_CATALOG = {
         "category": "CLIMATE",
         "subcategory": "AGRICULTURE",
         "unit": "days/year",
-        "formula": "TG > 5 deg C",
+        "formula": "TG > 5 °C",
         "short_description": "Number of days when plants are biologically active (above dormancy threshold).",
         "long_description": "The total number of days a plant can grow. Used to predict when crops such as maize or wheat will reach harvest maturity.",
         "source_variables": ["tas"],
@@ -696,10 +707,10 @@ INDICES_CATALOG = {
         "long_name": "Growing Degree Days",
         "category": "CLIMATE",
         "subcategory": "AGRICULTURE",
-        "unit": "deg C * days",
-        "formula": "sum(TG - 5 deg C), only when TG > 5 deg C",
-        "short_description": "Cumulative heat above 5 deg C - the thermal energy available for plant growth.",
-        "long_description": "Sums the 'useful' temperatures above 5 deg C. Higher GDD means crops mature faster; a key planning variable for sowing and harvest dates.",
+        "unit": "°C * days",
+        "formula": "sum(TG - 5 °C), only when TG > 5 °C",
+        "short_description": "Cumulative heat above 5 °C - the thermal energy available for plant growth.",
+        "long_description": "Sums the 'useful' temperatures above 5 °C. Higher GDD means crops mature faster; a key planning variable for sowing and harvest dates.",
         "source_variables": ["tas"],
         "is_threshold_variant": False,
         "parent_code": None,
@@ -713,7 +724,7 @@ INDICES_CATALOG = {
         "category": "CLIMATE",
         "subcategory": "AGRICULTURE",
         "unit": "days/year",
-        "formula": "TG > 5 deg C for 6 consecutive days (start) to 6 consecutive days with TG < 5 deg C (end)",
+        "formula": "TG > 5 °C for 6 consecutive days (start) to 6 consecutive days with TG < 5 °C (end)",
         "short_description": "Length of the period from first sustained warmth in spring to first sustained cold in autumn.",
         "long_description": "The ecological calendar of the year. Climate change is lengthening this period, allowing the spread of invasive species and shifts in vegetation cover.",
         "source_variables": ["tas"],
@@ -723,7 +734,7 @@ INDICES_CATALOG = {
     },
 
     # =======================================================================
-    # BIO_CLIMATE / HUMAN_COMFORT (17)
+    # BIO_CLIMATE / HUMAN_COMFORT (22) - UTCI now has 7 ISO-15743 variants
     # =======================================================================
 
     "PCD": {
@@ -733,7 +744,7 @@ INDICES_CATALOG = {
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
         "unit": "days/year",
-        "formula": "18 deg C <= TG < 25 deg C",
+        "formula": "18 °C <= TG < 25 °C",
         "short_description": "Days that are comfortable without heating or cooling.",
         "long_description": "Days when outdoor activity is comfortable without supplemental heating or cooling. Important for tourism potential and human well-being, and widely used in passive building design.",
         "source_variables": ["tas"],
@@ -748,7 +759,7 @@ INDICES_CATALOG = {
         "long_name": "Universal Thermal Climate Index",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "Brode (2012) 56-term polynomial: f(TA, HURS, sfcWind, MRT)",
         "short_description": "Outdoor thermal stress as a felt-temperature, combining heat, humidity, wind and radiation.",
         "long_description": "The most rigorous outdoor thermal-stress indicator, jointly developed by ISB-COST. Used by public-health agencies for heat-warning systems and by urban designers to evaluate microclimates.",
@@ -758,37 +769,121 @@ INDICES_CATALOG = {
         "threshold": None,
     },
 
-    "UTCI_GT32": {
-        "code": "UTCI_GT32",
-        "display_code": "UTCI (>32 deg C)",
-        "long_name": "Universal Thermal Climate Index (Hot Days)",
+    # ----- UTCI variants (ISO 15743 / Brode 2012, cold -> hot) -----
+
+    "UTCI_LTM13": {
+        "code": "UTCI_LTM13",
+        "display_code": "UTCI (< -13 °C)",
+        "long_name": "Strong Cold Stress Days",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
         "unit": "days/year",
-        "formula": "count(UTCI > 32 deg C)",
-        "short_description": "Days with strong heat stress: UTCI exceeds 32 deg C.",
+        "formula": "count(UTCI < -13 °C)",
+        "short_description": "Days in the 'strong cold stress' UTCI category (UTCI below -13 °C).",
+        "long_description": "Marks days of strong outdoor cold stress where hypothermia risk rises sharply without protective clothing. Critical for outdoor workers and unsheltered populations.",
+        "source_variables": ["tas", "hurs", "sfcWind", "rsds", "rlds"],
+        "is_threshold_variant": True,
+        "parent_code": "UTCI",
+        "threshold": {"operator": "<", "value": -13, "unit": "°C"},
+    },
+
+    "UTCI_LT0": {
+        "code": "UTCI_LT0",
+        "display_code": "UTCI (< 0 °C)",
+        "long_name": "Moderate Cold Stress Days",
+        "category": "BIO_CLIMATE",
+        "subcategory": "HUMAN_COMFORT",
+        "unit": "days/year",
+        "formula": "count(UTCI < 0 °C)",
+        "short_description": "Days in the 'moderate cold stress' UTCI category (UTCI below 0 °C).",
+        "long_description": "Days with noticeable outdoor cold stress. Indicates the demand for warm clothing and indoor heating, and the limits of comfortable outdoor activity.",
+        "source_variables": ["tas", "hurs", "sfcWind", "rsds", "rlds"],
+        "is_threshold_variant": True,
+        "parent_code": "UTCI",
+        "threshold": {"operator": "<", "value": 0, "unit": "°C"},
+    },
+
+    "UTCI_BW0_9": {
+        "code": "UTCI_BW0_9",
+        "display_code": "UTCI (0 to 9 °C)",
+        "long_name": "Slight Cold Stress Days",
+        "category": "BIO_CLIMATE",
+        "subcategory": "HUMAN_COMFORT",
+        "unit": "days/year",
+        "formula": "count(0 °C <= UTCI < 9 °C)",
+        "short_description": "Days in the 'slight cold stress' UTCI category (UTCI between 0 and 9 °C).",
+        "long_description": "Cool but not severely stressful conditions. The transition band between full thermal comfort and the cold-stress zones; relevant to seasonal apparel and outdoor activity planning.",
+        "source_variables": ["tas", "hurs", "sfcWind", "rsds", "rlds"],
+        "is_threshold_variant": True,
+        "parent_code": "UTCI",
+        "threshold": {"operator": "between", "value": (0, 9), "unit": "°C"},
+    },
+
+    "UTCI_BW9_26": {
+        "code": "UTCI_BW9_26",
+        "display_code": "UTCI (9 to 26 °C)",
+        "long_name": "Thermal Comfort Days",
+        "category": "BIO_CLIMATE",
+        "subcategory": "HUMAN_COMFORT",
+        "unit": "days/year",
+        "formula": "count(9 °C <= UTCI <= 26 °C)",
+        "short_description": "Days in the 'no thermal stress' UTCI category (UTCI between 9 and 26 °C).",
+        "long_description": "The core human comfort band on the UTCI scale. A direct indicator of regional livability and outdoor-tourism potential. Climate change shifts this band geographically; tracking its retreat is central to adaptation planning.",
+        "source_variables": ["tas", "hurs", "sfcWind", "rsds", "rlds"],
+        "is_threshold_variant": True,
+        "parent_code": "UTCI",
+        "threshold": {"operator": "between", "value": (9, 26), "unit": "°C"},
+    },
+
+    "UTCI_GT26": {
+        "code": "UTCI_GT26",
+        "display_code": "UTCI (> 26 °C)",
+        "long_name": "Moderate Heat Stress Days",
+        "category": "BIO_CLIMATE",
+        "subcategory": "HUMAN_COMFORT",
+        "unit": "days/year",
+        "formula": "count(UTCI > 26 °C)",
+        "short_description": "Days in the 'moderate heat stress' UTCI category (UTCI above 26 °C).",
+        "long_description": "First level of outdoor heat stress on the UTCI scale. Indicates conditions where prolonged physical activity causes noticeable thermal discomfort and increased water demand.",
+        "source_variables": ["tas", "hurs", "sfcWind", "rsds", "rlds"],
+        "is_threshold_variant": True,
+        "parent_code": "UTCI",
+        "threshold": {"operator": ">", "value": 26, "unit": "°C"},
+    },
+
+    "UTCI_GT32": {
+        "code": "UTCI_GT32",
+        "display_code": "UTCI (> 32 °C)",
+        "long_name": "Strong Heat Stress Days",
+        "category": "BIO_CLIMATE",
+        "subcategory": "HUMAN_COMFORT",
+        "unit": "days/year",
+        "formula": "count(UTCI > 32 °C)",
+        "short_description": "Days in the 'strong heat stress' UTCI category (UTCI above 32 °C).",
         "long_description": "Marks days when the body cannot regulate temperature outdoors without intervention. A core metric for occupational and public-health heat warnings.",
         "source_variables": ["tas", "hurs", "sfcWind", "rsds", "rlds"],
         "is_threshold_variant": True,
         "parent_code": "UTCI",
-        "threshold": {"operator": ">", "value": 32, "unit": "deg C"},
+        "threshold": {"operator": ">", "value": 32, "unit": "°C"},
     },
 
-    "UTCI_LTM13": {
-        "code": "UTCI_LTM13",
-        "display_code": "UTCI (<-13 deg C)",
-        "long_name": "Universal Thermal Climate Index (Cold Days)",
+    "UTCI_GT38": {
+        "code": "UTCI_GT38",
+        "display_code": "UTCI (> 38 °C)",
+        "long_name": "Very Strong Heat Stress Days",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
         "unit": "days/year",
-        "formula": "count(UTCI < -13 deg C)",
-        "short_description": "Days with strong cold stress: UTCI falls below -13 deg C.",
-        "long_description": "Marks days of strong outdoor cold stress where hypothermia risk rises without protective clothing. Critical for outdoor workers and unsheltered populations.",
+        "formula": "count(UTCI > 38 °C)",
+        "short_description": "Days in the 'very strong heat stress' UTCI category (UTCI above 38 °C).",
+        "long_description": "Extreme outdoor heat stress where sustained activity is dangerous even for healthy adults. A leading indicator of heat-wave intensity and public-health emergency thresholds.",
         "source_variables": ["tas", "hurs", "sfcWind", "rsds", "rlds"],
         "is_threshold_variant": True,
         "parent_code": "UTCI",
-        "threshold": {"operator": "<", "value": -13, "unit": "deg C"},
+        "threshold": {"operator": ">", "value": 38, "unit": "°C"},
     },
+
+    # ----- end UTCI variants -----
 
     "HI": {
         "code": "HI",
@@ -796,10 +891,10 @@ INDICES_CATALOG = {
         "long_name": "Heat Index",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "Rothfusz (1990) NWS polynomial: f(TA, HURS)",
         "short_description": "Apparent temperature combining heat and humidity, as used by the US NWS.",
-        "long_description": "How hot it actually feels when humidity is considered. Above 32 deg C the body cannot cool itself efficiently through perspiration.",
+        "long_description": "How hot it actually feels when humidity is considered. Above 32 °C the body cannot cool itself efficiently through perspiration.",
         "source_variables": ["tas", "hurs"],
         "is_threshold_variant": False,
         "parent_code": None,
@@ -808,18 +903,18 @@ INDICES_CATALOG = {
 
     "HI_GT32": {
         "code": "HI_GT32",
-        "display_code": "HI (>32 deg C)",
-        "long_name": "Heat Index (Hot Days)",
+        "display_code": "HI (> 32 °C)",
+        "long_name": "Hot Days (Heat Index)",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
         "unit": "days/year",
-        "formula": "count(HI > 32 deg C)",
-        "short_description": "Days where the apparent temperature (Heat Index) exceeds 32 deg C.",
+        "formula": "count(HI > 32 °C)",
+        "short_description": "Days where the apparent temperature (Heat Index) exceeds 32 °C.",
         "long_description": "Marks days when heat and humidity combine to a dangerous level. Used by public-health systems to issue heat advisories.",
         "source_variables": ["tas", "hurs"],
         "is_threshold_variant": True,
         "parent_code": "HI",
-        "threshold": {"operator": ">", "value": 32, "unit": "deg C"},
+        "threshold": {"operator": ">", "value": 32, "unit": "°C"},
     },
 
     "PET": {
@@ -828,7 +923,7 @@ INDICES_CATALOG = {
         "long_name": "Physiologically Equivalent Temperature",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "Hoeppe (1999) human energy balance: f(TA, HURS, sfcWind, MRT)",
         "short_description": "Equivalent temperature in a reference indoor setting yielding the same body sensation.",
         "long_description": "Translates outdoor conditions into an equivalent indoor temperature that produces the same thermal sensation. Widely used in urban climate and tourism research.",
@@ -840,34 +935,34 @@ INDICES_CATALOG = {
 
     "PET_GT29": {
         "code": "PET_GT29",
-        "display_code": "PET (>29 deg C)",
-        "long_name": "Physiologically Equivalent Temperature (Hot Days)",
+        "display_code": "PET (> 29 °C)",
+        "long_name": "Hot Days (PET)",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
         "unit": "days/year",
-        "formula": "count(PET > 29 deg C)",
+        "formula": "count(PET > 29 °C)",
         "short_description": "Days with strong heat stress on the PET scale.",
-        "long_description": "Marks days when outdoor activity becomes physiologically stressful. The 29 deg C threshold corresponds to 'strong heat stress' in the PET scale.",
+        "long_description": "Marks days when outdoor activity becomes physiologically stressful. The 29 °C threshold corresponds to 'strong heat stress' in the PET scale.",
         "source_variables": ["tas", "hurs", "sfcWind", "rsds", "rlds"],
         "is_threshold_variant": True,
         "parent_code": "PET",
-        "threshold": {"operator": ">", "value": 29, "unit": "deg C"},
+        "threshold": {"operator": ">", "value": 29, "unit": "°C"},
     },
 
     "PET_LT8": {
         "code": "PET_LT8",
-        "display_code": "PET (<8 deg C)",
-        "long_name": "Physiologically Equivalent Temperature (Cold Days)",
+        "display_code": "PET (< 8 °C)",
+        "long_name": "Cold Days (PET)",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
         "unit": "days/year",
-        "formula": "count(PET < 8 deg C)",
+        "formula": "count(PET < 8 °C)",
         "short_description": "Days with strong cold stress on the PET scale.",
-        "long_description": "Marks days of strong outdoor cold sensation. The 8 deg C threshold corresponds to 'cold stress' in the PET scale.",
+        "long_description": "Marks days of strong outdoor cold sensation. The 8 °C threshold corresponds to 'cold stress' in the PET scale.",
         "source_variables": ["tas", "hurs", "sfcWind", "rsds", "rlds"],
         "is_threshold_variant": True,
         "parent_code": "PET",
-        "threshold": {"operator": "<", "value": 8, "unit": "deg C"},
+        "threshold": {"operator": "<", "value": 8, "unit": "°C"},
     },
 
     "SET": {
@@ -876,7 +971,7 @@ INDICES_CATALOG = {
         "long_name": "Standard Effective Temperature",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "Gagge (1971) two-node model: f(TA, HURS, sfcWind, MRT, met, clo)",
         "short_description": "Temperature of a reference environment yielding the same skin heat loss.",
         "long_description": "An ASHRAE-standardized indoor comfort indicator. Translates real conditions into a reference environment, holding metabolic rate and clothing constant.",
@@ -924,10 +1019,10 @@ INDICES_CATALOG = {
         "long_name": "Discomfort Index",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "Thom (1959): DI = TA - 0.55 * (1 - HURS/100) * (TA - 14.5)",
-        "short_description": "Simple heat-humidity discomfort index by Thom (1959). DI > 27 deg C is uncomfortable for most.",
-        "long_description": "One of the earliest empirical comfort indices, still widely used for its simplicity. Values above 27 deg C indicate discomfort for most of the population.",
+        "short_description": "Simple heat-humidity discomfort index by Thom (1959). DI > 27 °C is uncomfortable for most.",
+        "long_description": "One of the earliest empirical comfort indices, still widely used for its simplicity. Values above 27 °C indicate discomfort for most of the population.",
         "source_variables": ["tas", "hurs"],
         "is_threshold_variant": False,
         "parent_code": None,
@@ -940,7 +1035,7 @@ INDICES_CATALOG = {
         "long_name": "Apparent Temperature",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "Steadman (1984), Blazejczyk (2012): f(TA, HURS, sfcWind)",
         "short_description": "How temperature actually feels, accounting for humidity and wind.",
         "long_description": "An Australian Bureau of Meteorology indicator combining heat, humidity, and wind chill into a single felt temperature. Common in public weather forecasts.",
@@ -956,10 +1051,10 @@ INDICES_CATALOG = {
         "long_name": "Wet Bulb Globe Temperature",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "(TBD)",
         "short_description": "Heat-stress indicator used in occupational safety, sports and the military.",
-        "long_description": "The standard for managing heat exposure in workers, athletes, and soldiers. Above 28 deg C, sustained physical activity becomes dangerous.",
+        "long_description": "The standard for managing heat exposure in workers, athletes, and soldiers. Above 28 °C, sustained physical activity becomes dangerous.",
         "source_variables": ["tas", "hurs", "rsds", "rlds"],
         "is_threshold_variant": False,
         "parent_code": None,
@@ -972,7 +1067,7 @@ INDICES_CATALOG = {
         "long_name": "Environmental Stress Index",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "Moran et al. (2001): f(TA, HURS, sfcWind, rsds, rlds)",
         "short_description": "Simplified alternative to WBGT for occupational heat stress.",
         "long_description": "Designed by Moran (2001) as an easier-to-compute alternative to WBGT, used by military and occupational safety researchers.",
@@ -988,7 +1083,7 @@ INDICES_CATALOG = {
         "long_name": "Mean Radiant Temperature",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "Computed via xclim (Thorsson 2007 approach)",
         "short_description": "Radiant heat load on the human body from surrounding surfaces and sky.",
         "long_description": "A key input to UTCI, PET, and SET. Captures how solar and longwave radiation heat the body, often dominant in summer urban discomfort.",
@@ -1020,8 +1115,8 @@ INDICES_CATALOG = {
 
     "THI_H_GT27": {
         "code": "THI_H_GT27",
-        "display_code": "THI_H (>27)",
-        "long_name": "Temperature-Humidity Index Human (Hot Days)",
+        "display_code": "THI_H (> 27)",
+        "long_name": "Hot Days (THI Human)",
         "category": "BIO_CLIMATE",
         "subcategory": "LIVESTOCK",
         "unit": "days/year",
@@ -1052,8 +1147,8 @@ INDICES_CATALOG = {
 
     "THI_L_GT72": {
         "code": "THI_L_GT72",
-        "display_code": "THI_L (>72)",
-        "long_name": "Temperature-Humidity Index Livestock (Hot Days)",
+        "display_code": "THI_L (> 72)",
+        "long_name": "Hot Days (THI Livestock)",
         "category": "BIO_CLIMATE",
         "subcategory": "LIVESTOCK",
         "unit": "days/year",
@@ -1084,8 +1179,8 @@ INDICES_CATALOG = {
 
     "THI_C_GT60": {
         "code": "THI_C_GT60",
-        "display_code": "THI_C (>60)",
-        "long_name": "Temperature-Humidity Index Crop (Hot Days)",
+        "display_code": "THI_C (> 60)",
+        "long_name": "Hot Days (THI Crop)",
         "category": "BIO_CLIMATE",
         "subcategory": "LIVESTOCK",
         "unit": "days/year",
@@ -1108,10 +1203,10 @@ INDICES_CATALOG = {
         "long_name": "Wind Chill Index",
         "category": "BIO_CLIMATE",
         "subcategory": "ATMOSPHERIC",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "NWS/MSC (2001) wind-chill formula: f(TA, sfcWind)",
         "short_description": "How cold the air feels due to wind chill.",
-        "long_description": "The standard wind-chill formula used by US and Canadian weather services. Below -10 deg C wind chill, frostbite risk on exposed skin becomes significant.",
+        "long_description": "The standard wind-chill formula used by US and Canadian weather services. Below -10 °C wind chill, frostbite risk on exposed skin becomes significant.",
         "source_variables": ["tas", "sfcWind"],
         "is_threshold_variant": False,
         "parent_code": None,
@@ -1120,18 +1215,18 @@ INDICES_CATALOG = {
 
     "WCI_LTM10": {
         "code": "WCI_LTM10",
-        "display_code": "WCI (<-10 deg C)",
-        "long_name": "Wind Chill Index (Cold Days)",
+        "display_code": "WCI (< -10 °C)",
+        "long_name": "Cold Days (Wind Chill)",
         "category": "BIO_CLIMATE",
         "subcategory": "ATMOSPHERIC",
         "unit": "days/year",
-        "formula": "count(WCI < -10 deg C)",
-        "short_description": "Days where wind chill falls below -10 deg C - exposed-skin frostbite risk.",
+        "formula": "count(WCI < -10 °C)",
+        "short_description": "Days where wind chill falls below -10 °C - exposed-skin frostbite risk.",
         "long_description": "Marks days requiring serious cold-weather protection outdoors. Critical for outdoor workers, transport operations, and unsheltered populations.",
         "source_variables": ["tas", "sfcWind"],
         "is_threshold_variant": True,
         "parent_code": "WCI",
-        "threshold": {"operator": "<", "value": -10, "unit": "deg C"},
+        "threshold": {"operator": "<", "value": -10, "unit": "°C"},
     },
 
     "HMX": {
@@ -1140,7 +1235,7 @@ INDICES_CATALOG = {
         "long_name": "Humidex",
         "category": "BIO_CLIMATE",
         "subcategory": "ATMOSPHERIC",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "Masterton & Richardson (1979): f(TA, HURS)",
         "short_description": "Canadian heat-humidity index. Above 40 indicates great discomfort.",
         "long_description": "Used by Environment Canada to warn about oppressive summer heat. 30-39 = some discomfort, 40-45 = great discomfort, 46+ = dangerous.",
@@ -1156,7 +1251,7 @@ INDICES_CATALOG = {
         "long_name": "Normal Effective Temperature",
         "category": "BIO_CLIMATE",
         "subcategory": "ATMOSPHERIC",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "Missenard (1933): f(TA, HURS, sfcWind)",
         "short_description": "Felt temperature combining heat, humidity and wind (Missenard 1933).",
         "long_description": "One of the oldest combined thermal indices, still in use by some local meteorological services. Used in tourism and urban climate studies.",
@@ -1172,7 +1267,7 @@ INDICES_CATALOG = {
         "long_name": "Ventilation Potential",
         "category": "BIO_CLIMATE",
         "subcategory": "ATMOSPHERIC",
-        "unit": "deg C",
+        "unit": "°C",
         "formula": "VD = sfcWind * TA",
         "short_description": "Indicator of natural ventilation potential.",
         "long_description": "Used in urban climate and air-quality studies. Higher VD means better natural ventilation and dispersion of pollutants. Important for city planning.",
@@ -1270,10 +1365,29 @@ if __name__ == "__main__":
         print("  [OK] All entries have all required fields and no leftover fields.")
     print()
 
+    # Check 'deg C' leftovers (should be 0 after migration to ° symbol)
+    print("'deg C' leftover check (should be 0):")
+    leftovers = 0
+    for k, v in INDICES_CATALOG.items():
+        for field in ["display_code", "long_name", "unit", "formula",
+                      "short_description", "long_description"]:
+            text = v.get(field, "")
+            if "deg C" in text:
+                print(f"  [WARN] {k}.{field}: '{text[:80]}'")
+                leftovers += 1
+    if leftovers == 0:
+        print("  [OK] No 'deg C' leftovers found.")
+    print()
+
     # Print sample entries
     print("Sample entry (PCD - main index):")
     import json
     print(json.dumps(INDICES_CATALOG["PCD"], indent=2, ensure_ascii=False))
     print()
-    print("Sample entry (UTCI_GT32 - threshold variant):")
-    print(json.dumps(INDICES_CATALOG["UTCI_GT32"], indent=2, ensure_ascii=False))
+    print("Sample entry (UTCI_BW9_26 - between variant):")
+    print(json.dumps(INDICES_CATALOG["UTCI_BW9_26"], indent=2,
+                     ensure_ascii=False, default=str))
+    print()
+    print("Sample entry (UTCI_GT32 - greater-than variant):")
+    print(json.dumps(INDICES_CATALOG["UTCI_GT32"], indent=2,
+                     ensure_ascii=False, default=str))
