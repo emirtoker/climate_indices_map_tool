@@ -107,6 +107,32 @@ OUTPUT_ROOT = Path(
 # Output projection (Web Mercator, same as OSM tiles and LCZ)
 OUTPUT_CRS = "EPSG:3857"
 
+# ---- TR sinir maskesi (deniz/tasma temizligi) --------------------------
+# reproject'ten sonra bu shapefile ile clip edilir; disi NaN olur.
+# Yol app veri klasorune gore; degisirse burayi guncelle.
+TR_SHP_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "data", "shapefiles", "tur_adm_2025_ab_shp", "tur_admbnda_adm0_2025.shp",
+)
+_TR_GEOM_3857 = None  # lazy: ilk kullanimda 3857'ye yeniden projekte edilip tutulur
+
+
+def _get_tr_geom_3857():
+    """TR ADM0 geometrisini EPSG:3857'de (OUTPUT_CRS) bir kez yukle ve onbellekle."""
+    global _TR_GEOM_3857
+    if _TR_GEOM_3857 is None:
+        import geopandas as gpd
+        if not os.path.isfile(TR_SHP_PATH):
+            raise FileNotFoundError(
+                f"TR shapefile bulunamadi: {TR_SHP_PATH}\n"
+                f"  -> TR_SHP_PATH'i dogru .shp'ye ayarla."
+            )
+        gdf = gpd.read_file(TR_SHP_PATH)
+        if gdf.crs is None:
+            gdf = gdf.set_crs("EPSG:4326")
+        _TR_GEOM_3857 = gdf.to_crs(OUTPUT_CRS)
+    return _TR_GEOM_3857
+
 
 # ---------------------------------------------------------------------------
 # Filename parser
@@ -114,7 +140,7 @@ OUTPUT_CRS = "EPSG:3857"
 
 PCT_SUFFIX_RE = re.compile(r"_pct$", re.IGNORECASE)
 THRESHOLD_SUFFIX_RE = re.compile(
-    r"_(gt\d+|lt\d+|ltm\d+)_([a-z_]+_days)$",
+    r"_(gt\d+|lt\d+|ltm\d+|bw\d+_\d+)_([a-z_]+_days)(_count)?$",
     re.IGNORECASE,
 )
 
@@ -179,7 +205,7 @@ def parse_filename(filename: str) -> Dict[str, Any]:
 
     suffix = name_for_indice[search_start:]
     for code in _INDICE_CODES_SORTED:
-        if re.search(rf"_{re.escape(code)}_", suffix):
+        if re.search(rf"_{re.escape(code)}(_|$)", suffix):
             found_code = code
             break
 
@@ -189,10 +215,15 @@ def parse_filename(filename: str) -> Dict[str, Any]:
         if out["threshold_suffix"]:
             ts = out["threshold_suffix"]
             m_ts = re.match(r"(gt|lt|ltm)(\d+)", ts, re.IGNORECASE)
+            m_bw = re.match(r"bw(\d+)_(\d+)", ts, re.IGNORECASE)
             if m_ts:
                 op = m_ts.group(1).upper()
                 val = m_ts.group(2)
                 candidate = f"{found_code}_{op}{val}"
+                if candidate in INDICES_CATALOG:
+                    out["catalog_code"] = candidate
+            elif m_bw:
+                candidate = f"{found_code}_BW{m_bw.group(1)}_{m_bw.group(2)}"
                 if candidate in INDICES_CATALOG:
                     out["catalog_code"] = candidate
         else:
@@ -378,6 +409,18 @@ def convert_one(
         # versions; squeeze if present.
         if "band" in da.dims and da.sizes["band"] == 1:
             da = da.squeeze("band", drop=True)
+        # --------------------------------------------------------------
+
+        # ----- TR sinir maskesi: deniz/tasma alanlarini NaN yap -----
+        # reproject sonrasi, henuz 3857'de. Kaynak nc TR'ye kesilmemis olsa
+        # bile cikti TIF temiz olur.
+        try:
+            tr_geom = _get_tr_geom_3857()
+            da = da.rio.clip(tr_geom.geometry, tr_geom.crs,
+                             drop=False, all_touched=True)
+        except Exception as _clip_err:
+            if verbose:
+                print(f"    [WARN] TR clip atlandi: {_clip_err}")
         # --------------------------------------------------------------
 
         # Stats (after reprojection so they reflect what users will see)

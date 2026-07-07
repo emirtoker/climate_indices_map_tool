@@ -122,6 +122,7 @@ class IndexFile:
     scenario: Optional[str] = None
     period: str = ""
     ref_period: Optional[str] = None
+    uhi_level: Optional[str] = None  # None=Default(UHI yok), "05"/"10"/"15"/"20" = +0.5/+1/+1.5/+2C
 
     # Catalog fields (filled by post-init)
     display_code: str = ""
@@ -246,9 +247,17 @@ def parse_tif_filename(filename: str) -> Dict[str, Any]:
         "period": "",
         "ref_period": None,
         "catalog_code": "",
+        "uhi_level": None,
     }
 
     name = filename.replace(".tif", "")
+
+    # UHI etiketi: "..._{ssp}_{futS}_{futE}_UHI05_UTCI_..." -> uhi_level="05"
+    # UHI'yi isimden CIKAR ki geri kalan normal UTCI gibi parse edilsin.
+    m_uhi = re.search(r"_UHI(\d{2})_", name)
+    if m_uhi:
+        out["uhi_level"] = m_uhi.group(1)
+        name = name.replace(f"_UHI{m_uhi.group(1)}_", "_", 1)
 
     # Threshold suffix (gt32_hot_days, gt32_strong_heat_days_count,
     # bw9_26_comfort_days_count, etc.). We strip the WHOLE matched suffix
@@ -292,7 +301,7 @@ def parse_tif_filename(filename: str) -> Dict[str, Any]:
     suffix = name_for_indice[search_start:]
     found_code = ""
     for code in _PARENT_CODES:
-        if re.search(rf"_{re.escape(code)}_", suffix):
+        if re.search(rf"_{re.escape(code)}(_|$)", suffix):
             found_code = code
             break
 
@@ -405,6 +414,7 @@ def load_all_index_files_with_diagnostics() -> tuple[List[IndexFile], Dict[str, 
             scenario=parsed["scenario"],
             period=parsed["period"],
             ref_period=parsed["ref_period"],
+            uhi_level=parsed.get("uhi_level"),
         )
         ifile.merge_catalog()
         ifile.merge_stats(stats_dict)
@@ -422,6 +432,9 @@ def load_all_index_files_with_diagnostics() -> tuple[List[IndexFile], Dict[str, 
 # Filter helpers — what the UI uses
 # ---------------------------------------------------------------------------
 
+_UHI_UNSET = "__unset__"
+
+
 def filter_files(
     files: List[IndexFile],
     kind: Optional[str] = None,
@@ -430,10 +443,16 @@ def filter_files(
     catalog_code: Optional[str] = None,
     category: Optional[str] = None,
     subcategory: Optional[str] = None,
+    uhi_level: Optional[str] = _UHI_UNSET,
 ) -> List[IndexFile]:
     """
     Apply zero or more filters and return the matching subset.
     All filters use equality; pass None to skip a filter.
+
+    uhi_level:
+      - not passed (default _UHI_UNSET) -> no UHI filtering (all pass)
+      - None                            -> only Default files (uhi_level is None)
+      - "05"/"10"/"15"/"20"             -> only that UHI warming level
     """
     out = files
     if kind is not None:
@@ -448,6 +467,8 @@ def filter_files(
         out = [f for f in out if f.category == category]
     if subcategory is not None:
         out = [f for f in out if f.subcategory == subcategory]
+    if uhi_level != _UHI_UNSET:
+        out = [f for f in out if f.uhi_level == uhi_level]
     return out
 
 

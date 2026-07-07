@@ -36,6 +36,37 @@ SCENARIO_LABELS = {
     "ssp585": "High-Emission (SSP585)",
 }
 
+# Sekmelerde gosterilen kisa etiketler (sidebar dar oldugu icin)
+SCENARIO_TAB_LABELS = {
+    "ssp126": "SSP-1 (2.6)",
+    "ssp245": "SSP-2 (4.5)",
+    "ssp585": "SSP-5 (8.5)",
+}
+PERIOD_TAB_LABELS = {
+    "2041-2060": "2041–2060",
+    "2081-2100": "2081–2100",
+}
+
+# UHI (Urban Heat Island) isinma kademeleri. None = Default (isi adasi eklenmemis).
+# Sadece ssp245 icin uretildi; digerlerinde "In Progress".
+UHI_LEVELS = [None, "05", "10", "15", "20"]
+UHI_LABELS = {
+    None: "Default",
+    "05": "+0.5 °C",
+    "10": "+1 °C",
+    "15": "+1.5 °C",
+    "20": "+2 °C",
+}
+# Sekmelerde daha kompakt gorunum
+UHI_TAB_LABELS = {
+    None: "Default",
+    "05": "+0.5°",
+    "10": "+1°",
+    "15": "+1.5°",
+    "20": "+2°",
+}
+UHI_ACTIVE_SCENARIOS = {"ssp245"}  # UHI verisi yalnizca burada mevcut
+
 
 def _thin_divider() -> None:
     DIVIDER_COLOR = "#888a8d"
@@ -47,7 +78,11 @@ def _thin_divider() -> None:
 
 
 def _label_for(f: IndexFile) -> str:
-    return f"{f.display_code} - {f.long_name}"
+    base = f"{f.display_code} - {f.long_name}"
+    lvl = getattr(f, "uhi_level", None)
+    if lvl:
+        base = f"{base} ({UHI_LABELS[lvl]})"
+    return base
 
 
 def _source_tag(f: IndexFile) -> str:
@@ -87,7 +122,9 @@ def _legend_prefix_for(f: IndexFile) -> str:
     when = "Mid" if f.period == "2041-2060" else (
         "End" if f.period == "2081-2100" else f.period
     )
-    return f"{scen} {when}: "
+    lvl = getattr(f, "uhi_level", None)
+    uhi = f" {UHI_LABELS[lvl]}" if lvl else ""
+    return f"{scen} {when}{uhi}: "
 
 
 # ===========================================================================
@@ -302,33 +339,87 @@ def _render_two_level_picker(
 # Tab 1: Single-Indice — wrapped in @st.fragment (deferred update for map)
 # ===========================================================================
 
+def _in_progress_box() -> None:
+    """Tam genislikte, ortalanmis 'In Progress' kutusu (st.info mavi tonunda)."""
+    st.markdown(
+        '<div style="width:100%; box-sizing:border-box; text-align:center; '
+        'padding:6px 12px; margin:2px 0 14px 0; border-radius:8px; '
+        'background:rgba(28,131,225,0.15); '
+        'border:1px solid rgba(28,131,225,0.35); '
+        'color:#4da3ff; font-size:13px;">In Progress</div>',
+        unsafe_allow_html=True,
+    )
+
+
+def _render_future_with_uhi(future_files: List[IndexFile], prefix: str) -> List[str]:
+    """
+    Future — senaryo (tab) > donem (tab) > UHI (tab: Default/+0.5/+1/+1.5/+2) > indisler.
+
+    Her UHI sekmesi kendi checkbox'larini tutar; secimler session_state'te
+    korunur, en sonda hepsi birlikte cizilir (tab degistirmek secimi silmez).
+    Default = uhi_level None (tum indisler). +X = sadece o UHI (UTCI).
+    UHI verisi olmayan senaryolarda (ssp126/585) UHI sekmeleri 'In Progress'.
+    """
+    selected: List[str] = []
+
+    scenarios = [s for s in ["ssp126", "ssp245", "ssp585"]
+                 if any(f.scenario == s for f in future_files)]
+    if not scenarios:
+        return selected
+
+    st.caption("Emission Scenario (Low to High)")
+    scen_tabs = st.tabs([SCENARIO_TAB_LABELS.get(s, s) for s in scenarios])
+    for scen_tab, scenario in zip(scen_tabs, scenarios):
+        with scen_tab:
+            scen_files = [f for f in future_files if f.scenario == scenario]
+            periods = sorted({f.period for f in scen_files})
+            if not periods:
+                continue
+            st.caption("Future Period")
+            per_tabs = st.tabs([PERIOD_TAB_LABELS.get(p, p) for p in periods])
+            for per_tab, period in zip(per_tabs, periods):
+                with per_tab:
+                    period_files = [f for f in scen_files if f.period == period]
+                    st.caption("Urban Heat Island")
+                    uhi_tabs = st.tabs([UHI_TAB_LABELS[lvl] for lvl in UHI_LEVELS])
+                    for uhi_tab, lvl in zip(uhi_tabs, UHI_LEVELS):
+                        with uhi_tab:
+                            if lvl is None:
+                                sub = filter_files(period_files, uhi_level=None)
+                                sel = _render_two_level_picker(
+                                    sub, prefix=f"{prefix}_{scenario}_{period}_def"
+                                )
+                                selected.extend(sel)
+                            else:
+                                if scenario not in UHI_ACTIVE_SCENARIOS:
+                                    _in_progress_box()
+                                    continue
+                                sub = filter_files(period_files, uhi_level=lvl)
+                                if not sub:
+                                    _in_progress_box()
+                                    continue
+                                sel = _render_two_level_picker(
+                                    sub,
+                                    prefix=f"{prefix}_{scenario}_{period}_uhi{lvl}",
+                                )
+                                selected.extend(sel)
+    return selected
+
+
 @st.fragment
 def _single_indice_tab_fragment(files: List[IndexFile]) -> None:
     all_selected: List[str] = []
 
-    with st.expander("Historical", expanded=False):
+    st.caption("Time Period")
+    hist_tab, future_tab = st.tabs(["Historical", "Future"])
+    with hist_tab:
         hist_files = filter_files(files, kind="historical")
         sel = _render_two_level_picker(hist_files, prefix="one_h")
         all_selected.extend(sel)
-
-    with st.expander("Future", expanded=False):
+    with future_tab:
         future_files = filter_files(files, kind="future")
-        for scenario in ["ssp126", "ssp245", "ssp585"]:
-            scen_files = [f for f in future_files if f.scenario == scenario]
-            if not scen_files:
-                continue
-            scen_label = SCENARIO_LABELS[scenario]
-            with st.expander(scen_label, expanded=False):
-                periods = sorted({f.period for f in scen_files})
-                for period in periods:
-                    period_files = [f for f in scen_files if f.period == period]
-                    period_label = _period_display_label(period)
-                    with st.expander(period_label, expanded=False):
-                        sel = _render_two_level_picker(
-                            period_files,
-                            prefix=f"one_f_{scenario}_{period}",
-                        )
-                        all_selected.extend(sel)
+        sel = _render_future_with_uhi(future_files, prefix="one_f")
+        all_selected.extend(sel)
 
     # Config blocks per ticked indice (rendered immediately, same fragment)
     conf_by_filename: dict = {}
@@ -358,29 +449,16 @@ def _multi_indice_tab_fragment(files: List[IndexFile]) -> None:
     selected_filenames: List[str] = []
     idx = _files_index(files)
 
-    with st.expander("Historical", expanded=False):
+    st.caption("Time Period")
+    hist_tab, future_tab = st.tabs(["Historical", "Future"])
+    with hist_tab:
         hist_files = filter_files(files, kind="historical")
         sel = _render_two_level_picker(hist_files, prefix="m_h")
         selected_filenames.extend(sel)
-
-    with st.expander("Future", expanded=False):
+    with future_tab:
         future_files = filter_files(files, kind="future")
-        for scenario in ["ssp126", "ssp245", "ssp585"]:
-            scen_files = [f for f in future_files if f.scenario == scenario]
-            if not scen_files:
-                continue
-            scen_label = SCENARIO_LABELS[scenario]
-            with st.expander(scen_label, expanded=False):
-                periods = sorted({f.period for f in scen_files})
-                for period in periods:
-                    period_files = [f for f in scen_files if f.period == period]
-                    period_label = _period_display_label(period)
-                    with st.expander(period_label, expanded=False):
-                        sel = _render_two_level_picker(
-                            period_files,
-                            prefix=f"m_f_{scenario}_{period}",
-                        )
-                        selected_filenames.extend(sel)
+        sel = _render_future_with_uhi(future_files, prefix="m_f")
+        selected_filenames.extend(sel)
 
     all_ind_conf: dict = {}
     m_color = "#2FA42F"
@@ -508,7 +586,8 @@ def render_sidebar(
 
     st.sidebar.title("Indices Map Tool")
     with st.sidebar:
-        tab1, tab2 = st.tabs(["Single-Indice", "Multi-Indices"])
+        st.caption("Indice Selection")
+        tab1, tab2 = st.tabs(["Single", "Multi"])
         with tab1:
             _single_indice_tab_fragment(files)
         with tab2:

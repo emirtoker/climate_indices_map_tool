@@ -92,6 +92,18 @@ st.markdown(
     "<style>"
     ".main .block-container { padding-top: 5rem !important; } "
     "footer {visibility: hidden;}"
+    "/* caption (small grey heading) alt bosluk sifir */ "
+    "section[data-testid='stSidebar'] p { margin-bottom: 0 !important; } "
+    "section[data-testid='stSidebar'] [data-testid='stCaptionContainer'] "
+    "{ margin: 0 0 -0.6rem 0 !important; padding: 0 !important; } "
+    "/* tab bar ust bosluk sifir */ "
+    "section[data-testid='stSidebar'] [data-testid='stTabs'] "
+    "{ margin-top: -0.6rem !important; } "
+    "section[data-testid='stSidebar'] [data-baseweb='tab-list'] "
+    "{ margin-top: 0 !important; padding-top: 0 !important; } "
+    "/* genel dikey element araligini kis */ "
+    "section[data-testid='stSidebar'] [data-testid='stVerticalBlock'] "
+    "{ gap: 0.3rem !important; } "
     "</style>",
     unsafe_allow_html=True,
 )

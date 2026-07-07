@@ -1,516 +1,4 @@
 {
-  "CHELSA_TR_clim_1995_2014_AI_aridity_index.tif": {
-    "min": 0.0,
-    "max": 3.5,
-    "mean": 0.5,
-    "median": 0.5,
-    "q25": 0.5,
-    "q75": 0.5
-  },
-  "CHELSA_TR_clim_1995_2014_CDD_A_cooling_degree_days_approx.tif": {
-    "min": 0.0,
-    "max": 1875.0,
-    "mean": 603.0,
-    "median": 541.0,
-    "q25": 444.5,
-    "q75": 650.0
-  },
-  "CHELSA_TR_clim_1995_2014_CDD_P_consecutive_dry_days.tif": {
-    "min": 13.5,
-    "max": 138.5,
-    "mean": 44.5,
-    "median": 41.0,
-    "q25": 30.0,
-    "q75": 52.0
-  },
-  "CHELSA_TR_clim_1995_2014_CDD_cooling_degree_days.tif": {
-    "min": 0.0,
-    "max": 1684.5,
-    "mean": 253.5,
-    "median": 146.0,
-    "q25": 45.5,
-    "q75": 318.5
-  },
-  "CHELSA_TR_clim_1995_2014_CD_cooling_days.tif": {
-    "min": 0.0,
-    "max": 184.5,
-    "mean": 67.0,
-    "median": 63.0,
-    "q25": 28.5,
-    "q75": 97.0
-  },
-  "CHELSA_TR_clim_1995_2014_CSDI_cold_spell_duration_index.tif": {
-    "min": 0.5,
-    "max": 14.0,
-    "mean": 4.0,
-    "median": 3.5,
-    "q25": 3.0,
-    "q75": 4.5
-  },
-  "CHELSA_TR_clim_1995_2014_CWD_consecutive_wet_days.tif": {
-    "min": 5.5,
-    "max": 11.5,
-    "mean": 7.5,
-    "median": 7.5,
-    "q25": 7.0,
-    "q75": 8.0
-  },
-  "CHELSA_TR_clim_1995_2014_CW_cold_wave_index.tif": {
-    "min": 0.0,
-    "max": 364.0,
-    "mean": 83.5,
-    "median": 80.5,
-    "q25": 38.5,
-    "q75": 119.5
-  },
-  "CHELSA_TR_clim_1995_2014_DTR_diurnal_temperature_range.tif": {
-    "min": 1.5,
-    "max": 15.5,
-    "mean": 11.5,
-    "median": 11.5,
-    "q25": 11.0,
-    "q75": 12.5
-  },
-  "CHELSA_TR_clim_1995_2014_FD_frost_days.tif": {
-    "min": 0.0,
-    "max": 364.0,
-    "mean": 91.0,
-    "median": 90.5,
-    "q25": 47.5,
-    "q75": 126.5
-  },
-  "CHELSA_TR_clim_1995_2014_GDD_growing_degree_days.tif": {
-    "min": 15.0,
-    "max": 6046.5,
-    "mean": 2959.5,
-    "median": 2845.5,
-    "q25": 2266.0,
-    "q75": 3542.0
-  },
-  "CHELSA_TR_clim_1995_2014_GD_growing_days.tif": {
-    "min": 12.0,
-    "max": 365.0,
-    "mean": 269.5,
-    "median": 269.5,
-    "q25": 234.5,
-    "q75": 307.5
-  },
-  "CHELSA_TR_clim_1995_2014_GSL_growing_season_length.tif": {
-    "min": 0.0,
-    "max": 365.0,
-    "mean": 274.5,
-    "median": 272.5,
-    "q25": 233.0,
-    "q75": 322.0
-  },
-  "CHELSA_TR_clim_1995_2014_HDD_heating_degree_days.tif": {
-    "min": 560.5,
-    "max": 10252.5,
-    "mean": 2841.5,
-    "median": 2730.5,
-    "q25": 2073.5,
-    "q75": 3433.0
-  },
-  "CHELSA_TR_clim_1995_2014_HD_heating_days.tif": {
-    "min": 142.5,
-    "max": 365.0,
-    "mean": 259.5,
-    "median": 258.0,
-    "q25": 227.5,
-    "q75": 291.0
-  },
-  "CHELSA_TR_clim_1995_2014_HW_heat_wave_index.tif": {
-    "min": 0.0,
-    "max": 157.0,
-    "mean": 40.5,
-    "median": 28.5,
-    "q25": 11.0,
-    "q75": 56.5
-  },
-  "CHELSA_TR_clim_1995_2014_ID_ice_days.tif": {
-    "min": 0.0,
-    "max": 215.0,
-    "mean": 19.0,
-    "median": 9.5,
-    "q25": 2.0,
-    "q75": 25.0
-  },
-  "CHELSA_TR_clim_1995_2014_PCD_passive_comfort_days.tif": {
-    "min": 0.0,
-    "max": 163.5,
-    "mean": 79.5,
-    "median": 86.5,
-    "q25": 66.5,
-    "q75": 97.5
-  },
-  "CHELSA_TR_clim_1995_2014_PNP_percent_of_normal_precip.tif": {
-    "min": 100.0,
-    "max": 100.0,
-    "mean": 100.0,
-    "median": 100.0,
-    "q25": 100.0,
-    "q75": 100.0
-  },
-  "CHELSA_TR_clim_1995_2014_PRCPTOT_annual_total_precip.tif": {
-    "min": 0.0,
-    "max": 2086.5,
-    "mean": 588.5,
-    "median": 558.0,
-    "q25": 445.0,
-    "q75": 692.5
-  },
-  "CHELSA_TR_clim_1995_2014_R10MM_heavy_precip_days.tif": {
-    "min": 0.5,
-    "max": 71.5,
-    "mean": 16.0,
-    "median": 15.0,
-    "q25": 8.5,
-    "q75": 21.5
-  },
-  "CHELSA_TR_clim_1995_2014_R20MM_very_heavy_precip_days.tif": {
-    "min": 0.0,
-    "max": 34.0,
-    "mean": 3.5,
-    "median": 2.5,
-    "q25": 1.0,
-    "q75": 5.0
-  },
-  "CHELSA_TR_clim_1995_2014_R95P_very_wet_days.tif": {
-    "min": 2.5,
-    "max": 8.0,
-    "mean": 5.0,
-    "median": 4.5,
-    "q25": 4.0,
-    "q75": 5.5
-  },
-  "CHELSA_TR_clim_1995_2014_R99P_extremely_wet_days.tif": {
-    "min": 0.5,
-    "max": 1.5,
-    "mean": 1.0,
-    "median": 1.0,
-    "q25": 1.0,
-    "q75": 1.0
-  },
-  "CHELSA_TR_clim_1995_2014_RX1DAY_max_1day_precip.tif": {
-    "min": 9.5,
-    "max": 78.0,
-    "mean": 30.5,
-    "median": 28.5,
-    "q25": 22.0,
-    "q75": 37.0
-  },
-  "CHELSA_TR_clim_1995_2014_RX5DAY_max_5day_precip.tif": {
-    "min": 23.5,
-    "max": 165.0,
-    "mean": 64.0,
-    "median": 59.5,
-    "q25": 45.5,
-    "q75": 76.5
-  },
-  "CHELSA_TR_clim_1995_2014_SDII_daily_intensity_index.tif": {
-    "min": 3.0,
-    "max": 12.5,
-    "mean": 6.0,
-    "median": 6.0,
-    "q25": 5.0,
-    "q75": 7.0
-  },
-  "CHELSA_TR_clim_1995_2014_SPEI12_standardized_pet_index_12.tif": {
-    "min": 0.0,
-    "max": 0.0,
-    "mean": 0.0,
-    "median": 0.0,
-    "q25": 0.0,
-    "q75": 0.0
-  },
-  "CHELSA_TR_clim_1995_2014_SPI12_standardized_precip_index_12.tif": {
-    "min": 0.0,
-    "max": 0.0,
-    "mean": 0.0,
-    "median": 0.0,
-    "q25": 0.0,
-    "q75": 0.0
-  },
-  "CHELSA_TR_clim_1995_2014_SU_summer_days.tif": {
-    "min": 0.0,
-    "max": 202.0,
-    "mean": 104.0,
-    "median": 104.0,
-    "q25": 78.5,
-    "q75": 127.5
-  },
-  "CHELSA_TR_clim_1995_2014_TNN_min_daily_min_temp.tif": {
-    "min": -38.5,
-    "max": 6.5,
-    "mean": -13.5,
-    "median": -13.5,
-    "q25": -17.5,
-    "q75": -9.0
-  },
-  "CHELSA_TR_clim_1995_2014_TNX_max_daily_min_temp.tif": {
-    "min": -0.5,
-    "max": 31.0,
-    "mean": 19.5,
-    "median": 19.5,
-    "q25": 17.0,
-    "q75": 22.0
-  },
-  "CHELSA_TR_clim_1995_2014_TR_EXT_extended_tropical_nights.tif": {
-    "min": 0.0,
-    "max": 65.0,
-    "mean": 1.5,
-    "median": 0.0,
-    "q25": 0.0,
-    "q75": 0.0
-  },
-  "CHELSA_TR_clim_1995_2014_TR_tropical_nights.tif": {
-    "min": 0.0,
-    "max": 147.5,
-    "mean": 14.0,
-    "median": 0.5,
-    "q25": 0.0,
-    "q75": 12.0
-  },
-  "CHELSA_TR_clim_1995_2014_TXN_min_daily_max_temp.tif": {
-    "min": -27.0,
-    "max": 10.0,
-    "mean": -4.0,
-    "median": -4.0,
-    "q25": -7.0,
-    "q75": -0.5
-  },
-  "CHELSA_TR_clim_1995_2014_TXX_max_daily_max_temp.tif": {
-    "min": 15.5,
-    "max": 46.0,
-    "mean": 35.5,
-    "median": 35.5,
-    "q25": 33.5,
-    "q75": 37.0
-  },
-  "CHELSA_TR_clim_1995_2014_WSDI_warm_spell_duration_index.tif": {
-    "min": 0.0,
-    "max": 11.0,
-    "mean": 5.0,
-    "median": 5.5,
-    "q25": 4.0,
-    "q75": 6.5
-  },
-  "CHELSA_TR_clim_2000_2006_AT_apparent_temperature.tif": {
-    "min": -18.5,
-    "max": 16.5,
-    "mean": 5.5,
-    "median": 6.0,
-    "q25": 3.0,
-    "q75": 8.5
-  },
-  "CHELSA_TR_clim_2000_2006_DI_discomfort_index.tif": {
-    "min": 3.5,
-    "max": 17.5,
-    "mean": 13.0,
-    "median": 13.0,
-    "q25": 12.0,
-    "q75": 14.5
-  },
-  "CHELSA_TR_clim_2000_2006_ESI_environmental_stress_index.tif": {
-    "min": -6.0,
-    "max": 14.0,
-    "mean": 7.5,
-    "median": 7.5,
-    "q25": 6.0,
-    "q75": 9.5
-  },
-  "CHELSA_TR_clim_2000_2006_ET_normal_effective_temperature.tif": {
-    "min": -2.0,
-    "max": 17.0,
-    "mean": 11.0,
-    "median": 11.0,
-    "q25": 9.5,
-    "q75": 12.5
-  },
-  "CHELSA_TR_clim_2000_2006_HI_heat_index.tif": {
-    "min": -15.0,
-    "max": 19.0,
-    "mean": 8.5,
-    "median": 8.5,
-    "q25": 6.0,
-    "q75": 11.5
-  },
-  "CHELSA_TR_clim_2000_2006_HI_heat_index_gt32_hot_days.tif": {
-    "min": 0.0,
-    "max": 42.5,
-    "mean": 0.5,
-    "median": 0.0,
-    "q25": 0.0,
-    "q75": 0.0
-  },
-  "CHELSA_TR_clim_2000_2006_HMX_humidex.tif": {
-    "min": -15.5,
-    "max": 16.0,
-    "mean": 6.0,
-    "median": 6.0,
-    "q25": 3.5,
-    "q75": 8.5
-  },
-  "CHELSA_TR_clim_2000_2006_MRT_mean_radiant_temperature.tif": {
-    "min": 3.5,
-    "max": 24.0,
-    "mean": 14.5,
-    "median": 14.0,
-    "q25": 12.5,
-    "q75": 16.5
-  },
-  "CHELSA_TR_clim_2000_2006_PET_physiologically_equivalent_temperature.tif": {
-    "min": -11.0,
-    "max": 15.0,
-    "mean": 5.0,
-    "median": 5.0,
-    "q25": 2.5,
-    "q75": 7.5
-  },
-  "CHELSA_TR_clim_2000_2006_PET_physiologically_equivalent_temperature_gt29_hot_days.tif": {
-    "min": 0.0,
-    "max": 37.5,
-    "mean": 0.5,
-    "median": 0.0,
-    "q25": 0.0,
-    "q75": 0.0
-  },
-  "CHELSA_TR_clim_2000_2006_PET_physiologically_equivalent_temperature_lt8_cold_days.tif": {
-    "min": 0.0,
-    "max": 318.5,
-    "mean": 201.5,
-    "median": 205.0,
-    "q25": 177.0,
-    "q75": 224.5
-  },
-  "CHELSA_TR_clim_2000_2006_PMV_predicted_mean_vote.tif": {
-    "min": -20.0,
-    "max": -2.5,
-    "mean": -8.0,
-    "median": -8.0,
-    "q25": -9.0,
-    "q75": -7.0
-  },
-  "CHELSA_TR_clim_2000_2006_PPD_predicted_percentage_of_dissatisfied.tif": {
-    "min": 68.0,
-    "max": 100.0,
-    "mean": 91.5,
-    "median": 94.0,
-    "q25": 87.5,
-    "q75": 97.5
-  },
-  "CHELSA_TR_clim_2000_2006_SET_standard_effective_temperature.tif": {
-    "min": -23.5,
-    "max": 15.5,
-    "mean": 1.5,
-    "median": 1.5,
-    "q25": -2.0,
-    "q75": 5.0
-  },
-  "CHELSA_TR_clim_2000_2006_THI_C_temperature_humidity_index_crop.tif": {
-    "min": 25.0,
-    "max": 66.5,
-    "mean": 53.5,
-    "median": 53.5,
-    "q25": 50.5,
-    "q75": 57.0
-  },
-  "CHELSA_TR_clim_2000_2006_THI_C_temperature_humidity_index_crop_gt60_hot_days.tif": {
-    "min": 0.0,
-    "max": 257.0,
-    "mean": 126.5,
-    "median": 126.0,
-    "q25": 96.5,
-    "q75": 162.0
-  },
-  "CHELSA_TR_clim_2000_2006_THI_H_temperature_humidity_index_human.tif": {
-    "min": 3.5,
-    "max": 17.5,
-    "mean": 13.0,
-    "median": 13.0,
-    "q25": 12.0,
-    "q75": 14.5
-  },
-  "CHELSA_TR_clim_2000_2006_THI_H_temperature_humidity_index_human_gt27_hot_days.tif": {
-    "min": 0.0,
-    "max": 0.0,
-    "mean": 0.0,
-    "median": 0.0,
-    "q25": 0.0,
-    "q75": 0.0
-  },
-  "CHELSA_TR_clim_2000_2006_THI_L_temperature_humidity_index_livestock.tif": {
-    "min": 38.5,
-    "max": 63.5,
-    "mean": 55.5,
-    "median": 55.5,
-    "q25": 53.5,
-    "q75": 57.5
-  },
-  "CHELSA_TR_clim_2000_2006_THI_L_temperature_humidity_index_livestock_gt72_hot_days.tif": {
-    "min": 0.0,
-    "max": 80.5,
-    "mean": 2.0,
-    "median": 0.0,
-    "q25": 0.0,
-    "q75": 0.0
-  },
-  "CHELSA_TR_clim_2000_2006_UTCI_universal_thermal_climate_index.tif": {
-    "min": -23.5,
-    "max": 19.0,
-    "mean": 7.0,
-    "median": 7.0,
-    "q25": 4.0,
-    "q75": 10.5
-  },
-  "CHELSA_TR_clim_2000_2006_UTCI_universal_thermal_climate_index_gt32_hot_days.tif": {
-    "min": 0.0,
-    "max": 36.0,
-    "mean": 0.5,
-    "median": 0.0,
-    "q25": 0.0,
-    "q75": 0.0
-  },
-  "CHELSA_TR_clim_2000_2006_UTCI_universal_thermal_climate_index_ltm13_cold_days.tif": {
-    "min": 0.0,
-    "max": 256.5,
-    "mean": 31.5,
-    "median": 20.5,
-    "q25": 7.5,
-    "q75": 46.5
-  },
-  "CHELSA_TR_clim_2000_2006_VD_ventilation_potential.tif": {
-    "min": -71.0,
-    "max": 175.0,
-    "mean": 27.5,
-    "median": 24.5,
-    "q25": 17.0,
-    "q75": 34.0
-  },
-  "CHELSA_TR_clim_2000_2006_WBGT_wet_bulb_globe_temperature.tif": {
-    "min": -5.0,
-    "max": 11.0,
-    "mean": 5.5,
-    "median": 5.5,
-    "q25": 4.0,
-    "q75": 7.0
-  },
-  "CHELSA_TR_clim_2000_2006_WCI_wind_chill_index.tif": {
-    "min": -13.0,
-    "max": 23.0,
-    "mean": 11.5,
-    "median": 12.0,
-    "q25": 9.5,
-    "q75": 14.5
-  },
-  "CHELSA_TR_clim_2000_2006_WCI_wind_chill_index_ltm10_cold_days.tif": {
-    "min": 0.0,
-    "max": 199.5,
-    "mean": 6.5,
-    "median": 1.5,
-    "q25": 0.0,
-    "q75": 6.0
-  },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_AI_aridity_index.tif": {
     "min": 0.0,
     "max": 3.0,
@@ -520,12 +8,12 @@
     "q75": 0.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_AT_apparent_temperature.tif": {
-    "min": -17.0,
-    "max": 18.5,
-    "mean": 7.5,
-    "median": 7.5,
-    "q25": 5.0,
-    "q75": 10.0
+    "min": -16.5,
+    "max": 24.0,
+    "mean": 10.5,
+    "median": 10.5,
+    "q25": 7.5,
+    "q75": 13.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_CDD_A_cooling_degree_days_approx.tif": {
     "min": 83.5,
@@ -546,16 +34,16 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_CDD_cooling_degree_days.tif": {
     "min": 4.0,
     "max": 1998.5,
-    "mean": 407.0,
-    "median": 293.0,
+    "mean": 406.5,
+    "median": 292.5,
     "q25": 150.5,
-    "q75": 517.0
+    "q75": 516.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_CD_cooling_days.tif": {
     "min": 4.0,
     "max": 203.0,
     "mean": 90.5,
-    "median": 90.0,
+    "median": 89.5,
     "q25": 55.0,
     "q75": 120.0
   },
@@ -579,16 +67,16 @@
     "min": 0.0,
     "max": 344.5,
     "mean": 70.0,
-    "median": 66.0,
+    "median": 66.5,
     "q25": 28.5,
     "q75": 102.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_DI_discomfort_index.tif": {
-    "min": 4.5,
-    "max": 19.0,
-    "mean": 14.5,
-    "median": 14.5,
-    "q25": 13.5,
+    "min": -2.5,
+    "max": 20.5,
+    "mean": 13.5,
+    "median": 13.5,
+    "q25": 11.5,
     "q75": 15.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_DTR_diurnal_temperature_range.tif": {
@@ -600,36 +88,36 @@
     "q75": 13.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_ESI_environmental_stress_index.tif": {
-    "min": -4.5,
-    "max": 15.5,
-    "mean": 9.0,
-    "median": 9.0,
-    "q25": 7.5,
-    "q75": 10.5
+    "min": -9.0,
+    "max": 20.0,
+    "mean": 11.0,
+    "median": 10.5,
+    "q25": 8.5,
+    "q75": 13.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_ET_normal_effective_temperature.tif": {
-    "min": -1.0,
-    "max": 18.0,
-    "mean": 12.0,
-    "median": 12.0,
+    "min": -5.0,
+    "max": 20.5,
+    "mean": 12.5,
+    "median": 12.5,
     "q25": 10.5,
-    "q75": 13.5
+    "q75": 14.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_FD_frost_days.tif": {
     "min": 0.0,
     "max": 345.0,
     "mean": 77.5,
     "median": 75.5,
-    "q25": 36.0,
+    "q25": 36.5,
     "q75": 109.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_GDD_growing_degree_days.tif": {
     "min": 438.5,
     "max": 6639.0,
-    "mean": 3404.5,
-    "median": 3288.5,
-    "q25": 2678.0,
-    "q75": 4002.0
+    "mean": 3403.0,
+    "median": 3287.5,
+    "q25": 2677.5,
+    "q75": 4000.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_GD_growing_days.tif": {
     "min": 28.0,
@@ -637,7 +125,7 @@
     "mean": 284.5,
     "median": 287.5,
     "q25": 252.0,
-    "q75": 321.5
+    "q75": 321.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_GSL_growing_season_length.tif": {
     "min": 17.0,
@@ -650,42 +138,42 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_HDD_heating_degree_days.tif": {
     "min": 374.5,
     "max": 9859.0,
-    "mean": 2506.0,
-    "median": 2399.5,
-    "q25": 1797.5,
-    "q75": 3049.5
+    "mean": 2507.5,
+    "median": 2400.5,
+    "q25": 1799.5,
+    "q75": 3050.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_HD_heating_days.tif": {
     "min": 126.5,
     "max": 347.5,
-    "mean": 238.5,
+    "mean": 239.0,
     "median": 236.5,
     "q25": 210.0,
     "q75": 267.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_HI_heat_index.tif": {
-    "min": -13.5,
-    "max": 21.0,
-    "mean": 10.5,
-    "median": 10.5,
-    "q25": 7.5,
-    "q75": 13.0
+    "min": -12.0,
+    "max": 23.0,
+    "mean": 12.0,
+    "median": 12.0,
+    "q25": 9.5,
+    "q75": 15.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_HI_heat_index_gt32_hot_days.tif": {
     "min": 0.0,
-    "max": 71.0,
-    "mean": 3.5,
+    "max": 111.0,
+    "mean": 5.5,
     "median": 0.0,
     "q25": 0.0,
     "q75": 1.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_HMX_humidex.tif": {
-    "min": -14.0,
-    "max": 18.0,
-    "mean": 8.0,
-    "median": 8.0,
-    "q25": 5.5,
-    "q75": 10.5
+    "min": -12.5,
+    "max": 26.5,
+    "mean": 13.0,
+    "median": 12.5,
+    "q25": 9.5,
+    "q75": 16.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_HW_heat_wave_index.tif": {
     "min": 3.0,
@@ -704,12 +192,12 @@
     "q75": 18.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_MRT_mean_radiant_temperature.tif": {
-    "min": 5.0,
-    "max": 26.0,
-    "mean": 16.0,
-    "median": 15.5,
-    "q25": 14.0,
-    "q75": 18.5
+    "min": 6.0,
+    "max": 27.0,
+    "mean": 17.0,
+    "median": 16.5,
+    "q25": 15.0,
+    "q75": 19.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_PCD_passive_comfort_days.tif": {
     "min": 0.0,
@@ -746,7 +234,7 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_PMV_predicted_mean_vote.tif": {
     "min": -19.5,
     "max": -2.0,
-    "mean": -7.0,
+    "mean": -7.5,
     "median": -7.0,
     "q25": -8.5,
     "q75": -6.0
@@ -760,18 +248,18 @@
     "q75": 102.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_PPD_predicted_percentage_of_dissatisfied.tif": {
-    "min": 66.0,
+    "min": 66.5,
     "max": 99.5,
-    "mean": 87.5,
-    "median": 88.5,
-    "q25": 83.0,
-    "q75": 93.0
+    "mean": 86.0,
+    "median": 86.5,
+    "q25": 81.0,
+    "q75": 92.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_PRCPTOT_annual_total_precip.tif": {
     "min": 0.0,
     "max": 2079.0,
     "mean": 588.0,
-    "median": 559.5,
+    "median": 559.0,
     "q25": 450.5,
     "q75": 687.5
   },
@@ -832,12 +320,12 @@
     "q75": 7.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_SET_standard_effective_temperature.tif": {
-    "min": -21.5,
-    "max": 17.5,
-    "mean": 3.5,
-    "median": 4.0,
-    "q25": 0.5,
-    "q75": 7.0
+    "min": 11.0,
+    "max": 23.5,
+    "mean": 17.5,
+    "median": 17.5,
+    "q25": 16.0,
+    "q75": 18.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_SPEI12_standardized_pet_index_12.tif": {
     "min": -1.5,
@@ -864,52 +352,52 @@
     "q75": 147.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_THI_C_temperature_humidity_index_crop.tif": {
-    "min": 27.0,
+    "min": 26.5,
     "max": 68.5,
-    "mean": 55.5,
+    "mean": 56.0,
     "median": 55.5,
     "q25": 52.5,
-    "q75": 59.0
+    "q75": 59.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_THI_C_temperature_humidity_index_crop_gt60_hot_days.tif": {
-    "min": 15.0,
-    "max": 281.5,
-    "mean": 146.0,
-    "median": 146.0,
-    "q25": 117.5,
-    "q75": 179.0
+    "min": 16.0,
+    "max": 286.0,
+    "mean": 147.0,
+    "median": 148.0,
+    "q25": 118.5,
+    "q75": 178.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_THI_H_temperature_humidity_index_human.tif": {
-    "min": 5.0,
-    "max": 19.0,
-    "mean": 14.5,
-    "median": 14.5,
-    "q25": 13.0,
-    "q75": 15.5
+    "min": -2.5,
+    "max": 20.5,
+    "mean": 13.5,
+    "median": 13.5,
+    "q25": 11.5,
+    "q75": 15.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_THI_H_temperature_humidity_index_human_gt27_hot_days.tif": {
     "min": 0.0,
-    "max": 40.0,
-    "mean": 1.5,
+    "max": 69.0,
+    "mean": 2.0,
     "median": 0.0,
     "q25": 0.0,
     "q75": 0.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_THI_L_temperature_humidity_index_livestock.tif": {
-    "min": 41.0,
-    "max": 65.5,
-    "mean": 57.5,
-    "median": 57.5,
-    "q25": 56.0,
+    "min": 27.5,
+    "max": 69.5,
+    "mean": 56.0,
+    "median": 56.0,
+    "q25": 52.5,
     "q75": 59.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_THI_L_temperature_humidity_index_livestock_gt72_hot_days.tif": {
     "min": 0.0,
-    "max": 103.0,
-    "mean": 17.5,
-    "median": 14.0,
-    "q25": 7.0,
-    "q75": 28.0
+    "max": 166.5,
+    "mean": 38.5,
+    "median": 21.0,
+    "q25": 9.0,
+    "q75": 59.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_TNN_min_daily_min_temp.tif": {
     "min": -37.0,
@@ -937,7 +425,7 @@
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_TR_tropical_nights.tif": {
     "min": 0.0,
-    "max": 170.5,
+    "max": 170.0,
     "mean": 23.5,
     "median": 5.0,
     "q25": 1.0,
@@ -960,60 +448,100 @@
     "q75": 39.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_UTCI_universal_thermal_climate_index.tif": {
-    "min": -22.5,
-    "max": 20.5,
-    "mean": 8.5,
-    "median": 9.0,
-    "q25": 5.5,
-    "q75": 12.0
+    "min": -21.0,
+    "max": 23.5,
+    "mean": 10.5,
+    "median": 11.0,
+    "q25": 7.5,
+    "q75": 14.0
   },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_UTCI_universal_thermal_climate_index_gt32_hot_days.tif": {
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_UTCI_universal_thermal_climate_index_bw0_9_slight_cold_days.tif": {
     "min": 0.0,
-    "max": 65.0,
-    "mean": 4.5,
+    "max": 112.0,
+    "mean": 78.0,
+    "median": 78.5,
+    "q25": 70.5,
+    "q75": 87.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_UTCI_universal_thermal_climate_index_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 259.5,
+    "mean": 172.0,
+    "median": 175.5,
+    "q25": 157.5,
+    "q75": 189.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_UTCI_universal_thermal_climate_index_gt26_moderate_heat_days.tif": {
+    "min": 0.0,
+    "max": 168.0,
+    "mean": 40.0,
+    "median": 25.5,
+    "q25": 12.5,
+    "q75": 57.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_UTCI_universal_thermal_climate_index_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 109.0,
+    "mean": 6.5,
     "median": 0.0,
     "q25": 0.0,
-    "q75": 2.0
+    "q75": 2.5
   },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_UTCI_universal_thermal_climate_index_ltm13_cold_days.tif": {
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_UTCI_universal_thermal_climate_index_gt38_very_strong_heat_days.tif": {
     "min": 0.0,
-    "max": 253.0,
-    "mean": 29.0,
-    "median": 17.5,
-    "q25": 6.0,
-    "q75": 43.0
+    "max": 10.5,
+    "mean": 0.0,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_UTCI_universal_thermal_climate_index_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 306.0,
+    "mean": 75.0,
+    "median": 70.5,
+    "q25": 37.5,
+    "q75": 105.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_UTCI_universal_thermal_climate_index_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 242.0,
+    "mean": 20.5,
+    "median": 9.0,
+    "q25": 2.5,
+    "q75": 27.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_VD_ventilation_potential.tif": {
-    "min": -72.0,
-    "max": 182.5,
-    "mean": 30.5,
-    "median": 27.5,
-    "q25": 19.5,
-    "q75": 37.5
+    "min": -69.5,
+    "max": 183.5,
+    "mean": 31.5,
+    "median": 28.0,
+    "q25": 20.0,
+    "q75": 38.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_WBGT_wet_bulb_globe_temperature.tif": {
-    "min": -3.5,
-    "max": 12.5,
-    "mean": 7.0,
-    "median": 6.5,
-    "q25": 5.5,
-    "q75": 8.5
+    "min": -5.5,
+    "max": 19.0,
+    "mean": 10.5,
+    "median": 10.0,
+    "q25": 8.5,
+    "q75": 13.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_WCI_wind_chill_index.tif": {
-    "min": -12.0,
-    "max": 24.5,
-    "mean": 13.0,
+    "min": -11.5,
+    "max": 23.5,
+    "mean": 13.5,
     "median": 13.5,
     "q25": 11.0,
-    "q75": 15.5
+    "q75": 16.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_WCI_wind_chill_index_ltm10_cold_days.tif": {
     "min": 0.0,
-    "max": 197.5,
-    "mean": 5.5,
+    "max": 203.5,
+    "mean": 4.0,
     "median": 0.5,
     "q25": 0.0,
-    "q75": 4.0
+    "q75": 2.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2041_2060_WSDI_warm_spell_duration_index.tif": {
     "min": 21.5,
@@ -1033,11 +561,11 @@
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_AT_apparent_temperature.tif": {
     "min": -16.5,
-    "max": 19.0,
-    "mean": 7.5,
-    "median": 7.5,
-    "q25": 5.0,
-    "q75": 10.0
+    "max": 24.0,
+    "mean": 10.5,
+    "median": 10.5,
+    "q25": 7.5,
+    "q75": 13.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_CDD_A_cooling_degree_days_approx.tif": {
     "min": 84.5,
@@ -1058,10 +586,10 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_CDD_cooling_degree_days.tif": {
     "min": 4.5,
     "max": 2013.0,
-    "mean": 413.5,
-    "median": 300.0,
+    "mean": 413.0,
+    "median": 299.5,
     "q25": 158.0,
-    "q75": 516.5
+    "q75": 516.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_CD_cooling_days.tif": {
     "min": 4.0,
@@ -1096,11 +624,11 @@
     "q75": 99.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_DI_discomfort_index.tif": {
-    "min": 4.5,
-    "max": 19.0,
-    "mean": 14.5,
-    "median": 14.5,
-    "q25": 13.5,
+    "min": -2.5,
+    "max": 21.0,
+    "mean": 13.5,
+    "median": 13.5,
+    "q25": 11.5,
     "q75": 15.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_DTR_diurnal_temperature_range.tif": {
@@ -1112,20 +640,20 @@
     "q75": 13.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_ESI_environmental_stress_index.tif": {
-    "min": -4.0,
-    "max": 15.5,
-    "mean": 9.0,
-    "median": 9.0,
-    "q25": 7.5,
-    "q75": 10.5
+    "min": -9.0,
+    "max": 20.0,
+    "mean": 11.0,
+    "median": 11.0,
+    "q25": 8.5,
+    "q75": 13.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_ET_normal_effective_temperature.tif": {
-    "min": -1.0,
-    "max": 18.5,
-    "mean": 12.0,
-    "median": 12.0,
-    "q25": 11.0,
-    "q75": 13.5
+    "min": -5.0,
+    "max": 20.5,
+    "mean": 12.5,
+    "median": 12.5,
+    "q25": 10.5,
+    "q75": 14.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_FD_frost_days.tif": {
     "min": 0.0,
@@ -1138,10 +666,10 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_GDD_growing_degree_days.tif": {
     "min": 480.5,
     "max": 6689.5,
-    "mean": 3434.0,
-    "median": 3318.5,
-    "q25": 2706.5,
-    "q75": 4027.5
+    "mean": 3432.5,
+    "median": 3317.0,
+    "q25": 2706.0,
+    "q75": 4025.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_GD_growing_days.tif": {
     "min": 30.0,
@@ -1154,18 +682,18 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_GSL_growing_season_length.tif": {
     "min": 17.5,
     "max": 365.0,
-    "mean": 294.0,
+    "mean": 293.5,
     "median": 297.0,
-    "q25": 256.0,
-    "q75": 338.5
+    "q25": 255.5,
+    "q75": 338.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_HDD_heating_degree_days.tif": {
     "min": 351.0,
     "max": 9813.5,
-    "mean": 2470.0,
-    "median": 2361.0,
-    "q25": 1765.5,
-    "q75": 3011.5
+    "mean": 2471.5,
+    "median": 2362.5,
+    "q25": 1767.5,
+    "q75": 3012.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_HD_heating_days.tif": {
     "min": 124.0,
@@ -1176,34 +704,34 @@
     "q75": 267.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_HI_heat_index.tif": {
-    "min": -13.5,
-    "max": 21.0,
-    "mean": 10.5,
-    "median": 10.5,
-    "q25": 8.0,
-    "q75": 13.0
+    "min": -12.0,
+    "max": 23.5,
+    "mean": 12.0,
+    "median": 12.0,
+    "q25": 9.5,
+    "q75": 15.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_HI_heat_index_gt32_hot_days.tif": {
     "min": 0.0,
-    "max": 72.0,
-    "mean": 4.0,
+    "max": 112.5,
+    "mean": 5.5,
     "median": 0.0,
     "q25": 0.0,
-    "q75": 1.5
+    "q75": 2.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_HMX_humidex.tif": {
-    "min": -13.5,
-    "max": 18.0,
-    "mean": 8.0,
-    "median": 8.0,
-    "q25": 5.5,
-    "q75": 10.5
+    "min": -12.5,
+    "max": 26.5,
+    "mean": 13.0,
+    "median": 12.5,
+    "q25": 10.0,
+    "q75": 16.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_HW_heat_wave_index.tif": {
     "min": 2.5,
     "max": 172.5,
     "mean": 65.0,
-    "median": 56.5,
+    "median": 57.0,
     "q25": 36.0,
     "q75": 84.5
   },
@@ -1216,12 +744,12 @@
     "q75": 17.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_MRT_mean_radiant_temperature.tif": {
-    "min": 5.0,
-    "max": 26.0,
-    "mean": 16.0,
-    "median": 15.5,
-    "q25": 14.0,
-    "q75": 18.5
+    "min": 6.0,
+    "max": 27.0,
+    "mean": 17.5,
+    "median": 17.0,
+    "q25": 15.5,
+    "q75": 19.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_PCD_passive_comfort_days.tif": {
     "min": 0.0,
@@ -1272,19 +800,19 @@
     "q75": 103.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_PPD_predicted_percentage_of_dissatisfied.tif": {
-    "min": 66.0,
-    "max": 99.5,
-    "mean": 87.5,
-    "median": 88.5,
-    "q25": 83.0,
-    "q75": 92.5
+    "min": 66.5,
+    "max": 99.0,
+    "mean": 86.0,
+    "median": 86.5,
+    "q25": 81.5,
+    "q75": 91.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_PRCPTOT_annual_total_precip.tif": {
     "min": 0.0,
     "max": 2138.0,
     "mean": 595.0,
     "median": 563.5,
-    "q25": 453.0,
+    "q25": 452.5,
     "q75": 698.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_R10MM_heavy_precip_days.tif": {
@@ -1333,7 +861,7 @@
     "mean": 64.5,
     "median": 60.5,
     "q25": 46.5,
-    "q75": 77.5
+    "q75": 77.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_SDII_daily_intensity_index.tif": {
     "min": 3.0,
@@ -1344,12 +872,12 @@
     "q75": 7.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_SET_standard_effective_temperature.tif": {
-    "min": -21.0,
-    "max": 17.5,
-    "mean": 4.0,
-    "median": 4.0,
-    "q25": 0.5,
-    "q75": 7.0
+    "min": 11.0,
+    "max": 23.5,
+    "mean": 17.5,
+    "median": 17.5,
+    "q25": 16.5,
+    "q75": 19.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_SPEI12_standardized_pet_index_12.tif": {
     "min": -1.5,
@@ -1371,57 +899,57 @@
     "min": 20.0,
     "max": 222.5,
     "mean": 125.5,
-    "median": 126.0,
+    "median": 126.5,
     "q25": 102.0,
     "q75": 147.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_THI_C_temperature_humidity_index_crop.tif": {
-    "min": 27.0,
+    "min": 26.5,
     "max": 68.5,
-    "mean": 55.5,
-    "median": 55.5,
-    "q25": 52.5,
-    "q75": 59.0
+    "mean": 56.0,
+    "median": 56.0,
+    "q25": 53.0,
+    "q75": 59.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_THI_C_temperature_humidity_index_crop_gt60_hot_days.tif": {
-    "min": 16.5,
-    "max": 285.5,
-    "mean": 147.0,
-    "median": 146.0,
-    "q25": 117.5,
-    "q75": 180.5
+    "min": 18.0,
+    "max": 290.0,
+    "mean": 147.5,
+    "median": 148.0,
+    "q25": 118.5,
+    "q75": 179.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_THI_H_temperature_humidity_index_human.tif": {
-    "min": 5.0,
-    "max": 19.0,
-    "mean": 14.5,
-    "median": 14.5,
-    "q25": 13.5,
+    "min": -2.5,
+    "max": 21.0,
+    "mean": 13.5,
+    "median": 13.5,
+    "q25": 11.5,
     "q75": 15.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_THI_H_temperature_humidity_index_human_gt27_hot_days.tif": {
     "min": 0.0,
-    "max": 41.0,
-    "mean": 1.5,
+    "max": 70.0,
+    "mean": 2.0,
     "median": 0.0,
     "q25": 0.0,
     "q75": 0.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_THI_L_temperature_humidity_index_livestock.tif": {
-    "min": 41.0,
-    "max": 66.0,
-    "mean": 58.0,
-    "median": 58.0,
-    "q25": 56.0,
-    "q75": 60.0
+    "min": 28.0,
+    "max": 69.5,
+    "mean": 56.0,
+    "median": 56.0,
+    "q25": 53.0,
+    "q75": 59.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_THI_L_temperature_humidity_index_livestock_gt72_hot_days.tif": {
     "min": 0.0,
-    "max": 103.0,
-    "mean": 18.0,
-    "median": 15.5,
-    "q25": 8.0,
-    "q75": 28.0
+    "max": 166.5,
+    "mean": 39.0,
+    "median": 22.0,
+    "q25": 10.0,
+    "q75": 59.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_TNN_min_daily_min_temp.tif": {
     "min": -36.5,
@@ -1472,48 +1000,88 @@
     "q75": 39.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_UTCI_universal_thermal_climate_index.tif": {
-    "min": -22.0,
-    "max": 21.0,
-    "mean": 8.5,
-    "median": 9.0,
-    "q25": 5.5,
-    "q75": 12.0
+    "min": -21.0,
+    "max": 23.5,
+    "mean": 11.0,
+    "median": 11.0,
+    "q25": 8.0,
+    "q75": 14.0
   },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_UTCI_universal_thermal_climate_index_gt32_hot_days.tif": {
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_UTCI_universal_thermal_climate_index_bw0_9_slight_cold_days.tif": {
     "min": 0.0,
-    "max": 66.0,
-    "mean": 4.5,
+    "max": 111.5,
+    "mean": 77.5,
+    "median": 78.0,
+    "q25": 70.0,
+    "q75": 86.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_UTCI_universal_thermal_climate_index_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 261.5,
+    "mean": 173.0,
+    "median": 176.5,
+    "q25": 158.5,
+    "q75": 190.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_UTCI_universal_thermal_climate_index_gt26_moderate_heat_days.tif": {
+    "min": 0.0,
+    "max": 168.0,
+    "mean": 41.0,
+    "median": 26.5,
+    "q25": 13.5,
+    "q75": 57.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_UTCI_universal_thermal_climate_index_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 110.0,
+    "mean": 7.0,
     "median": 0.0,
     "q25": 0.0,
-    "q75": 2.0
+    "q75": 2.5
   },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_UTCI_universal_thermal_climate_index_ltm13_cold_days.tif": {
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_UTCI_universal_thermal_climate_index_gt38_very_strong_heat_days.tif": {
     "min": 0.0,
-    "max": 253.0,
-    "mean": 28.5,
-    "median": 17.5,
-    "q25": 5.5,
-    "q75": 42.5
+    "max": 10.5,
+    "mean": 0.0,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_UTCI_universal_thermal_climate_index_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 306.0,
+    "mean": 73.5,
+    "median": 69.5,
+    "q25": 36.5,
+    "q75": 104.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_UTCI_universal_thermal_climate_index_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 241.5,
+    "mean": 20.0,
+    "median": 8.5,
+    "q25": 2.0,
+    "q75": 27.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_VD_ventilation_potential.tif": {
-    "min": -72.0,
-    "max": 183.0,
-    "mean": 31.0,
-    "median": 28.0,
-    "q25": 20.0,
-    "q75": 38.0
+    "min": -69.5,
+    "max": 184.0,
+    "mean": 31.5,
+    "median": 28.5,
+    "q25": 20.5,
+    "q75": 38.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_WBGT_wet_bulb_globe_temperature.tif": {
-    "min": -3.5,
-    "max": 12.5,
-    "mean": 7.0,
-    "median": 7.0,
-    "q25": 5.5,
-    "q75": 8.5
+    "min": -5.5,
+    "max": 19.0,
+    "mean": 10.5,
+    "median": 10.5,
+    "q25": 8.5,
+    "q75": 13.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_WCI_wind_chill_index.tif": {
-    "min": -12.0,
-    "max": 24.5,
+    "min": -11.5,
+    "max": 23.5,
     "mean": 13.5,
     "median": 13.5,
     "q25": 11.0,
@@ -1521,11 +1089,11 @@
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_WCI_wind_chill_index_ltm10_cold_days.tif": {
     "min": 0.0,
-    "max": 197.5,
-    "mean": 5.0,
+    "max": 203.5,
+    "mean": 4.0,
     "median": 0.5,
     "q25": 0.0,
-    "q75": 4.0
+    "q75": 2.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp126_2081_2100_WSDI_warm_spell_duration_index.tif": {
     "min": 22.0,
@@ -1545,11 +1113,11 @@
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_AT_apparent_temperature.tif": {
     "min": -16.5,
-    "max": 19.0,
-    "mean": 7.5,
-    "median": 7.5,
-    "q25": 5.0,
-    "q75": 10.0
+    "max": 24.0,
+    "mean": 10.5,
+    "median": 10.5,
+    "q25": 7.5,
+    "q75": 13.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_CDD_A_cooling_degree_days_approx.tif": {
     "min": 83.0,
@@ -1571,9 +1139,9 @@
     "min": 3.0,
     "max": 2080.5,
     "mean": 430.5,
-    "median": 313.5,
+    "median": 313.0,
     "q25": 166.0,
-    "q75": 536.5
+    "q75": 536.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_CD_cooling_days.tif": {
     "min": 3.5,
@@ -1608,11 +1176,11 @@
     "q75": 102.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_DI_discomfort_index.tif": {
-    "min": 4.5,
-    "max": 19.0,
-    "mean": 14.5,
-    "median": 14.5,
-    "q25": 13.5,
+    "min": -2.5,
+    "max": 21.0,
+    "mean": 13.5,
+    "median": 13.5,
+    "q25": 11.5,
     "q75": 15.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_DTR_diurnal_temperature_range.tif": {
@@ -1624,20 +1192,20 @@
     "q75": 12.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_ESI_environmental_stress_index.tif": {
-    "min": -4.0,
-    "max": 15.5,
-    "mean": 9.0,
-    "median": 9.0,
-    "q25": 7.5,
-    "q75": 10.5
+    "min": -9.0,
+    "max": 20.0,
+    "mean": 11.0,
+    "median": 11.0,
+    "q25": 8.5,
+    "q75": 13.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_ET_normal_effective_temperature.tif": {
-    "min": -0.5,
-    "max": 18.5,
-    "mean": 12.0,
-    "median": 12.0,
-    "q25": 11.0,
-    "q75": 13.5
+    "min": -5.0,
+    "max": 20.5,
+    "mean": 12.5,
+    "median": 12.5,
+    "q25": 10.5,
+    "q75": 14.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_FD_frost_days.tif": {
     "min": 0.0,
@@ -1650,34 +1218,34 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_GDD_growing_degree_days.tif": {
     "min": 542.5,
     "max": 6694.0,
-    "mean": 3451.5,
-    "median": 3334.0,
-    "q25": 2735.0,
-    "q75": 4015.0
+    "mean": 3450.0,
+    "median": 3332.5,
+    "q25": 2734.5,
+    "q75": 4012.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_GD_growing_days.tif": {
     "min": 25.0,
     "max": 365.0,
-    "mean": 283.5,
-    "median": 286.0,
+    "mean": 283.0,
+    "median": 285.5,
     "q25": 251.0,
     "q75": 319.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_GSL_growing_season_length.tif": {
     "min": 17.5,
     "max": 365.0,
-    "mean": 291.0,
+    "mean": 290.5,
     "median": 292.0,
     "q25": 252.0,
-    "q75": 336.0
+    "q75": 335.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_HDD_heating_degree_days.tif": {
     "min": 369.5,
     "max": 9847.5,
-    "mean": 2510.5,
-    "median": 2403.0,
-    "q25": 1820.5,
-    "q75": 3048.0
+    "mean": 2512.0,
+    "median": 2404.0,
+    "q25": 1822.5,
+    "q75": 3048.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_HD_heating_days.tif": {
     "min": 124.5,
@@ -1688,28 +1256,28 @@
     "q75": 263.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_HI_heat_index.tif": {
-    "min": -13.5,
-    "max": 21.0,
-    "mean": 10.5,
-    "median": 10.5,
-    "q25": 7.5,
-    "q75": 13.0
+    "min": -12.0,
+    "max": 23.5,
+    "mean": 12.0,
+    "median": 12.0,
+    "q25": 9.5,
+    "q75": 15.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_HI_heat_index_gt32_hot_days.tif": {
     "min": 0.0,
-    "max": 77.5,
-    "mean": 4.5,
+    "max": 117.5,
+    "mean": 6.5,
     "median": 0.0,
     "q25": 0.0,
-    "q75": 2.0
+    "q75": 2.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_HMX_humidex.tif": {
-    "min": -13.5,
-    "max": 18.5,
-    "mean": 8.0,
-    "median": 8.0,
-    "q25": 5.5,
-    "q75": 10.5
+    "min": -12.5,
+    "max": 27.0,
+    "mean": 13.0,
+    "median": 12.5,
+    "q25": 10.0,
+    "q75": 16.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_HW_heat_wave_index.tif": {
     "min": 3.5,
@@ -1728,12 +1296,12 @@
     "q75": 19.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_MRT_mean_radiant_temperature.tif": {
-    "min": 5.0,
-    "max": 26.0,
-    "mean": 16.0,
-    "median": 15.5,
-    "q25": 14.0,
-    "q75": 18.0
+    "min": 6.0,
+    "max": 27.0,
+    "mean": 17.0,
+    "median": 16.5,
+    "q25": 15.0,
+    "q75": 19.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_PCD_passive_comfort_days.tif": {
     "min": 0.0,
@@ -1784,12 +1352,12 @@
     "q75": 98.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_PPD_predicted_percentage_of_dissatisfied.tif": {
-    "min": 65.5,
-    "max": 100.0,
-    "mean": 87.5,
-    "median": 88.5,
-    "q25": 83.0,
-    "q75": 92.5
+    "min": 66.5,
+    "max": 99.5,
+    "mean": 86.0,
+    "median": 86.5,
+    "q25": 81.0,
+    "q75": 91.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_PRCPTOT_annual_total_precip.tif": {
     "min": 0.0,
@@ -1836,7 +1404,7 @@
     "max": 73.0,
     "mean": 31.0,
     "median": 29.0,
-    "q25": 22.5,
+    "q25": 22.0,
     "q75": 37.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_RX5DAY_max_5day_precip.tif": {
@@ -1856,12 +1424,12 @@
     "q75": 7.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_SET_standard_effective_temperature.tif": {
-    "min": -21.5,
-    "max": 17.5,
-    "mean": 3.5,
-    "median": 4.0,
-    "q25": 0.5,
-    "q75": 7.0
+    "min": 11.0,
+    "max": 23.5,
+    "mean": 17.5,
+    "median": 17.5,
+    "q25": 16.0,
+    "q75": 18.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_SPEI12_standardized_pet_index_12.tif": {
     "min": -1.5,
@@ -1888,52 +1456,52 @@
     "q75": 149.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_THI_C_temperature_humidity_index_crop.tif": {
-    "min": 27.5,
-    "max": 68.5,
-    "mean": 55.5,
-    "median": 55.5,
-    "q25": 52.5,
-    "q75": 59.0
+    "min": 26.5,
+    "max": 69.0,
+    "mean": 56.0,
+    "median": 56.0,
+    "q25": 53.0,
+    "q75": 59.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_THI_C_temperature_humidity_index_crop_gt60_hot_days.tif": {
-    "min": 15.5,
-    "max": 281.5,
-    "mean": 149.0,
-    "median": 148.5,
-    "q25": 121.5,
-    "q75": 180.5
+    "min": 18.5,
+    "max": 286.0,
+    "mean": 150.0,
+    "median": 150.5,
+    "q25": 123.0,
+    "q75": 180.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_THI_H_temperature_humidity_index_human.tif": {
-    "min": 5.0,
-    "max": 19.0,
-    "mean": 14.5,
-    "median": 14.5,
-    "q25": 13.5,
-    "q75": 15.5
+    "min": -2.5,
+    "max": 21.0,
+    "mean": 13.5,
+    "median": 13.5,
+    "q25": 11.5,
+    "q75": 15.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_THI_H_temperature_humidity_index_human_gt27_hot_days.tif": {
     "min": 0.0,
-    "max": 50.0,
-    "mean": 1.5,
+    "max": 71.5,
+    "mean": 2.0,
     "median": 0.0,
     "q25": 0.0,
     "q75": 0.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_THI_L_temperature_humidity_index_livestock.tif": {
-    "min": 41.0,
-    "max": 66.0,
-    "mean": 58.0,
-    "median": 57.5,
-    "q25": 56.0,
+    "min": 28.0,
+    "max": 69.5,
+    "mean": 56.0,
+    "median": 56.0,
+    "q25": 52.5,
     "q75": 59.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_THI_L_temperature_humidity_index_livestock_gt72_hot_days.tif": {
     "min": 0.0,
-    "max": 107.5,
-    "mean": 19.5,
-    "median": 16.0,
-    "q25": 7.5,
-    "q75": 31.0
+    "max": 171.0,
+    "mean": 40.5,
+    "median": 22.5,
+    "q25": 9.5,
+    "q75": 61.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_TNN_min_daily_min_temp.tif": {
     "min": -37.5,
@@ -1962,10 +1530,10 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_TR_tropical_nights.tif": {
     "min": 0.0,
     "max": 171.5,
-    "mean": 25.5,
+    "mean": 25.0,
     "median": 5.5,
     "q25": 1.0,
-    "q75": 35.0
+    "q75": 34.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_TXN_min_daily_max_temp.tif": {
     "min": -25.5,
@@ -1983,61 +1551,357 @@
     "q25": 36.0,
     "q75": 39.5
   },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UTCI_universal_thermal_climate_index.tif": {
-    "min": -22.5,
-    "max": 20.5,
-    "mean": 8.5,
-    "median": 9.0,
-    "q25": 5.5,
-    "q75": 12.0
-  },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UTCI_universal_thermal_climate_index_gt32_hot_days.tif": {
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI05_UTCI_bw0_9_slight_cold_days.tif": {
     "min": 0.0,
-    "max": 71.5,
-    "mean": 5.0,
+    "max": 111.5,
+    "mean": 75.5,
+    "median": 76.0,
+    "q25": 68.5,
+    "q75": 84.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI05_UTCI_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 256.0,
+    "mean": 169.5,
+    "median": 173.0,
+    "q25": 154.5,
+    "q75": 187.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI05_UTCI_gt26_moderate_heat_days.tif": {
+    "min": 0.0,
+    "max": 174.0,
+    "mean": 45.5,
+    "median": 31.5,
+    "q25": 17.5,
+    "q75": 64.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI05_UTCI_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 122.0,
+    "mean": 8.5,
     "median": 0.0,
     "q25": 0.0,
-    "q75": 2.5
+    "q75": 4.5
   },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UTCI_universal_thermal_climate_index_ltm13_cold_days.tif": {
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI05_UTCI_gt38_very_strong_heat_days.tif": {
     "min": 0.0,
-    "max": 253.0,
-    "mean": 29.5,
-    "median": 18.0,
-    "q25": 6.0,
-    "q75": 44.0
+    "max": 13.0,
+    "mean": 0.0,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI05_UTCI_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 304.5,
+    "mean": 74.0,
+    "median": 70.0,
+    "q25": 37.0,
+    "q75": 104.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI05_UTCI_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 241.0,
+    "mean": 20.0,
+    "median": 9.0,
+    "q25": 2.0,
+    "q75": 27.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI05_UTCI_universal_thermal_climate_index.tif": {
+    "min": -20.5,
+    "max": 24.0,
+    "mean": 11.0,
+    "median": 11.5,
+    "q25": 8.0,
+    "q75": 14.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI10_UTCI_bw0_9_slight_cold_days.tif": {
+    "min": 0.0,
+    "max": 111.0,
+    "mean": 75.5,
+    "median": 76.5,
+    "q25": 68.5,
+    "q75": 85.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI10_UTCI_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 254.0,
+    "mean": 168.5,
+    "median": 172.0,
+    "q25": 153.5,
+    "q75": 186.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI10_UTCI_gt26_moderate_heat_days.tif": {
+    "min": 0.0,
+    "max": 177.0,
+    "mean": 50.5,
+    "median": 37.0,
+    "q25": 22.0,
+    "q75": 70.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI10_UTCI_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 128.5,
+    "mean": 10.0,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 6.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI10_UTCI_gt38_very_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 16.0,
+    "mean": 0.5,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI10_UTCI_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 300.5,
+    "mean": 70.5,
+    "median": 66.0,
+    "q25": 33.5,
+    "q75": 100.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI10_UTCI_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 240.0,
+    "mean": 19.5,
+    "median": 8.5,
+    "q25": 2.0,
+    "q75": 27.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI10_UTCI_universal_thermal_climate_index.tif": {
+    "min": -20.0,
+    "max": 24.5,
+    "mean": 11.5,
+    "median": 11.5,
+    "q25": 8.5,
+    "q75": 15.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI15_UTCI_bw0_9_slight_cold_days.tif": {
+    "min": 0.0,
+    "max": 112.5,
+    "mean": 75.5,
+    "median": 76.5,
+    "q25": 67.5,
+    "q75": 85.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI15_UTCI_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 252.5,
+    "mean": 167.5,
+    "median": 170.5,
+    "q25": 152.0,
+    "q75": 184.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI15_UTCI_gt26_moderate_heat_days.tif": {
+    "min": 1.0,
+    "max": 181.0,
+    "mean": 55.5,
+    "median": 43.0,
+    "q25": 27.0,
+    "q75": 76.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI15_UTCI_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 135.5,
+    "mean": 12.0,
+    "median": 0.5,
+    "q25": 0.0,
+    "q75": 9.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI15_UTCI_gt38_very_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 22.0,
+    "mean": 0.5,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI15_UTCI_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 297.5,
+    "mean": 67.5,
+    "median": 62.5,
+    "q25": 30.5,
+    "q75": 97.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI15_UTCI_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 240.0,
+    "mean": 19.0,
+    "median": 8.0,
+    "q25": 1.5,
+    "q75": 26.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI15_UTCI_universal_thermal_climate_index.tif": {
+    "min": -20.0,
+    "max": 25.0,
+    "mean": 12.0,
+    "median": 12.0,
+    "q25": 9.0,
+    "q75": 15.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI20_UTCI_bw0_9_slight_cold_days.tif": {
+    "min": 0.0,
+    "max": 114.0,
+    "mean": 75.0,
+    "median": 77.0,
+    "q25": 67.0,
+    "q75": 85.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI20_UTCI_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 252.0,
+    "mean": 166.0,
+    "median": 169.0,
+    "q25": 151.0,
+    "q75": 183.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI20_UTCI_gt26_moderate_heat_days.tif": {
+    "min": 1.0,
+    "max": 186.0,
+    "mean": 60.5,
+    "median": 48.5,
+    "q25": 32.0,
+    "q75": 82.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI20_UTCI_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 142.5,
+    "mean": 13.5,
+    "median": 1.0,
+    "q25": 0.0,
+    "q75": 12.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI20_UTCI_gt38_very_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 31.5,
+    "mean": 1.0,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI20_UTCI_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 294.5,
+    "mean": 64.0,
+    "median": 58.5,
+    "q25": 27.5,
+    "q75": 93.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI20_UTCI_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 239.5,
+    "mean": 19.0,
+    "median": 7.5,
+    "q25": 1.5,
+    "q75": 25.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UHI20_UTCI_universal_thermal_climate_index.tif": {
+    "min": -19.5,
+    "max": 25.5,
+    "mean": 12.0,
+    "median": 12.5,
+    "q25": 9.0,
+    "q75": 15.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UTCI_universal_thermal_climate_index.tif": {
+    "min": -21.0,
+    "max": 23.5,
+    "mean": 10.5,
+    "median": 11.0,
+    "q25": 7.5,
+    "q75": 14.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UTCI_universal_thermal_climate_index_bw0_9_slight_cold_days.tif": {
+    "min": 0.0,
+    "max": 110.5,
+    "mean": 75.5,
+    "median": 76.0,
+    "q25": 69.0,
+    "q75": 84.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UTCI_universal_thermal_climate_index_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 257.5,
+    "mean": 170.5,
+    "median": 174.0,
+    "q25": 155.5,
+    "q75": 187.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UTCI_universal_thermal_climate_index_gt26_moderate_heat_days.tif": {
+    "min": 0.0,
+    "max": 170.0,
+    "mean": 41.5,
+    "median": 26.5,
+    "q25": 13.5,
+    "q75": 58.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UTCI_universal_thermal_climate_index_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 115.5,
+    "mean": 7.5,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 3.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UTCI_universal_thermal_climate_index_gt38_very_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 10.5,
+    "mean": 0.0,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UTCI_universal_thermal_climate_index_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 308.0,
+    "mean": 77.5,
+    "median": 73.5,
+    "q25": 40.5,
+    "q75": 108.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_UTCI_universal_thermal_climate_index_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 242.0,
+    "mean": 21.0,
+    "median": 9.5,
+    "q25": 2.5,
+    "q75": 28.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_VD_ventilation_potential.tif": {
-    "min": -72.0,
-    "max": 184.5,
-    "mean": 31.5,
-    "median": 28.5,
-    "q25": 20.5,
-    "q75": 39.0
+    "min": -69.0,
+    "max": 185.5,
+    "mean": 32.5,
+    "median": 29.5,
+    "q25": 21.0,
+    "q75": 39.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_WBGT_wet_bulb_globe_temperature.tif": {
-    "min": -3.5,
-    "max": 12.5,
-    "mean": 7.0,
-    "median": 7.0,
-    "q25": 5.5,
-    "q75": 8.5
+    "min": -5.5,
+    "max": 19.0,
+    "mean": 10.5,
+    "median": 10.5,
+    "q25": 8.5,
+    "q75": 13.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_WCI_wind_chill_index.tif": {
-    "min": -12.0,
-    "max": 24.5,
+    "min": -11.5,
+    "max": 23.5,
     "mean": 13.5,
     "median": 13.5,
     "q25": 11.0,
-    "q75": 15.5
+    "q75": 16.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_WCI_wind_chill_index_ltm10_cold_days.tif": {
     "min": 0.0,
-    "max": 197.0,
-    "mean": 5.5,
-    "median": 1.0,
+    "max": 202.5,
+    "mean": 4.5,
+    "median": 0.5,
     "q25": 0.0,
-    "q75": 4.5
+    "q75": 3.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2041_2060_WSDI_warm_spell_duration_index.tif": {
     "min": 18.5,
@@ -2056,19 +1920,19 @@
     "q75": 0.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_AT_apparent_temperature.tif": {
-    "min": -16.0,
-    "max": 19.5,
-    "mean": 8.5,
-    "median": 8.5,
-    "q25": 6.0,
-    "q75": 11.0
+    "min": -15.5,
+    "max": 25.0,
+    "mean": 11.5,
+    "median": 11.5,
+    "q25": 8.5,
+    "q75": 14.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_CDD_A_cooling_degree_days_approx.tif": {
     "min": 137.0,
     "max": 2409.0,
     "mean": 839.0,
     "median": 734.0,
-    "q25": 617.0,
+    "q25": 617.5,
     "q75": 915.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_CDD_P_consecutive_dry_days.tif": {
@@ -2083,9 +1947,9 @@
     "min": 10.5,
     "max": 2223.0,
     "mean": 514.5,
-    "median": 400.0,
+    "median": 399.5,
     "q25": 237.5,
-    "q75": 631.5
+    "q75": 631.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_CD_cooling_days.tif": {
     "min": 8.0,
@@ -2120,11 +1984,11 @@
     "q75": 94.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_DI_discomfort_index.tif": {
-    "min": 5.0,
-    "max": 19.5,
-    "mean": 15.0,
-    "median": 15.0,
-    "q25": 14.0,
+    "min": -2.0,
+    "max": 21.5,
+    "mean": 14.0,
+    "median": 14.0,
+    "q25": 12.0,
     "q75": 16.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_DTR_diurnal_temperature_range.tif": {
@@ -2136,25 +2000,25 @@
     "q75": 13.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_ESI_environmental_stress_index.tif": {
-    "min": -3.5,
-    "max": 16.0,
-    "mean": 10.0,
-    "median": 9.5,
-    "q25": 8.5,
-    "q75": 11.0
+    "min": -8.0,
+    "max": 21.0,
+    "mean": 11.5,
+    "median": 11.5,
+    "q25": 9.5,
+    "q75": 14.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_ET_normal_effective_temperature.tif": {
-    "min": 0.0,
-    "max": 19.0,
+    "min": -4.5,
+    "max": 21.0,
     "mean": 13.0,
-    "median": 12.5,
-    "q25": 11.5,
-    "q75": 14.0
+    "median": 13.0,
+    "q25": 11.0,
+    "q75": 15.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_FD_frost_days.tif": {
     "min": 0.0,
     "max": 338.5,
-    "mean": 70.5,
+    "mean": 71.0,
     "median": 69.0,
     "q25": 30.0,
     "q75": 101.0
@@ -2162,10 +2026,10 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_GDD_growing_degree_days.tif": {
     "min": 699.5,
     "max": 6969.0,
-    "mean": 3662.5,
-    "median": 3545.5,
-    "q25": 2931.0,
-    "q75": 4238.0
+    "mean": 3661.0,
+    "median": 3544.0,
+    "q25": 2930.5,
+    "q75": 4236.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_GD_growing_days.tif": {
     "min": 33.5,
@@ -2186,10 +2050,10 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_HDD_heating_degree_days.tif": {
     "min": 272.0,
     "max": 9690.0,
-    "mean": 2355.0,
-    "median": 2247.0,
-    "q25": 1677.5,
-    "q75": 2877.0
+    "mean": 2356.5,
+    "median": 2248.0,
+    "q25": 1679.5,
+    "q75": 2878.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_HD_heating_days.tif": {
     "min": 107.0,
@@ -2197,31 +2061,31 @@
     "mean": 224.5,
     "median": 221.5,
     "q25": 197.0,
-    "q75": 252.0
+    "q75": 252.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_HI_heat_index.tif": {
-    "min": -12.5,
-    "max": 22.0,
-    "mean": 11.0,
-    "median": 11.0,
-    "q25": 8.5,
-    "q75": 14.0
+    "min": -11.0,
+    "max": 24.5,
+    "mean": 13.0,
+    "median": 13.0,
+    "q25": 10.0,
+    "q75": 15.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_HI_heat_index_gt32_hot_days.tif": {
     "min": 0.0,
-    "max": 92.0,
-    "mean": 7.0,
+    "max": 134.5,
+    "mean": 9.0,
     "median": 0.0,
     "q25": 0.0,
     "q75": 5.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_HMX_humidex.tif": {
-    "min": -12.5,
-    "max": 19.5,
-    "mean": 9.0,
-    "median": 9.0,
-    "q25": 6.5,
-    "q75": 11.5
+    "min": -11.5,
+    "max": 28.0,
+    "mean": 14.0,
+    "median": 13.5,
+    "q25": 10.5,
+    "q75": 17.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_HW_heat_wave_index.tif": {
     "min": 6.0,
@@ -2234,18 +2098,18 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_ID_ice_days.tif": {
     "min": 0.0,
     "max": 204.5,
-    "mean": 13.0,
+    "mean": 13.5,
     "median": 5.5,
     "q25": 0.5,
     "q75": 17.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_MRT_mean_radiant_temperature.tif": {
-    "min": 6.0,
-    "max": 27.0,
-    "mean": 17.0,
-    "median": 16.5,
-    "q25": 15.0,
-    "q75": 19.0
+    "min": 7.0,
+    "max": 28.0,
+    "mean": 18.0,
+    "median": 17.5,
+    "q25": 16.0,
+    "q75": 20.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_PCD_passive_comfort_days.tif": {
     "min": 0.0,
@@ -2253,7 +2117,7 @@
     "mean": 80.0,
     "median": 81.0,
     "q25": 68.0,
-    "q75": 92.0
+    "q75": 91.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_PET_physiologically_equivalent_temperature.tif": {
     "min": -8.5,
@@ -2296,12 +2160,12 @@
     "q75": 101.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_PPD_predicted_percentage_of_dissatisfied.tif": {
-    "min": 65.5,
-    "max": 102.0,
-    "mean": 86.0,
-    "median": 86.0,
-    "q25": 82.5,
-    "q75": 90.0
+    "min": 65.0,
+    "max": 101.0,
+    "mean": 84.5,
+    "median": 84.5,
+    "q25": 80.0,
+    "q75": 89.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_PRCPTOT_annual_total_precip.tif": {
     "min": 0.0,
@@ -2353,7 +2217,7 @@
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_RX5DAY_max_5day_precip.tif": {
     "min": 27.0,
-    "max": 163.0,
+    "max": 162.5,
     "mean": 64.5,
     "median": 60.5,
     "q25": 46.5,
@@ -2365,15 +2229,15 @@
     "mean": 6.0,
     "median": 6.0,
     "q25": 5.0,
-    "q75": 7.5
+    "q75": 7.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_SET_standard_effective_temperature.tif": {
-    "min": -20.5,
-    "max": 18.5,
-    "mean": 4.5,
-    "median": 4.5,
-    "q25": 1.5,
-    "q75": 8.0
+    "min": 12.0,
+    "max": 24.5,
+    "mean": 18.5,
+    "median": 18.0,
+    "q25": 17.0,
+    "q75": 19.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_SPEI12_standardized_pet_index_12.tif": {
     "min": -2.5,
@@ -2400,52 +2264,52 @@
     "q75": 159.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_THI_C_temperature_humidity_index_crop.tif": {
-    "min": 28.0,
+    "min": 27.5,
     "max": 69.5,
-    "mean": 56.5,
+    "mean": 57.0,
     "median": 56.5,
     "q25": 53.5,
     "q75": 60.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_THI_C_temperature_humidity_index_crop_gt60_hot_days.tif": {
-    "min": 26.0,
-    "max": 295.5,
-    "mean": 161.5,
-    "median": 162.0,
-    "q25": 134.5,
-    "q75": 192.0
+    "min": 28.0,
+    "max": 300.0,
+    "mean": 162.5,
+    "median": 164.0,
+    "q25": 136.0,
+    "q75": 191.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_THI_H_temperature_humidity_index_human.tif": {
-    "min": 5.5,
-    "max": 19.5,
-    "mean": 15.0,
-    "median": 15.0,
-    "q25": 14.0,
+    "min": -2.0,
+    "max": 21.5,
+    "mean": 14.0,
+    "median": 14.0,
+    "q25": 12.0,
     "q75": 16.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_THI_H_temperature_humidity_index_human_gt27_hot_days.tif": {
     "min": 0.0,
-    "max": 64.5,
-    "mean": 3.0,
+    "max": 85.0,
+    "mean": 3.5,
     "median": 0.0,
     "q25": 0.0,
     "q75": 1.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_THI_L_temperature_humidity_index_livestock.tif": {
-    "min": 42.0,
-    "max": 67.0,
-    "mean": 59.0,
-    "median": 58.5,
-    "q25": 57.0,
+    "min": 28.5,
+    "max": 70.5,
+    "mean": 57.0,
+    "median": 57.0,
+    "q25": 54.0,
     "q75": 60.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_THI_L_temperature_humidity_index_livestock_gt72_hot_days.tif": {
     "min": 0.0,
-    "max": 119.0,
-    "mean": 30.0,
-    "median": 27.5,
-    "q25": 17.0,
-    "q75": 43.5
+    "max": 182.5,
+    "mean": 51.0,
+    "median": 35.0,
+    "q25": 19.0,
+    "q75": 73.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_TNN_min_daily_min_temp.tif": {
     "min": -36.0,
@@ -2495,61 +2359,357 @@
     "q25": 37.5,
     "q75": 41.0
   },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UTCI_universal_thermal_climate_index.tif": {
-    "min": -21.5,
-    "max": 21.5,
-    "mean": 9.5,
-    "median": 9.5,
-    "q25": 6.5,
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI05_UTCI_bw0_9_slight_cold_days.tif": {
+    "min": 0.0,
+    "max": 108.5,
+    "mean": 72.5,
+    "median": 73.0,
+    "q25": 65.0,
+    "q75": 81.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI05_UTCI_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 249.5,
+    "mean": 164.5,
+    "median": 167.0,
+    "q25": 149.5,
+    "q75": 181.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI05_UTCI_gt26_moderate_heat_days.tif": {
+    "min": 1.0,
+    "max": 185.0,
+    "mean": 56.0,
+    "median": 43.0,
+    "q25": 26.5,
+    "q75": 76.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI05_UTCI_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 132.5,
+    "mean": 12.0,
+    "median": 1.0,
+    "q25": 0.0,
+    "q75": 9.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI05_UTCI_gt38_very_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 26.5,
+    "mean": 0.5,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI05_UTCI_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 300.0,
+    "mean": 69.0,
+    "median": 65.0,
+    "q25": 32.5,
+    "q75": 99.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI05_UTCI_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 240.0,
+    "mean": 19.5,
+    "median": 8.5,
+    "q25": 2.0,
+    "q75": 26.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI05_UTCI_universal_thermal_climate_index.tif": {
+    "min": -20.0,
+    "max": 25.0,
+    "mean": 12.0,
+    "median": 12.0,
+    "q25": 9.0,
+    "q75": 15.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI10_UTCI_bw0_9_slight_cold_days.tif": {
+    "min": 0.0,
+    "max": 109.0,
+    "mean": 72.0,
+    "median": 73.5,
+    "q25": 64.5,
+    "q75": 82.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI10_UTCI_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 248.0,
+    "mean": 163.0,
+    "median": 165.5,
+    "q25": 148.5,
+    "q75": 179.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI10_UTCI_gt26_moderate_heat_days.tif": {
+    "min": 2.0,
+    "max": 189.5,
+    "mean": 61.0,
+    "median": 48.5,
+    "q25": 31.5,
+    "q75": 82.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI10_UTCI_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 139.5,
+    "mean": 13.5,
+    "median": 1.5,
+    "q25": 0.0,
     "q75": 13.0
   },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UTCI_universal_thermal_climate_index_gt32_hot_days.tif": {
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI10_UTCI_gt38_very_strong_heat_days.tif": {
     "min": 0.0,
-    "max": 82.0,
-    "mean": 8.0,
+    "max": 34.5,
+    "mean": 1.0,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI10_UTCI_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 296.5,
+    "mean": 66.0,
+    "median": 61.0,
+    "q25": 29.5,
+    "q75": 95.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI10_UTCI_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 240.0,
+    "mean": 19.0,
+    "median": 8.0,
+    "q25": 1.5,
+    "q75": 26.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI10_UTCI_universal_thermal_climate_index.tif": {
+    "min": -19.5,
+    "max": 25.5,
+    "mean": 12.5,
+    "median": 12.5,
+    "q25": 9.5,
+    "q75": 15.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI15_UTCI_bw0_9_slight_cold_days.tif": {
+    "min": 0.0,
+    "max": 110.5,
+    "mean": 72.0,
+    "median": 74.0,
+    "q25": 64.0,
+    "q75": 82.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI15_UTCI_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 247.0,
+    "mean": 161.5,
+    "median": 164.0,
+    "q25": 147.5,
+    "q75": 178.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI15_UTCI_gt26_moderate_heat_days.tif": {
+    "min": 3.0,
+    "max": 194.0,
+    "mean": 66.0,
+    "median": 54.5,
+    "q25": 36.5,
+    "q75": 88.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI15_UTCI_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 145.5,
+    "mean": 15.5,
+    "median": 2.0,
+    "q25": 0.5,
+    "q75": 16.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI15_UTCI_gt38_very_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 43.5,
+    "mean": 1.5,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI15_UTCI_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 293.0,
+    "mean": 63.0,
+    "median": 57.5,
+    "q25": 26.5,
+    "q75": 92.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI15_UTCI_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 239.5,
+    "mean": 18.5,
+    "median": 7.5,
+    "q25": 1.5,
+    "q75": 25.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI15_UTCI_universal_thermal_climate_index.tif": {
+    "min": -19.0,
+    "max": 26.0,
+    "mean": 12.5,
+    "median": 13.0,
+    "q25": 9.5,
+    "q75": 16.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI20_UTCI_bw0_9_slight_cold_days.tif": {
+    "min": 0.0,
+    "max": 112.0,
+    "mean": 71.5,
+    "median": 74.0,
+    "q25": 63.0,
+    "q75": 82.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI20_UTCI_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 247.0,
+    "mean": 160.0,
+    "median": 162.5,
+    "q25": 146.5,
+    "q75": 176.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI20_UTCI_gt26_moderate_heat_days.tif": {
+    "min": 5.0,
+    "max": 198.0,
+    "mean": 71.5,
+    "median": 60.5,
+    "q25": 42.5,
+    "q75": 93.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI20_UTCI_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 151.5,
+    "mean": 18.0,
+    "median": 3.5,
+    "q25": 1.0,
+    "q75": 21.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI20_UTCI_gt38_very_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 54.5,
+    "mean": 2.0,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI20_UTCI_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 289.0,
+    "mean": 60.0,
+    "median": 54.0,
+    "q25": 24.0,
+    "q75": 88.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI20_UTCI_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 239.0,
+    "mean": 18.5,
+    "median": 7.0,
+    "q25": 1.0,
+    "q75": 25.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UHI20_UTCI_universal_thermal_climate_index.tif": {
+    "min": -18.5,
+    "max": 26.5,
+    "mean": 13.0,
+    "median": 13.5,
+    "q25": 10.0,
+    "q75": 16.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UTCI_universal_thermal_climate_index.tif": {
+    "min": -20.0,
+    "max": 24.5,
+    "mean": 11.5,
+    "median": 11.5,
+    "q25": 8.5,
+    "q75": 15.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UTCI_universal_thermal_climate_index_bw0_9_slight_cold_days.tif": {
+    "min": 0.0,
+    "max": 107.0,
+    "mean": 72.5,
+    "median": 73.0,
+    "q25": 65.5,
+    "q75": 81.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UTCI_universal_thermal_climate_index_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 251.0,
+    "mean": 166.0,
+    "median": 168.5,
+    "q25": 151.0,
+    "q75": 183.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UTCI_universal_thermal_climate_index_gt26_moderate_heat_days.tif": {
+    "min": 0.0,
+    "max": 181.0,
+    "mean": 51.5,
+    "median": 37.5,
+    "q25": 22.0,
+    "q75": 70.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UTCI_universal_thermal_climate_index_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 127.0,
+    "mean": 10.5,
     "median": 0.5,
     "q25": 0.0,
-    "q75": 6.5
+    "q75": 7.0
   },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UTCI_universal_thermal_climate_index_ltm13_cold_days.tif": {
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UTCI_universal_thermal_climate_index_gt38_very_strong_heat_days.tif": {
     "min": 0.0,
-    "max": 252.0,
-    "mean": 29.0,
-    "median": 17.5,
-    "q25": 5.5,
-    "q75": 43.0
+    "max": 18.5,
+    "mean": 0.5,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UTCI_universal_thermal_climate_index_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 304.0,
+    "mean": 72.5,
+    "median": 68.5,
+    "q25": 36.0,
+    "q75": 102.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_UTCI_universal_thermal_climate_index_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 241.0,
+    "mean": 20.0,
+    "median": 9.0,
+    "q25": 2.0,
+    "q75": 27.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_VD_ventilation_potential.tif": {
-    "min": -70.5,
-    "max": 187.5,
-    "mean": 34.5,
-    "median": 31.5,
-    "q25": 22.5,
-    "q75": 42.0
+    "min": -68.0,
+    "max": 188.5,
+    "mean": 35.0,
+    "median": 32.0,
+    "q25": 23.0,
+    "q75": 43.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_WBGT_wet_bulb_globe_temperature.tif": {
-    "min": -3.0,
-    "max": 13.0,
-    "mean": 7.5,
-    "median": 7.5,
-    "q25": 6.0,
-    "q75": 9.0
+    "min": -4.5,
+    "max": 20.0,
+    "mean": 11.0,
+    "median": 11.0,
+    "q25": 9.0,
+    "q75": 13.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_WCI_wind_chill_index.tif": {
     "min": -11.0,
-    "max": 25.5,
+    "max": 24.5,
     "mean": 14.0,
-    "median": 14.0,
-    "q25": 11.5,
+    "median": 14.5,
+    "q25": 12.0,
     "q75": 16.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_WCI_wind_chill_index_ltm10_cold_days.tif": {
     "min": 0.0,
-    "max": 196.5,
-    "mean": 5.0,
-    "median": 0.5,
+    "max": 202.5,
+    "mean": 4.0,
+    "median": 0.0,
     "q25": 0.0,
-    "q75": 3.5
+    "q75": 2.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp245_2081_2100_WSDI_warm_spell_duration_index.tif": {
     "min": 27.5,
@@ -2569,11 +2729,11 @@
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_AT_apparent_temperature.tif": {
     "min": -15.5,
-    "max": 20.0,
-    "mean": 8.5,
-    "median": 8.5,
-    "q25": 6.0,
-    "q75": 11.0
+    "max": 25.0,
+    "mean": 11.5,
+    "median": 11.5,
+    "q25": 8.5,
+    "q75": 14.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_CDD_A_cooling_degree_days_approx.tif": {
     "min": 142.5,
@@ -2596,8 +2756,8 @@
     "max": 2222.5,
     "mean": 532.5,
     "median": 420.5,
-    "q25": 252.0,
-    "q75": 656.0
+    "q25": 251.5,
+    "q75": 655.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_CD_cooling_days.tif": {
     "min": 12.0,
@@ -2609,7 +2769,7 @@
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_CSDI_cold_spell_duration_index.tif": {
     "min": 0.0,
-    "max": 10.5,
+    "max": 10.0,
     "mean": 0.5,
     "median": 0.0,
     "q25": 0.0,
@@ -2628,15 +2788,15 @@
     "max": 331.0,
     "mean": 61.0,
     "median": 55.5,
-    "q25": 21.5,
+    "q25": 22.0,
     "q75": 90.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_DI_discomfort_index.tif": {
-    "min": 5.5,
-    "max": 19.5,
-    "mean": 15.0,
-    "median": 15.0,
-    "q25": 14.0,
+    "min": -1.5,
+    "max": 21.5,
+    "mean": 14.0,
+    "median": 14.0,
+    "q25": 12.5,
     "q75": 16.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_DTR_diurnal_temperature_range.tif": {
@@ -2648,20 +2808,20 @@
     "q75": 13.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_ESI_environmental_stress_index.tif": {
-    "min": -3.5,
-    "max": 16.5,
-    "mean": 10.0,
-    "median": 10.0,
-    "q25": 8.5,
-    "q75": 11.5
+    "min": -8.0,
+    "max": 21.0,
+    "mean": 11.5,
+    "median": 11.5,
+    "q25": 9.5,
+    "q75": 14.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_ET_normal_effective_temperature.tif": {
-    "min": 0.0,
-    "max": 19.0,
-    "mean": 13.0,
+    "min": -4.0,
+    "max": 21.5,
+    "mean": 13.5,
     "median": 13.0,
     "q25": 11.5,
-    "q75": 14.5
+    "q75": 15.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_FD_frost_days.tif": {
     "min": 0.0,
@@ -2674,16 +2834,16 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_GDD_growing_degree_days.tif": {
     "min": 697.0,
     "max": 7043.0,
-    "mean": 3706.0,
-    "median": 3593.0,
-    "q25": 2963.5,
-    "q75": 4302.0
+    "mean": 3704.5,
+    "median": 3591.5,
+    "q25": 2963.0,
+    "q75": 4299.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_GD_growing_days.tif": {
     "min": 39.5,
     "max": 365.0,
-    "mean": 294.5,
-    "median": 299.0,
+    "mean": 294.0,
+    "median": 298.5,
     "q25": 264.0,
     "q75": 329.5
   },
@@ -2698,42 +2858,42 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_HDD_heating_degree_days.tif": {
     "min": 256.5,
     "max": 9613.5,
-    "mean": 2304.5,
-    "median": 2197.0,
-    "q25": 1625.0,
-    "q75": 2825.0
+    "mean": 2306.0,
+    "median": 2198.5,
+    "q25": 1627.0,
+    "q75": 2825.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_HD_heating_days.tif": {
     "min": 113.5,
     "max": 337.5,
     "mean": 227.0,
     "median": 225.0,
-    "q25": 200.0,
+    "q25": 200.5,
     "q75": 254.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_HI_heat_index.tif": {
-    "min": -12.5,
-    "max": 22.0,
-    "mean": 11.5,
-    "median": 11.5,
-    "q25": 8.5,
-    "q75": 14.0
+    "min": -11.0,
+    "max": 24.5,
+    "mean": 13.0,
+    "median": 13.0,
+    "q25": 10.5,
+    "q75": 16.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_HI_heat_index_gt32_hot_days.tif": {
     "min": 0.0,
-    "max": 90.0,
-    "mean": 7.5,
+    "max": 131.5,
+    "mean": 9.0,
     "median": 0.0,
     "q25": 0.0,
     "q75": 6.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_HMX_humidex.tif": {
-    "min": -12.5,
-    "max": 19.5,
-    "mean": 9.0,
-    "median": 9.0,
-    "q25": 6.5,
-    "q75": 11.5
+    "min": -11.5,
+    "max": 28.0,
+    "mean": 14.0,
+    "median": 13.5,
+    "q25": 11.0,
+    "q75": 17.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_HW_heat_wave_index.tif": {
     "min": 11.0,
@@ -2741,7 +2901,7 @@
     "mean": 79.5,
     "median": 72.5,
     "q25": 51.5,
-    "q75": 99.0
+    "q75": 99.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_ID_ice_days.tif": {
     "min": 0.0,
@@ -2752,12 +2912,12 @@
     "q75": 14.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_MRT_mean_radiant_temperature.tif": {
-    "min": 6.0,
-    "max": 26.5,
-    "mean": 17.0,
-    "median": 16.5,
-    "q25": 15.0,
-    "q75": 19.0
+    "min": 7.0,
+    "max": 27.5,
+    "mean": 18.0,
+    "median": 17.5,
+    "q25": 16.0,
+    "q75": 20.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_PCD_passive_comfort_days.tif": {
     "min": 0.0,
@@ -2765,7 +2925,7 @@
     "mean": 80.0,
     "median": 81.0,
     "q25": 67.5,
-    "q75": 91.5
+    "q75": 91.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_PET_physiologically_equivalent_temperature.tif": {
     "min": -8.0,
@@ -2787,7 +2947,7 @@
     "min": 0.0,
     "max": 294.5,
     "mean": 177.0,
-    "median": 181.5,
+    "median": 182.0,
     "q25": 153.5,
     "q75": 200.5
   },
@@ -2808,18 +2968,18 @@
     "q75": 98.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_PPD_predicted_percentage_of_dissatisfied.tif": {
-    "min": 66.0,
-    "max": 101.5,
-    "mean": 85.5,
-    "median": 85.5,
-    "q25": 82.0,
-    "q75": 89.5
+    "min": 65.5,
+    "max": 100.5,
+    "mean": 84.0,
+    "median": 84.0,
+    "q25": 79.5,
+    "q75": 88.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_PRCPTOT_annual_total_precip.tif": {
     "min": 0.0,
     "max": 2055.0,
     "mean": 559.0,
-    "median": 530.0,
+    "median": 529.5,
     "q25": 425.0,
     "q75": 655.0
   },
@@ -2880,12 +3040,12 @@
     "q75": 7.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_SET_standard_effective_temperature.tif": {
-    "min": -20.0,
-    "max": 18.5,
-    "mean": 5.0,
-    "median": 5.0,
-    "q25": 1.5,
-    "q75": 8.0
+    "min": 12.5,
+    "max": 24.5,
+    "mean": 19.0,
+    "median": 18.5,
+    "q25": 17.5,
+    "q75": 20.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_SPEI12_standardized_pet_index_12.tif": {
     "min": -2.5,
@@ -2912,52 +3072,52 @@
     "q75": 157.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_THI_C_temperature_humidity_index_crop.tif": {
-    "min": 28.5,
-    "max": 69.5,
-    "mean": 56.5,
-    "median": 56.5,
-    "q25": 53.5,
-    "q75": 60.0
+    "min": 27.5,
+    "max": 70.0,
+    "mean": 57.0,
+    "median": 57.0,
+    "q25": 54.0,
+    "q75": 60.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_THI_C_temperature_humidity_index_crop_gt60_hot_days.tif": {
-    "min": 23.0,
-    "max": 296.5,
-    "mean": 156.5,
-    "median": 156.0,
-    "q25": 128.0,
-    "q75": 188.5
+    "min": 25.5,
+    "max": 301.0,
+    "mean": 157.5,
+    "median": 158.0,
+    "q25": 129.5,
+    "q75": 188.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_THI_H_temperature_humidity_index_human.tif": {
-    "min": 5.5,
-    "max": 19.5,
-    "mean": 15.0,
-    "median": 15.0,
-    "q25": 14.0,
+    "min": -1.5,
+    "max": 21.5,
+    "mean": 14.0,
+    "median": 14.0,
+    "q25": 12.5,
     "q75": 16.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_THI_H_temperature_humidity_index_human_gt27_hot_days.tif": {
     "min": 0.0,
-    "max": 63.0,
-    "mean": 3.5,
+    "max": 86.0,
+    "mean": 4.0,
     "median": 0.0,
     "q25": 0.0,
     "q75": 2.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_THI_L_temperature_humidity_index_livestock.tif": {
-    "min": 42.5,
-    "max": 67.0,
-    "mean": 59.0,
-    "median": 59.0,
-    "q25": 57.0,
-    "q75": 61.0
+    "min": 29.0,
+    "max": 70.5,
+    "mean": 57.5,
+    "median": 57.5,
+    "q25": 54.0,
+    "q75": 60.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_THI_L_temperature_humidity_index_livestock_gt72_hot_days.tif": {
     "min": 0.5,
-    "max": 115.0,
-    "mean": 31.0,
-    "median": 30.0,
-    "q25": 19.5,
-    "q75": 44.0
+    "max": 178.5,
+    "mean": 52.0,
+    "median": 37.0,
+    "q25": 21.5,
+    "q75": 75.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_TNN_min_daily_min_temp.tif": {
     "min": -35.5,
@@ -2985,7 +3145,7 @@
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_TR_tropical_nights.tif": {
     "min": 0.0,
-    "max": 188.5,
+    "max": 188.0,
     "mean": 33.0,
     "median": 15.0,
     "q25": 3.5,
@@ -3008,60 +3168,100 @@
     "q75": 41.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_UTCI_universal_thermal_climate_index.tif": {
-    "min": -21.0,
-    "max": 22.0,
-    "mean": 9.5,
-    "median": 10.0,
-    "q25": 6.5,
-    "q75": 13.0
+    "min": -20.0,
+    "max": 24.5,
+    "mean": 11.5,
+    "median": 12.0,
+    "q25": 8.5,
+    "q75": 15.0
   },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_UTCI_universal_thermal_climate_index_gt32_hot_days.tif": {
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_UTCI_universal_thermal_climate_index_bw0_9_slight_cold_days.tif": {
     "min": 0.0,
-    "max": 82.0,
-    "mean": 8.0,
+    "max": 114.5,
+    "mean": 77.0,
+    "median": 78.5,
+    "q25": 69.0,
+    "q75": 87.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_UTCI_universal_thermal_climate_index_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 256.0,
+    "mean": 167.0,
+    "median": 170.0,
+    "q25": 153.0,
+    "q75": 183.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_UTCI_universal_thermal_climate_index_gt26_moderate_heat_days.tif": {
+    "min": 1.5,
+    "max": 178.5,
+    "mean": 53.5,
+    "median": 41.0,
+    "q25": 25.5,
+    "q75": 72.5
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_UTCI_universal_thermal_climate_index_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 127.0,
+    "mean": 10.5,
     "median": 0.5,
     "q25": 0.0,
-    "q75": 7.0
+    "q75": 7.5
   },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_UTCI_universal_thermal_climate_index_ltm13_cold_days.tif": {
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_UTCI_universal_thermal_climate_index_gt38_very_strong_heat_days.tif": {
     "min": 0.0,
-    "max": 251.5,
-    "mean": 27.5,
-    "median": 16.5,
-    "q25": 5.0,
-    "q75": 41.0
+    "max": 23.0,
+    "mean": 0.5,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_UTCI_universal_thermal_climate_index_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 296.5,
+    "mean": 67.5,
+    "median": 62.5,
+    "q25": 31.0,
+    "q75": 97.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_UTCI_universal_thermal_climate_index_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 240.5,
+    "mean": 19.0,
+    "median": 8.0,
+    "q25": 1.5,
+    "q75": 26.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_VD_ventilation_potential.tif": {
-    "min": -70.5,
-    "max": 187.5,
-    "mean": 33.0,
-    "median": 30.0,
-    "q25": 21.5,
-    "q75": 40.5
+    "min": -68.0,
+    "max": 188.5,
+    "mean": 34.0,
+    "median": 30.5,
+    "q25": 22.0,
+    "q75": 41.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_WBGT_wet_bulb_globe_temperature.tif": {
-    "min": -2.5,
-    "max": 13.0,
-    "mean": 7.5,
-    "median": 7.5,
-    "q25": 6.5,
-    "q75": 9.0
+    "min": -4.5,
+    "max": 20.0,
+    "mean": 11.5,
+    "median": 11.0,
+    "q25": 9.5,
+    "q75": 13.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_WCI_wind_chill_index.tif": {
-    "min": -11.0,
-    "max": 25.5,
-    "mean": 14.0,
+    "min": -10.5,
+    "max": 24.5,
+    "mean": 14.5,
     "median": 14.5,
     "q25": 12.0,
-    "q75": 16.5
+    "q75": 17.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_WCI_wind_chill_index_ltm10_cold_days.tif": {
     "min": 0.0,
-    "max": 197.0,
-    "mean": 5.0,
-    "median": 0.5,
+    "max": 203.0,
+    "mean": 4.0,
+    "median": 0.0,
     "q25": 0.0,
-    "q75": 3.5
+    "q75": 2.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2041_2060_WSDI_warm_spell_duration_index.tif": {
     "min": 41.5,
@@ -3080,12 +3280,12 @@
     "q75": 0.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_AT_apparent_temperature.tif": {
-    "min": -11.5,
-    "max": 24.0,
-    "mean": 12.5,
-    "median": 12.5,
-    "q25": 10.0,
-    "q75": 15.0
+    "min": -11.0,
+    "max": 29.5,
+    "mean": 15.5,
+    "median": 15.5,
+    "q25": 12.5,
+    "q75": 18.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_CDD_A_cooling_degree_days_approx.tif": {
     "min": 356.5,
@@ -3106,10 +3306,10 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_CDD_cooling_degree_days.tif": {
     "min": 170.5,
     "max": 3009.5,
-    "mean": 1033.5,
-    "median": 924.0,
+    "mean": 1033.0,
+    "median": 923.5,
     "q25": 675.5,
-    "q75": 1210.5
+    "q75": 1210.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_CD_cooling_days.tif": {
     "min": 55.5,
@@ -3121,7 +3321,7 @@
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_CSDI_cold_spell_duration_index.tif": {
     "min": 0.0,
-    "max": 9.5,
+    "max": 9.0,
     "mean": 0.0,
     "median": 0.0,
     "q25": 0.0,
@@ -3144,11 +3344,11 @@
     "q75": 61.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_DI_discomfort_index.tif": {
-    "min": 8.0,
-    "max": 22.0,
-    "mean": 17.5,
-    "median": 17.5,
-    "q25": 16.5,
+    "min": 1.0,
+    "max": 24.0,
+    "mean": 16.5,
+    "median": 16.5,
+    "q25": 15.0,
     "q75": 18.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_DTR_diurnal_temperature_range.tif": {
@@ -3160,20 +3360,20 @@
     "q75": 13.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_ESI_environmental_stress_index.tif": {
-    "min": 0.0,
-    "max": 19.5,
-    "mean": 13.0,
-    "median": 12.5,
-    "q25": 11.5,
-    "q75": 14.0
+    "min": -5.0,
+    "max": 24.0,
+    "mean": 14.5,
+    "median": 14.5,
+    "q25": 12.5,
+    "q75": 17.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_ET_normal_effective_temperature.tif": {
-    "min": 3.0,
-    "max": 22.0,
-    "mean": 15.5,
-    "median": 15.5,
+    "min": -1.0,
+    "max": 24.0,
+    "mean": 16.0,
+    "median": 16.0,
     "q25": 14.0,
-    "q75": 17.0
+    "q75": 18.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_FD_frost_days.tif": {
     "min": 0.0,
@@ -3186,10 +3386,10 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_GDD_growing_degree_days.tif": {
     "min": 1526.5,
     "max": 8350.5,
-    "mean": 4751.5,
-    "median": 4641.0,
-    "q25": 3967.5,
-    "q75": 5344.0
+    "mean": 4750.0,
+    "median": 4639.5,
+    "q25": 3967.0,
+    "q75": 5341.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_GD_growing_days.tif": {
     "min": 76.5,
@@ -3197,7 +3397,7 @@
     "mean": 319.0,
     "median": 326.0,
     "q25": 296.0,
-    "q75": 349.0
+    "q75": 348.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_GSL_growing_season_length.tif": {
     "min": 70.5,
@@ -3210,10 +3410,10 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_HDD_heating_degree_days.tif": {
     "min": -121.0,
     "max": 8892.0,
-    "mean": 1722.0,
-    "median": 1618.0,
-    "q25": 1134.0,
-    "q75": 2165.5
+    "mean": 1723.5,
+    "median": 1619.0,
+    "q25": 1135.5,
+    "q75": 2166.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_HD_heating_days.tif": {
     "min": 65.0,
@@ -3224,28 +3424,28 @@
     "q75": 217.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_HI_heat_index.tif": {
-    "min": -8.5,
-    "max": 28.0,
-    "mean": 15.0,
-    "median": 15.0,
-    "q25": 12.5,
-    "q75": 17.5
+    "min": -7.0,
+    "max": 30.0,
+    "mean": 17.0,
+    "median": 16.5,
+    "q25": 14.0,
+    "q75": 19.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_HI_heat_index_gt32_hot_days.tif": {
     "min": 0.0,
-    "max": 141.5,
-    "mean": 31.5,
+    "max": 183.5,
+    "mean": 33.5,
     "median": 18.0,
     "q25": 8.5,
-    "q75": 50.0
+    "q75": 50.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_HMX_humidex.tif": {
-    "min": -8.0,
-    "max": 24.0,
-    "mean": 13.5,
-    "median": 13.0,
-    "q25": 11.0,
-    "q75": 16.0
+    "min": -6.5,
+    "max": 33.0,
+    "mean": 18.5,
+    "median": 18.0,
+    "q25": 15.0,
+    "q75": 21.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_HW_heat_wave_index.tif": {
     "min": 52.5,
@@ -3264,12 +3464,12 @@
     "q75": 8.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_MRT_mean_radiant_temperature.tif": {
-    "min": 9.0,
-    "max": 30.0,
-    "mean": 20.0,
-    "median": 19.5,
-    "q25": 18.0,
-    "q75": 22.0
+    "min": 10.0,
+    "max": 31.0,
+    "mean": 21.0,
+    "median": 20.5,
+    "q25": 19.0,
+    "q75": 23.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_PCD_passive_comfort_days.tif": {
     "min": 0.0,
@@ -3320,12 +3520,12 @@
     "q75": 94.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_PPD_predicted_percentage_of_dissatisfied.tif": {
-    "min": 64.5,
-    "max": 105.0,
-    "mean": 82.5,
-    "median": 83.0,
-    "q25": 80.0,
-    "q75": 85.0
+    "min": 62.5,
+    "max": 104.5,
+    "mean": 81.0,
+    "median": 81.5,
+    "q25": 78.0,
+    "q75": 84.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_PRCPTOT_annual_total_precip.tif": {
     "min": 0.0,
@@ -3378,7 +3578,7 @@
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_RX5DAY_max_5day_precip.tif": {
     "min": 27.0,
     "max": 166.0,
-    "mean": 65.5,
+    "mean": 65.0,
     "median": 62.0,
     "q25": 48.5,
     "q75": 77.5
@@ -3392,12 +3592,12 @@
     "q75": 7.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_SET_standard_effective_temperature.tif": {
-    "min": -15.5,
-    "max": 22.5,
-    "mean": 9.0,
-    "median": 9.5,
-    "q25": 6.0,
-    "q75": 12.0
+    "min": 17.0,
+    "max": 28.5,
+    "mean": 23.0,
+    "median": 22.5,
+    "q25": 21.5,
+    "q75": 24.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_SPEI12_standardized_pet_index_12.tif": {
     "min": -5.0,
@@ -3424,52 +3624,52 @@
     "q75": 191.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_THI_C_temperature_humidity_index_crop.tif": {
-    "min": 33.0,
-    "max": 74.0,
+    "min": 32.5,
+    "max": 74.5,
     "mean": 61.0,
-    "median": 60.5,
-    "q25": 57.5,
-    "q75": 64.0
+    "median": 61.0,
+    "q25": 58.0,
+    "q75": 64.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_THI_C_temperature_humidity_index_crop_gt60_hot_days.tif": {
-    "min": 53.5,
-    "max": 335.0,
-    "mean": 193.0,
-    "median": 192.5,
-    "q25": 165.0,
-    "q75": 224.0
+    "min": 58.5,
+    "max": 339.5,
+    "mean": 194.0,
+    "median": 194.0,
+    "q25": 166.5,
+    "q75": 223.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_THI_H_temperature_humidity_index_human.tif": {
-    "min": 8.5,
-    "max": 22.0,
-    "mean": 17.5,
-    "median": 17.5,
-    "q25": 16.5,
+    "min": 1.0,
+    "max": 24.0,
+    "mean": 16.5,
+    "median": 16.5,
+    "q25": 15.0,
     "q75": 18.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_THI_H_temperature_humidity_index_human_gt27_hot_days.tif": {
     "min": 0.0,
-    "max": 114.5,
-    "mean": 20.0,
+    "max": 144.5,
+    "mean": 20.5,
     "median": 7.0,
     "q25": 1.5,
-    "q75": 32.5
+    "q75": 33.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_THI_L_temperature_humidity_index_livestock.tif": {
-    "min": 47.5,
-    "max": 71.5,
-    "mean": 63.5,
-    "median": 63.5,
-    "q25": 61.5,
+    "min": 34.0,
+    "max": 75.0,
+    "mean": 61.5,
+    "median": 61.5,
+    "q25": 58.5,
     "q75": 65.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_THI_L_temperature_humidity_index_livestock_gt72_hot_days.tif": {
     "min": 23.0,
-    "max": 152.0,
-    "mean": 78.0,
-    "median": 81.0,
-    "q25": 70.0,
-    "q75": 88.5
+    "max": 215.0,
+    "mean": 99.5,
+    "median": 90.0,
+    "q25": 73.5,
+    "q75": 118.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_TNN_min_daily_min_temp.tif": {
     "min": -31.5,
@@ -3500,7 +3700,7 @@
     "max": 237.5,
     "mean": 74.0,
     "median": 68.0,
-    "q25": 40.0,
+    "q25": 39.5,
     "q75": 100.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_TXN_min_daily_max_temp.tif": {
@@ -3520,67 +3720,627 @@
     "q75": 45.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_UTCI_universal_thermal_climate_index.tif": {
-    "min": -17.5,
-    "max": 25.5,
-    "mean": 13.0,
-    "median": 13.5,
-    "q25": 10.0,
-    "q75": 16.5
+    "min": -16.0,
+    "max": 28.5,
+    "mean": 15.5,
+    "median": 15.5,
+    "q25": 12.5,
+    "q75": 18.5
   },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_UTCI_universal_thermal_climate_index_gt32_hot_days.tif": {
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_UTCI_universal_thermal_climate_index_bw0_9_slight_cold_days.tif": {
+    "min": 0.0,
+    "max": 111.0,
+    "mean": 69.0,
+    "median": 74.0,
+    "q25": 57.0,
+    "q75": 84.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_UTCI_universal_thermal_climate_index_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 249.5,
+    "mean": 151.5,
+    "median": 154.5,
+    "q25": 140.5,
+    "q75": 167.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_UTCI_universal_thermal_climate_index_gt26_moderate_heat_days.tif": {
+    "min": 31.0,
+    "max": 211.5,
+    "mean": 98.5,
+    "median": 90.5,
+    "q25": 75.0,
+    "q75": 116.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_UTCI_universal_thermal_climate_index_gt32_strong_heat_days.tif": {
     "min": 0.5,
-    "max": 125.0,
-    "mean": 35.0,
+    "max": 174.5,
+    "mean": 37.5,
     "median": 24.0,
     "q25": 14.0,
-    "q75": 49.0
+    "q75": 49.5
   },
-  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_UTCI_universal_thermal_climate_index_ltm13_cold_days.tif": {
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_UTCI_universal_thermal_climate_index_gt38_very_strong_heat_days.tif": {
     "min": 0.0,
-    "max": 248.5,
-    "mean": 25.5,
-    "median": 14.0,
-    "q25": 3.5,
-    "q75": 38.0
+    "max": 85.5,
+    "mean": 7.5,
+    "median": 0.5,
+    "q25": 0.0,
+    "q75": 5.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_UTCI_universal_thermal_climate_index_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 264.5,
+    "mean": 46.5,
+    "median": 39.0,
+    "q25": 13.0,
+    "q75": 72.0
+  },
+  "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_UTCI_universal_thermal_climate_index_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 237.5,
+    "mean": 17.0,
+    "median": 6.0,
+    "q25": 0.5,
+    "q75": 22.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_VD_ventilation_potential.tif": {
-    "min": -65.5,
-    "max": 202.5,
-    "mean": 40.5,
-    "median": 37.0,
-    "q25": 27.5,
-    "q75": 48.5
+    "min": -63.0,
+    "max": 204.0,
+    "mean": 41.0,
+    "median": 37.5,
+    "q25": 28.0,
+    "q75": 49.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_WBGT_wet_bulb_globe_temperature.tif": {
-    "min": 0.0,
-    "max": 16.0,
-    "mean": 10.5,
-    "median": 10.0,
-    "q25": 9.0,
-    "q75": 11.5
+    "min": -1.5,
+    "max": 22.5,
+    "mean": 14.0,
+    "median": 13.5,
+    "q25": 12.0,
+    "q75": 16.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_WCI_wind_chill_index.tif": {
     "min": -7.0,
-    "max": 29.0,
+    "max": 28.0,
     "mean": 17.5,
-    "median": 17.5,
-    "q25": 15.0,
-    "q75": 19.5
+    "median": 18.0,
+    "q25": 15.5,
+    "q75": 20.0
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_WCI_wind_chill_index_ltm10_cold_days.tif": {
     "min": 0.0,
-    "max": 195.5,
-    "mean": 4.0,
+    "max": 201.5,
+    "mean": 3.0,
     "median": 0.0,
     "q25": 0.0,
-    "q75": 2.5
+    "q75": 1.5
   },
   "CHELSA_TR_clim_1995_2014_sum_Ensemble_GCMs_ssp585_2081_2100_WSDI_warm_spell_duration_index.tif": {
     "min": 139.5,
-    "max": 304.0,
+    "max": 303.5,
     "mean": 206.0,
     "median": 206.5,
     "q25": 178.5,
     "q75": 231.0
+  },
+  "CHELSA_TR_clim_1995_2014_AI_aridity_index.tif": {
+    "min": 0.0,
+    "max": 3.5,
+    "mean": 0.5,
+    "median": 0.5,
+    "q25": 0.5,
+    "q75": 0.5
+  },
+  "CHELSA_TR_clim_1995_2014_AT_apparent_temperature.tif": {
+    "min": -18.0,
+    "max": 22.0,
+    "mean": 8.5,
+    "median": 8.5,
+    "q25": 5.5,
+    "q75": 12.0
+  },
+  "CHELSA_TR_clim_1995_2014_CDD_A_cooling_degree_days_approx.tif": {
+    "min": 0.0,
+    "max": 1875.0,
+    "mean": 603.5,
+    "median": 541.5,
+    "q25": 445.0,
+    "q75": 650.0
+  },
+  "CHELSA_TR_clim_1995_2014_CDD_P_consecutive_dry_days.tif": {
+    "min": 13.5,
+    "max": 138.5,
+    "mean": 44.5,
+    "median": 41.0,
+    "q25": 30.0,
+    "q75": 52.0
+  },
+  "CHELSA_TR_clim_1995_2014_CDD_cooling_degree_days.tif": {
+    "min": 0.0,
+    "max": 1684.5,
+    "mean": 253.5,
+    "median": 146.0,
+    "q25": 45.0,
+    "q75": 318.5
+  },
+  "CHELSA_TR_clim_1995_2014_CD_cooling_days.tif": {
+    "min": 0.0,
+    "max": 184.5,
+    "mean": 67.0,
+    "median": 63.0,
+    "q25": 28.5,
+    "q75": 97.0
+  },
+  "CHELSA_TR_clim_1995_2014_CSDI_cold_spell_duration_index.tif": {
+    "min": 0.5,
+    "max": 14.0,
+    "mean": 4.0,
+    "median": 3.5,
+    "q25": 3.0,
+    "q75": 4.5
+  },
+  "CHELSA_TR_clim_1995_2014_CWD_consecutive_wet_days.tif": {
+    "min": 5.5,
+    "max": 11.5,
+    "mean": 7.5,
+    "median": 7.5,
+    "q25": 7.0,
+    "q75": 8.0
+  },
+  "CHELSA_TR_clim_1995_2014_CW_cold_wave_index.tif": {
+    "min": 0.0,
+    "max": 364.0,
+    "mean": 83.5,
+    "median": 81.0,
+    "q25": 38.5,
+    "q75": 119.5
+  },
+  "CHELSA_TR_clim_1995_2014_DI_discomfort_index.tif": {
+    "min": -3.5,
+    "max": 19.5,
+    "mean": 12.0,
+    "median": 12.0,
+    "q25": 10.5,
+    "q75": 14.0
+  },
+  "CHELSA_TR_clim_1995_2014_DTR_diurnal_temperature_range.tif": {
+    "min": 1.5,
+    "max": 15.5,
+    "mean": 11.5,
+    "median": 11.5,
+    "q25": 11.0,
+    "q75": 12.5
+  },
+  "CHELSA_TR_clim_1995_2014_ESI_environmental_stress_index.tif": {
+    "min": -10.0,
+    "max": 18.5,
+    "mean": 9.5,
+    "median": 9.5,
+    "q25": 7.0,
+    "q75": 12.0
+  },
+  "CHELSA_TR_clim_1995_2014_ET_normal_effective_temperature.tif": {
+    "min": -6.0,
+    "max": 19.0,
+    "mean": 11.0,
+    "median": 11.0,
+    "q25": 9.0,
+    "q75": 13.5
+  },
+  "CHELSA_TR_clim_1995_2014_FD_frost_days.tif": {
+    "min": 0.0,
+    "max": 364.0,
+    "mean": 91.0,
+    "median": 90.5,
+    "q25": 47.5,
+    "q75": 127.0
+  },
+  "CHELSA_TR_clim_1995_2014_GDD_growing_degree_days.tif": {
+    "min": 15.0,
+    "max": 6046.5,
+    "mean": 2958.0,
+    "median": 2844.5,
+    "q25": 2265.5,
+    "q75": 3539.5
+  },
+  "CHELSA_TR_clim_1995_2014_GD_growing_days.tif": {
+    "min": 12.0,
+    "max": 365.0,
+    "mean": 269.0,
+    "median": 269.5,
+    "q25": 234.5,
+    "q75": 307.5
+  },
+  "CHELSA_TR_clim_1995_2014_GSL_growing_season_length.tif": {
+    "min": 0.0,
+    "max": 365.0,
+    "mean": 274.5,
+    "median": 272.5,
+    "q25": 233.0,
+    "q75": 322.0
+  },
+  "CHELSA_TR_clim_1995_2014_HDD_heating_degree_days.tif": {
+    "min": 560.5,
+    "max": 10252.5,
+    "mean": 2843.0,
+    "median": 2731.5,
+    "q25": 2075.5,
+    "q75": 3434.0
+  },
+  "CHELSA_TR_clim_1995_2014_HD_heating_days.tif": {
+    "min": 142.5,
+    "max": 365.0,
+    "mean": 259.5,
+    "median": 258.5,
+    "q25": 228.0,
+    "q75": 291.0
+  },
+  "CHELSA_TR_clim_1995_2014_HI_heat_index.tif": {
+    "min": -13.5,
+    "max": 21.5,
+    "mean": 10.5,
+    "median": 10.5,
+    "q25": 7.5,
+    "q75": 13.0
+  },
+  "CHELSA_TR_clim_1995_2014_HI_heat_index_gt32_hot_days.tif": {
+    "min": 0.0,
+    "max": 84.5,
+    "mean": 2.0,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_HMX_humidex.tif": {
+    "min": -14.5,
+    "max": 24.5,
+    "mean": 11.0,
+    "median": 10.5,
+    "q25": 7.5,
+    "q75": 14.5
+  },
+  "CHELSA_TR_clim_1995_2014_HW_heat_wave_index.tif": {
+    "min": 0.0,
+    "max": 157.0,
+    "mean": 40.5,
+    "median": 28.5,
+    "q25": 11.0,
+    "q75": 56.5
+  },
+  "CHELSA_TR_clim_1995_2014_ID_ice_days.tif": {
+    "min": 0.0,
+    "max": 215.0,
+    "mean": 19.0,
+    "median": 9.5,
+    "q25": 2.0,
+    "q75": 25.0
+  },
+  "CHELSA_TR_clim_1995_2014_MRT_mean_radiant_temperature.tif": {
+    "min": 4.5,
+    "max": 25.5,
+    "mean": 15.5,
+    "median": 15.0,
+    "q25": 13.5,
+    "q75": 18.0
+  },
+  "CHELSA_TR_clim_1995_2014_PCD_passive_comfort_days.tif": {
+    "min": 0.0,
+    "max": 163.5,
+    "mean": 79.5,
+    "median": 86.5,
+    "q25": 66.5,
+    "q75": 97.5
+  },
+  "CHELSA_TR_clim_1995_2014_PNP_percent_of_normal_precip.tif": {
+    "min": 100.0,
+    "max": 100.0,
+    "mean": 100.0,
+    "median": 100.0,
+    "q25": 100.0,
+    "q75": 100.0
+  },
+  "CHELSA_TR_clim_1995_2014_PPD_predicted_percentage_of_dissatisfied.tif": {
+    "min": 69.0,
+    "max": 100.0,
+    "mean": 90.0,
+    "median": 92.0,
+    "q25": 84.5,
+    "q75": 96.5
+  },
+  "CHELSA_TR_clim_1995_2014_PRCPTOT_annual_total_precip.tif": {
+    "min": 0.0,
+    "max": 2086.5,
+    "mean": 588.0,
+    "median": 558.0,
+    "q25": 445.0,
+    "q75": 692.5
+  },
+  "CHELSA_TR_clim_1995_2014_R10MM_heavy_precip_days.tif": {
+    "min": 0.5,
+    "max": 71.5,
+    "mean": 16.0,
+    "median": 15.0,
+    "q25": 8.5,
+    "q75": 21.5
+  },
+  "CHELSA_TR_clim_1995_2014_R20MM_very_heavy_precip_days.tif": {
+    "min": 0.0,
+    "max": 34.0,
+    "mean": 3.5,
+    "median": 2.5,
+    "q25": 1.0,
+    "q75": 5.0
+  },
+  "CHELSA_TR_clim_1995_2014_R95P_very_wet_days.tif": {
+    "min": 2.5,
+    "max": 8.0,
+    "mean": 5.0,
+    "median": 4.5,
+    "q25": 4.0,
+    "q75": 5.5
+  },
+  "CHELSA_TR_clim_1995_2014_R99P_extremely_wet_days.tif": {
+    "min": 0.5,
+    "max": 1.5,
+    "mean": 1.0,
+    "median": 1.0,
+    "q25": 1.0,
+    "q75": 1.0
+  },
+  "CHELSA_TR_clim_1995_2014_RX1DAY_max_1day_precip.tif": {
+    "min": 9.5,
+    "max": 78.0,
+    "mean": 30.5,
+    "median": 28.5,
+    "q25": 22.0,
+    "q75": 37.0
+  },
+  "CHELSA_TR_clim_1995_2014_RX5DAY_max_5day_precip.tif": {
+    "min": 23.5,
+    "max": 165.0,
+    "mean": 64.0,
+    "median": 59.5,
+    "q25": 45.5,
+    "q75": 76.5
+  },
+  "CHELSA_TR_clim_1995_2014_SDII_daily_intensity_index.tif": {
+    "min": 3.0,
+    "max": 12.5,
+    "mean": 6.0,
+    "median": 6.0,
+    "q25": 5.0,
+    "q75": 7.0
+  },
+  "CHELSA_TR_clim_1995_2014_SET_standard_effective_temperature.tif": {
+    "min": 9.5,
+    "max": 21.5,
+    "mean": 15.5,
+    "median": 15.0,
+    "q25": 14.0,
+    "q75": 16.5
+  },
+  "CHELSA_TR_clim_1995_2014_SPEI12_standardized_pet_index_12.tif": {
+    "min": 0.0,
+    "max": 0.0,
+    "mean": 0.0,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_SPI12_standardized_precip_index_12.tif": {
+    "min": 0.0,
+    "max": 0.0,
+    "mean": 0.0,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_SU_summer_days.tif": {
+    "min": 0.0,
+    "max": 202.0,
+    "mean": 104.0,
+    "median": 104.0,
+    "q25": 78.5,
+    "q75": 127.5
+  },
+  "CHELSA_TR_clim_1995_2014_THI_C_temperature_humidity_index_crop.tif": {
+    "min": 25.0,
+    "max": 66.5,
+    "mean": 54.0,
+    "median": 54.0,
+    "q25": 50.5,
+    "q75": 57.5
+  },
+  "CHELSA_TR_clim_1995_2014_THI_C_temperature_humidity_index_crop_gt60_hot_days.tif": {
+    "min": 0.0,
+    "max": 261.5,
+    "mean": 127.5,
+    "median": 128.0,
+    "q25": 97.5,
+    "q75": 161.5
+  },
+  "CHELSA_TR_clim_1995_2014_THI_H_temperature_humidity_index_human.tif": {
+    "min": -3.5,
+    "max": 19.5,
+    "mean": 12.0,
+    "median": 12.0,
+    "q25": 10.0,
+    "q75": 14.0
+  },
+  "CHELSA_TR_clim_1995_2014_THI_H_temperature_humidity_index_human_gt27_hot_days.tif": {
+    "min": 0.0,
+    "max": 64.5,
+    "mean": 0.5,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_THI_L_temperature_humidity_index_livestock.tif": {
+    "min": 25.5,
+    "max": 67.0,
+    "mean": 54.0,
+    "median": 54.0,
+    "q25": 50.5,
+    "q75": 57.5
+  },
+  "CHELSA_TR_clim_1995_2014_THI_L_temperature_humidity_index_livestock_gt72_hot_days.tif": {
+    "min": 0.0,
+    "max": 144.5,
+    "mean": 23.0,
+    "median": 6.0,
+    "q25": 0.5,
+    "q75": 31.0
+  },
+  "CHELSA_TR_clim_1995_2014_TNN_min_daily_min_temp.tif": {
+    "min": -38.5,
+    "max": 6.5,
+    "mean": -13.5,
+    "median": -13.5,
+    "q25": -17.5,
+    "q75": -9.0
+  },
+  "CHELSA_TR_clim_1995_2014_TNX_max_daily_min_temp.tif": {
+    "min": -0.5,
+    "max": 31.0,
+    "mean": 19.5,
+    "median": 19.5,
+    "q25": 17.0,
+    "q75": 22.0
+  },
+  "CHELSA_TR_clim_1995_2014_TR_EXT_extended_tropical_nights.tif": {
+    "min": 0.0,
+    "max": 65.0,
+    "mean": 1.5,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_TR_tropical_nights.tif": {
+    "min": 0.0,
+    "max": 147.5,
+    "mean": 14.0,
+    "median": 0.5,
+    "q25": 0.0,
+    "q75": 11.5
+  },
+  "CHELSA_TR_clim_1995_2014_TXN_min_daily_max_temp.tif": {
+    "min": -27.0,
+    "max": 10.0,
+    "mean": -4.0,
+    "median": -4.0,
+    "q25": -7.0,
+    "q75": -0.5
+  },
+  "CHELSA_TR_clim_1995_2014_TXX_max_daily_max_temp.tif": {
+    "min": 15.5,
+    "max": 46.0,
+    "mean": 35.5,
+    "median": 35.5,
+    "q25": 33.5,
+    "q75": 37.0
+  },
+  "CHELSA_TR_clim_1995_2014_UTCI_universal_thermal_climate_index.tif": {
+    "min": -22.0,
+    "max": 21.5,
+    "mean": 9.0,
+    "median": 9.0,
+    "q25": 6.0,
+    "q75": 12.5
+  },
+  "CHELSA_TR_clim_1995_2014_UTCI_universal_thermal_climate_index_bw0_9_slight_cold_days.tif": {
+    "min": 0.0,
+    "max": 110.5,
+    "mean": 78.5,
+    "median": 78.0,
+    "q25": 71.5,
+    "q75": 86.0
+  },
+  "CHELSA_TR_clim_1995_2014_UTCI_universal_thermal_climate_index_bw9_26_comfort_days.tif": {
+    "min": 0.0,
+    "max": 267.0,
+    "mean": 173.5,
+    "median": 177.5,
+    "q25": 161.5,
+    "q75": 191.0
+  },
+  "CHELSA_TR_clim_1995_2014_UTCI_universal_thermal_climate_index_gt26_moderate_heat_days.tif": {
+    "min": 0.0,
+    "max": 148.0,
+    "mean": 24.0,
+    "median": 9.0,
+    "q25": 2.0,
+    "q75": 32.5
+  },
+  "CHELSA_TR_clim_1995_2014_UTCI_universal_thermal_climate_index_gt32_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 80.5,
+    "mean": 2.5,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_UTCI_universal_thermal_climate_index_gt38_very_strong_heat_days.tif": {
+    "min": 0.0,
+    "max": 8.0,
+    "mean": 0.0,
+    "median": 0.0,
+    "q25": 0.0,
+    "q75": 0.0
+  },
+  "CHELSA_TR_clim_1995_2014_UTCI_universal_thermal_climate_index_lt0_cold_days.tif": {
+    "min": 0.0,
+    "max": 320.0,
+    "mean": 89.0,
+    "median": 86.0,
+    "q25": 51.5,
+    "q75": 120.5
+  },
+  "CHELSA_TR_clim_1995_2014_UTCI_universal_thermal_climate_index_ltm13_strong_cold_days.tif": {
+    "min": 0.0,
+    "max": 240.0,
+    "mean": 23.0,
+    "median": 11.5,
+    "q25": 4.0,
+    "q75": 31.0
+  },
+  "CHELSA_TR_clim_1995_2014_VD_ventilation_potential.tif": {
+    "min": -68.5,
+    "max": 176.0,
+    "mean": 28.0,
+    "median": 25.0,
+    "q25": 17.5,
+    "q75": 34.5
+  },
+  "CHELSA_TR_clim_1995_2014_WBGT_wet_bulb_globe_temperature.tif": {
+    "min": -6.5,
+    "max": 18.0,
+    "mean": 9.0,
+    "median": 9.0,
+    "q25": 7.0,
+    "q75": 11.5
+  },
+  "CHELSA_TR_clim_1995_2014_WCI_wind_chill_index.tif": {
+    "min": -13.0,
+    "max": 21.5,
+    "mean": 12.0,
+    "median": 12.0,
+    "q25": 9.5,
+    "q75": 14.5
+  },
+  "CHELSA_TR_clim_1995_2014_WCI_wind_chill_index_ltm10_cold_days.tif": {
+    "min": 0.0,
+    "max": 200.5,
+    "mean": 5.5,
+    "median": 1.0,
+    "q25": 0.0,
+    "q75": 4.0
+  },
+  "CHELSA_TR_clim_1995_2014_WSDI_warm_spell_duration_index.tif": {
+    "min": 0.0,
+    "max": 11.0,
+    "mean": 5.0,
+    "median": 5.5,
+    "q25": 4.0,
+    "q75": 6.5
   }
 }
