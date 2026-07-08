@@ -35,3 +35,4 @@ inventory_TR.csv
 
 # Streamlit cache
 .streamlit/cache/
+push_log.txt
