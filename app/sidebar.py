@@ -529,10 +529,11 @@ def _multi_indice_tab_fragment(files: List[IndexFile]) -> None:
 # ===========================================================================
 
 def _render_about_panel() -> None:
+    st.markdown('<div style="margin-top: 28px;"></div>', unsafe_allow_html=True)
     with st.expander("About", expanded=False):
         st.markdown(
             "**Climate Indices Map Tool**\n\n"
-            "Visualizes 64 climate and bio-climate indices for Türkiye, "
+            "Visualizes 55 climate and bio-climate indices for Türkiye, "
             "computed from 1 km daily CHELSA observed climatology (1995-2014) "
             "and from a 10-member ensemble of 0.5° daily GCMs projected to "
             "mid-century (2041-2060) and end-century (2081-2100) under three "
@@ -541,15 +542,18 @@ def _render_about_panel() -> None:
             "- **SSP245** — Intermediate (middle-of-the-road)\n"
             "- **SSP585** — High-Emission (fossil-fueled, pessimistic)\n\n"
             "Indices are organized into:\n"
-            "- **Climate Indices** — Temperature, Precipitation, Drought, "
+            "- **Climate Indices** (36) — Temperature, Precipitation, Drought, "
             "Energy, Agriculture\n"
-            "- **Bio-Climate Indices** — Human Comfort, "
-            "Agriculture & Livestock, Atmospheric Comfort"
+            "- **Bio-Climate Indices** (19) — Human Comfort, "
+            "Agriculture & Livestock, Atmospheric Comfort\n\n"
+            "For SSP scenarios, UTCI is additionally computed with "
+            "hypothetical urban temperature increments to represent urban "
+            "heat island effects (+0.5°C, +1.0°C, +1.5°C, +2.0°C)."
         )
-
+        st.divider()
         with st.expander("Indices Reference", expanded=False):
             st.caption(
-                "Code, full name, formula and unit for all 64 indices. "
+                "Code, full name, formula and unit for all 55 indices. "
                 "Bio-climate indices are summarized via their input variables."
             )
             for cat in ["CLIMATE", "BIO_CLIMATE"]:
