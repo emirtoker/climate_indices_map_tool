@@ -248,9 +248,18 @@ def parse_tif_filename(filename: str) -> Dict[str, Any]:
         "ref_period": None,
         "catalog_code": "",
         "uhi_level": None,
+        "is_pct": False,
     }
 
     name = filename.replace(".tif", "")
+
+    # YAGIS yuzde-degisim varyanti: "..._PRCPTOT_annual_total_precip_pct"
+    # _pct'yi CIKAR, sonra catalog_code'a "_PCT" ekleyerek ayri katman yap.
+    is_pct = False
+    if name.lower().endswith("_pct"):
+        is_pct = True
+        name = name[:-4]  # "_pct" kaldir
+    out["is_pct"] = is_pct
 
     # UHI etiketi: "..._{ssp}_{futS}_{futE}_UHI05_UTCI_..." -> uhi_level="05"
     # UHI'yi isimden CIKAR ki geri kalan normal UTCI gibi parse edilsin.
@@ -331,6 +340,15 @@ def parse_tif_filename(filename: str) -> Dict[str, Any]:
         else:
             if found_code in INDICES_CATALOG:
                 out["catalog_code"] = found_code
+
+    # YAGIS _pct: catalog_code'a "_PCT" ekle (ayri katman: PRCPTOT_PCT vs)
+    if out.get("is_pct") and out["catalog_code"]:
+        pct_code = f"{out['catalog_code']}_PCT"
+        if pct_code in INDICES_CATALOG:
+            out["catalog_code"] = pct_code
+        else:
+            # _PCT katalog'da yoksa bu tif'i eslesmez say (gorunmez)
+            out["catalog_code"] = ""
 
     return out
 

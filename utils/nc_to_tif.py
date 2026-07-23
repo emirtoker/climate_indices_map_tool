@@ -297,6 +297,8 @@ def build_cog_tags(parsed: Dict[str, Any], catalog_entry: Dict[str, Any]) -> Dic
         "SHORT_DESCRIPTION":    catalog_entry["short_description"],
         "IS_THRESHOLD_VARIANT": str(catalog_entry["is_threshold_variant"]),
     }
+    if parsed.get("is_pct"):
+        tags["IS_PCT"] = "True"
     if parsed.get("scenario"):
         tags["SCENARIO"] = parsed["scenario"]
     if parsed.get("ref_period"):
@@ -539,9 +541,10 @@ def main():
 
     for nc_path in all_nc:
         parsed = parse_filename(nc_path.name)
-        if parsed["is_pct"]:
-            skipped_pct += 1
-            continue
+        # _pct varyantlari da tif'e cevrilir (yagis yuzde-degisim haritalari)
+        # if parsed["is_pct"]:  # ARTIK ATLANMIYOR
+        #     skipped_pct += 1
+        #     continue
         if parsed["is_calibration_leftover"]:
             skipped_leftover += 1
             continue
@@ -554,7 +557,7 @@ def main():
     print()
     print("Filter summary:")
     print(f"  total .nc found        : {len(all_nc)}")
-    print(f"  skipped: _pct variant  : {skipped_pct}")
+    print(f"  _pct variant (tif'e dahil): {skipped_pct} (artik islenir)")
     print(f"  skipped: 1995-1996     : {skipped_leftover}")
     print(f"  skipped: not in catalog: {skipped_unknown}")
     print(f"  -> to process          : {len(to_process)}")

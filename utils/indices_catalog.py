@@ -391,7 +391,7 @@ INDICES_CATALOG = {
         "long_name": "Max 1-Day Precipitation",
         "category": "CLIMATE",
         "subcategory": "PRECIPITATION",
-        "unit": "mm/day",
+        "unit": "mm",
         "formula": "max(daily PR)",
         "short_description": "Annual maximum precipitation in a single day.",
         "long_description": "A primary driver of flash floods. Determines the capacity limits of urban sewer and stormwater drainage systems.",
@@ -427,6 +427,72 @@ INDICES_CATALOG = {
         "formula": "sum(PR) / wet_days, where PR >= 1 mm/day",
         "short_description": "Average precipitation amount on wet days (PR >= 1 mm).",
         "long_description": "Indicates the intensity of precipitation events. High values drive soil erosion and increase surface runoff, reducing groundwater infiltration.",
+        "source_variables": ["pr"],
+        "is_threshold_variant": False,
+        "parent_code": None,
+        "threshold": None,
+    },
+
+    # ====================================================================
+    # YAGIS YUZDE-DEGISIM VARYANTLARI (_pct) — gelecek projeksiyonlari icin
+    # abs: CHELSA+delta (mm) | pct: CHELSA*(1+delta/100) -> yuzde degisim haritasi
+    # Ayri katman olarak sidebar'da abs'in altinda gorunur.
+    # ====================================================================
+    "PRCPTOT_PCT": {
+        "code": "PRCPTOT_PCT",
+        "display_code": "PRCPTOT (%)",
+        "long_name": "Annual Total Precipitation (% change-scaled)",
+        "category": "CLIMATE",
+        "subcategory": "PRECIPITATION",
+        "unit": "mm",
+        "formula": "CHELSA * (1 + delta_pct/100)",
+        "short_description": "Future annual precipitation, scaled by GCM percentage change (spatially consistent).",
+        "long_description": "Precipitation projection using percentage-change scaling rather than absolute delta. Preferred for precipitation because relative change is spatially coherent across wet and dry regions.",
+        "source_variables": ["pr"],
+        "is_threshold_variant": False,
+        "parent_code": None,
+        "threshold": None,
+    },
+    "RX1DAY_PCT": {
+        "code": "RX1DAY_PCT",
+        "display_code": "RX1DAY (%)",
+        "long_name": "Max 1-Day Precipitation (% change-scaled)",
+        "category": "CLIMATE",
+        "subcategory": "PRECIPITATION",
+        "unit": "mm",
+        "formula": "CHELSA * (1 + delta_pct/100)",
+        "short_description": "Future max 1-day precipitation, scaled by GCM percentage change.",
+        "long_description": "Percentage-scaled projection of extreme daily precipitation. Relevant for flash-flood and drainage-capacity assessment under climate change.",
+        "source_variables": ["pr"],
+        "is_threshold_variant": False,
+        "parent_code": None,
+        "threshold": None,
+    },
+    "RX5DAY_PCT": {
+        "code": "RX5DAY_PCT",
+        "display_code": "RX5DAY (%)",
+        "long_name": "Max 5-Day Precipitation (% change-scaled)",
+        "category": "CLIMATE",
+        "subcategory": "PRECIPITATION",
+        "unit": "mm",
+        "formula": "CHELSA * (1 + delta_pct/100)",
+        "short_description": "Future max 5-day precipitation, scaled by GCM percentage change.",
+        "long_description": "Percentage-scaled projection of multi-day extreme precipitation. Key signal for flooding and landslide risk under future scenarios.",
+        "source_variables": ["pr"],
+        "is_threshold_variant": False,
+        "parent_code": None,
+        "threshold": None,
+    },
+    "SDII_PCT": {
+        "code": "SDII_PCT",
+        "display_code": "SDII (%)",
+        "long_name": "Simple Daily Intensity Index (% change-scaled)",
+        "category": "CLIMATE",
+        "subcategory": "PRECIPITATION",
+        "unit": "mm/day",
+        "formula": "CHELSA * (1 + delta_pct/100)",
+        "short_description": "Future daily precipitation intensity, scaled by GCM percentage change.",
+        "long_description": "Percentage-scaled projection of precipitation intensity on wet days. Drives soil erosion and surface-runoff estimates in future scenarios.",
         "source_variables": ["pr"],
         "is_threshold_variant": False,
         "parent_code": None,
@@ -555,7 +621,7 @@ INDICES_CATALOG = {
         "long_name": "Standardized Precipitation Index (12-month)",
         "category": "CLIMATE",
         "subcategory": "DROUGHT",
-        "unit": "0-1",  # actually z-score, ~(-3,3)
+        "unit": "index",  # actually z-score, ~(-3,3)
         "formula": "Gamma distribution, 12-month rolling window",
         "short_description": "Standardized z-score of 12-month precipitation, relative to historical baseline.",
         "long_description": "A long-term meteorological drought indicator at the hydrological time scale. Captures impacts on reservoirs, groundwater, and long-duration droughts.",
@@ -571,7 +637,7 @@ INDICES_CATALOG = {
         "long_name": "Standardized Precipitation-Evapotranspiration Index (12-month)",
         "category": "CLIMATE",
         "subcategory": "DROUGHT",
-        "unit": "0-1",  # actually z-score
+        "unit": "index",  # actually z-score
         "formula": "Water balance (PR - PET), log-logistic distribution, 12-month window",
         "short_description": "Like SPI but also includes evapotranspiration; captures temperature-driven drying.",
         "long_description": "An advanced drought indicator that combines precipitation deficit with atmospheric demand. More sensitive than SPI to climate-change-driven drying.",
@@ -587,7 +653,7 @@ INDICES_CATALOG = {
         "long_name": "Aridity Index",
         "category": "CLIMATE",
         "subcategory": "DROUGHT",
-        "unit": "0-1",
+        "unit": "index",
         "formula": "PR_annual / PET_annual",
         "short_description": "Ratio of annual precipitation to potential evapotranspiration (UNEP 1992).",
         "long_description": "Indicates regional aridity and desertification trends. Values below 0.65 indicate arid or semi-arid zones at risk of desertification.",
@@ -987,7 +1053,7 @@ INDICES_CATALOG = {
         "long_name": "Predicted Mean Vote",
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
-        "unit": "0-1",  # actually -3..+3 scale
+        "unit": "index",  # actually -3..+3 scale
         "formula": "Fanger (1970), ISO 7730: f(TA, HURS, sfcWind, MRT, met, clo)",
         "short_description": "Predicted average thermal sensation on the 7-point ASHRAE scale (-3 cold to +3 hot).",
         "long_description": "An ISO 7730 indoor comfort indicator. PMV near 0 is neutral; values beyond +/- 0.5 indicate noticeable discomfort.",
@@ -1052,7 +1118,7 @@ INDICES_CATALOG = {
         "category": "BIO_CLIMATE",
         "subcategory": "HUMAN_COMFORT",
         "unit": "°C",
-        "formula": "(TBD)",
+        "formula": "0.7 * Twb + 0.2 * MRT + 0.1 * TA (ISO 7933, outdoor)",
         "short_description": "Heat-stress indicator used in occupational safety, sports and the military.",
         "long_description": "The standard for managing heat exposure in workers, athletes, and soldiers. Above 28 °C, sustained physical activity becomes dangerous.",
         "source_variables": ["tas", "hurs", "rsds", "rlds"],
@@ -1103,8 +1169,8 @@ INDICES_CATALOG = {
         "long_name": "Temperature-Humidity Index (Human)",
         "category": "BIO_CLIMATE",
         "subcategory": "LIVESTOCK",
-        "unit": "0-1",  # dimensionless score
-        "formula": "(TBD)",
+        "unit": "°C",  # dimensionless score
+        "formula": "Berry (1964): Fahrenheit-based THI, converted to °C",
         "short_description": "Empirical heat-humidity stress score for humans (Berry 1964).",
         "long_description": "The original NOAA Temperature-Humidity Index, used as a benchmark in older public-health and biometeorological studies. Above 27 indicates discomfort.",
         "source_variables": ["tas", "hurs"],
@@ -1115,7 +1181,7 @@ INDICES_CATALOG = {
 
     "THI_H_GT27": {
         "code": "THI_H_GT27",
-        "display_code": "THI_H (> 27)",
+        "display_code": "THI_H (> 27 °C)",
         "long_name": "Hot Days (THI Human)",
         "category": "BIO_CLIMATE",
         "subcategory": "LIVESTOCK",
@@ -1126,7 +1192,7 @@ INDICES_CATALOG = {
         "source_variables": ["tas", "hurs"],
         "is_threshold_variant": True,
         "parent_code": "THI_H",
-        "threshold": {"operator": ">", "value": 27, "unit": ""},
+        "threshold": {"operator": ">", "value": 27, "unit": "°C"},
     },
 
     "THI_L": {
@@ -1135,7 +1201,7 @@ INDICES_CATALOG = {
         "long_name": "Temperature-Humidity Index (Livestock)",
         "category": "BIO_CLIMATE",
         "subcategory": "LIVESTOCK",
-        "unit": "0-1",  # dimensionless score
+        "unit": "index",  # dimensionless score
         "formula": "Bianca (1962): THI = 0.8 * TA + (HURS/100) * (TA - 14.4) + 46.4",
         "short_description": "Heat-stress indicator for cattle and other livestock.",
         "long_description": "Dairy cattle begin losing milk yield when THI_L > 72. Used by the livestock industry to plan barn ventilation and water provision.",
@@ -1167,7 +1233,7 @@ INDICES_CATALOG = {
         "long_name": "Temperature-Humidity Index (Crop)",
         "category": "BIO_CLIMATE",
         "subcategory": "LIVESTOCK",
-        "unit": "0-1",  # dimensionless score
+        "unit": "index",  # dimensionless score
         "formula": "Yousef (1985): THI = TA + 0.36 * Tdp + 41.2",
         "short_description": "Heat-stress indicator for crops, based on temperature and dew point.",
         "long_description": "Predicts heat stress on crops such as maize, wheat, and grapes. Useful for agricultural planning and risk assessment under changing climates.",
@@ -1267,7 +1333,7 @@ INDICES_CATALOG = {
         "long_name": "Ventilation Potential",
         "category": "BIO_CLIMATE",
         "subcategory": "ATMOSPHERIC",
-        "unit": "°C",
+        "unit": "°C·m/s",
         "formula": "VD = sfcWind * TA",
         "short_description": "Indicator of natural ventilation potential.",
         "long_description": "Used in urban climate and air-quality studies. Higher VD means better natural ventilation and dispersion of pollutants. Important for city planning.",
